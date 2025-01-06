@@ -1,5 +1,5 @@
 <template>
-  <view v-if="!loading" class="mbjs-el" style="padding:24px;">
+  <view class="mbjs-el" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
 
     <el-form
@@ -635,33 +635,25 @@ import BaseDivider from "@/components/base-divider.vue";
 
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = ref([])
-const zbObj = ref([])
+const zbObj = ref({})
 import heroesData from '../static/data/梦战英雄白字.csv?raw'
 import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 
-const loading = ref(true)
-onMounted(() => {
-  const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
-  heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-    return {
-      "英雄名": key,
-      list: list,
-    }
-  })
-  console.log(heroList.value)
-  const zbListSource = parseCSVToObjects(zbData);
-  zbObj.value = _.groupBy(zbListSource, '类别')
-  console.log(zbObj.value)
-  loading.value = false
+const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
+heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+  return {
+    "英雄名": key,
+    list: list,
+  }
 })
+console.log(heroList.value)
+const zbListSource = parseCSVToObjects(zbData);
+zbObj.value = _.groupBy(zbListSource, '类别')
+console.log(zbObj.value)
 
 
-const generateList = (number, handler) => {
-  return Array.from({length: number}, (v, k) => {
-    return handler(k)
-  })
-}
+
 const defaultJJJT = {
   "生命": 500,
   "攻击": 60,
