@@ -53,7 +53,7 @@ export function round(val, dp=0,rm=Big.roundHalfUp){
 
 export function parseCSVToObjects(data) {
     const lines = data.trim().split('\n'); // 按行分割并去掉首尾空行
-    const headers = lines[0].split(','); // 第一行作为键
+    const headers = lines[0].split(',').map(i=>i.replace("\r",'')); // 第一行作为键
 
     return lines.slice(1).map(line => {
         const values = line.split(','); // 分割每一行的值

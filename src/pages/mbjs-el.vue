@@ -31,7 +31,7 @@
               </el-form-item>
             </div>
             <img v-if="currentSelectedJob" style="width:120px;height:120px;display:block;"
-                 :src="currentSelectedJob?.['英雄头像\r']" alt="">
+                 :src="currentSelectedJob?.['英雄头像']" alt="">
           </div>
           <div>
             <el-form-item label=" ">
@@ -367,7 +367,7 @@
         </el-table>
         <div flex>
           <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
-               :src="currentSelectedJob?.['英雄头像\r']" alt="">
+               :src="currentSelectedJob?.['英雄头像']" alt="">
           <div class="green-list" style="max-width:400px;">
             <div class="item" style="width:300px;" v-for="key in mianbanList" :key="key">
               <div class="label" style="width:100px;">
@@ -554,7 +554,7 @@
                 </div>
               </div>
               <img v-if="currentSelectedJob" class="mr_16" style="width:120px;height:120px;display:block;"
-                   :src="currentSelectedJob?.['英雄头像\r']" alt="">
+                   :src="currentSelectedJob?.['英雄头像']" alt="">
             </div>
             <div>
               <div flex>
@@ -640,17 +640,20 @@ import heroesData from '../static/data/梦战英雄白字.csv?raw'
 import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 
-const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
-heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-  return {
-    "英雄名": key,
-    list: list,
-  }
+onMounted(()=>{
+  const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
+  heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+    return {
+      "英雄名": key,
+      list: list,
+    }
+  })
+  console.log(heroList.value)
+  const zbListSource = parseCSVToObjects(zbData);
+  zbObj.value = _.groupBy(zbListSource, '类别')
+  console.log(zbObj.value)
+
 })
-console.log(heroList.value)
-const zbListSource = parseCSVToObjects(zbData);
-zbObj.value = _.groupBy(zbListSource, '类别')
-console.log(zbObj.value)
 
 
 
@@ -916,13 +919,13 @@ const wqFormKey = {
 const wqSelectedObj = computed(() => {
   return Object.keys(wqFormKey).reduce((res, key) => {
     const list = zbObj.value[key]
-    res[key] = list?.find(item => item["装备名称"] === formData.value?.[wqFormKey[key]]) || list[0]
+    res[key] = list?.find(item => item["装备名称"] === formData.value?.[wqFormKey[key]]) || list?.[0]
     return res
   }, {})
 })
 const getWqDaibiao = (key) => {
   const selectedItem = wqSelectedObj.value[key]
-  return selectedItem[`代表\r`].trim().split("，")
+  return selectedItem?.[`代表`]?.trim()?.split("，")
 }
 
 const gmFm1Selected = computed(() => {
