@@ -1,5 +1,5 @@
 <template>
-  <view class="mbjs-el" style="padding:24px;">
+  <view v-if="!loading" class="mbjs-el" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
 
     <el-form
@@ -640,6 +640,7 @@ import heroesData from '../static/data/梦战英雄白字.csv?raw'
 import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 
+const loading = ref(true)
 onMounted(() => {
   const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
   heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
@@ -652,6 +653,7 @@ onMounted(() => {
   const zbListSource = parseCSVToObjects(zbData);
   zbObj.value = _.groupBy(zbListSource, '类别')
   console.log(zbObj.value)
+  loading.value = false
 })
 
 
@@ -922,7 +924,7 @@ const wqFormKey = {
 const wqSelectedObj = computed(() => {
   return Object.keys(wqFormKey).reduce((res, key) => {
     const list = zbObj.value[key]
-    res[key] = list.find(item => item["装备名称"] === formData.value?.[wqFormKey[key]]) || list[0]
+    res[key] = list?.find(item => item["装备名称"] === formData.value?.[wqFormKey[key]]) || list[0]
     return res
   }, {})
 })
