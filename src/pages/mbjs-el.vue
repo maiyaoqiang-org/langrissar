@@ -1,0 +1,1386 @@
+<template>
+  <view class="mbjs-el" style="padding:24px;">
+    <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
+
+    <el-form
+        style="min-width: 600px;"
+        label-width="120px" class="base-el-form" label-position="right" :inline="true"
+        :model="formData">
+      <el-card class="mb_16">
+        <template #header>
+          英雄白字区
+        </template>
+        <div flex>
+          <div flex class="mr_16">
+            <div flex-box="0">
+              <el-form-item label="选择英雄名">
+                <el-select v-model="formData.selected_hero_row" filterable>
+                  <el-option v-for="(item,index) in heroList" :value="item.英雄名" :key="index"
+                             :label="item.英雄名"></el-option>
+                </el-select>
+              </el-form-item>
+              <br>
+              <el-form-item label="选择职业">
+                <el-select v-model="formData.selected_job" filterable>
+                  <el-option
+                      v-for="(item,index) in currentSelectedHero?.list"
+                      :value="item.职业名"
+                      :key="index"
+                      :label="item.职业名"></el-option>
+                </el-select>
+              </el-form-item>
+            </div>
+            <img v-if="currentSelectedJob" style="width:120px;height:120px;display:block;"
+                 :src="currentSelectedJob?.['英雄头像\r']" alt="">
+          </div>
+          <div>
+            <el-form-item label=" ">
+              <el-checkbox v-model="formData.bz_input_can_edit" label="是否自定义白字"></el-checkbox>
+            </el-form-item>
+            <br>
+            <template v-for="(item,index) in mianbanList" :key="index">
+              <el-form-item :label="item">
+                <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :min="0"/>
+              </el-form-item>
+              <br>
+            </template>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          <div flex="cross:center">
+            <div>
+              神契设置区
+            </div>
+            <div style="margin-left: auto;">
+              <el-button @click="export_sq_cxzz">导出神契设置</el-button>
+              <el-button type="primary" @click="import_sq_cxzz">导入神契设置</el-button>
+            </div>
+          </div>
+
+        </template>
+        <div>
+          <el-form-item label="筛选神契">
+            <el-select style="min-width:300px;" v-model="sq_filter_data" filterable multiple clearable>
+              <el-option v-for="(item,index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
+                         :label="item">
+                <div flex="cross:center">
+                  <img class="mr_16" style="width:30px;height:30px;" :src="sq_slsb_dict[item].image" alt="">
+                  <div>
+                    {{ item }}
+                  </div>
+                </div>
+              </el-option>
+            </el-select>
+          </el-form-item>
+
+        </div>
+        <el-table
+            border
+            size="small"
+            :row-class-name="tableRowClassName"
+            :data="sq_slsb_show_table">
+          <el-table-column
+              v-for="(item,index) in sq_slsb_table_columns"
+              :fixed="item.fixed"
+              :key="index"
+              :width="item.width"
+              :label="item.label" :prop="item.prop">
+            <template #default="scope">
+              <template v-if="scope.row?.名称==='神契晨曦之祝加成'&&item.prop!=='名称'">
+                <div style="color:#999;">
+                  最大值{{ item.max }}
+                </div>
+                <mz-number-input style="width:120px;" :max="item.max" v-model="sq_cxzz[item.prop]"
+                                 :is-percent="item.isPercent" :min="0"></mz-number-input>
+              </template>
+              <template v-else>
+                <div v-if="item.prop==='名称'" flex="cross:center">
+                  <img
+                      v-if="sq_slsb_dict[scope.row[item.prop]]?.image"
+                      style="width:30px;height:30px;"
+                      class="mr_8"
+                      :src="sq_slsb_dict[scope.row[item.prop]]?.image"
+                      alt="">
+                  <div>
+                    {{ scope.row[item.prop] }}
+                  </div>
+
+                </div>
+                <span v-else-if="item.isPercent">{{ new Big(scope.row[item.prop]).times(100).toString() }}%</span>
+                <span v-else>{{ scope.row[item.prop] }}</span>
+              </template>
+
+
+            </template>
+
+          </el-table-column>
+        </el-table>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          英雄绿字区
+        </template>
+
+        <el-tabs model-value="装备" style="min-height: 300px;">
+          <el-tab-pane class="item-w-340" label="装备" name="装备">
+            <div flex>
+              <div>
+                <template v-for="(formKey,key) in wqFormKey" :key="key">
+                  <el-form-item :label="'请选择'+key">
+                    <el-select v-model="formData[formKey]" filterable>
+                      <el-option
+                          v-for="(zbItem,zbIndex) in zbObj[key]" :key="zbIndex"
+                          :label="zbItem.装备名称"
+                          :value="zbItem.装备名称"
+                      ></el-option>
+                    </el-select>
+                    <div>
+                      武器代表:
+                      <el-tag
+                          class="mr_8 bm_8"
+                          :key="index"
+                          type="primary"
+                          v-for="(item,index) in getWqDaibiao(key)">
+                        {{ item }}
+                      </el-tag>
+                    </div>
+                  </el-form-item>
+                  <br>
+                </template>
+
+              </div>
+
+              <div class="green-list" style="max-width:400px;">
+                <div class="item" v-for="key in mianbanList" :key="key">
+                  <div class="label" style="width:100px;">
+                    {{ key }}
+                  </div>
+                  <div class="value">
+                    +{{ zb_jc[key] }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </el-tab-pane>
+          <el-tab-pane class="item-w-200" label="附魔" name="附魔">
+            <div>
+              <el-form-item label="第一个共鸣2件套">
+                <el-select class="mb_8" v-model="formData.gm_fm_1" filterable>
+                  <el-option
+                      v-for="(item,index) in fmOptions"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                  >
+                    <div flex="cross:center">
+                      <img v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="">
+                      <div>
+                        {{ item.label }}
+                      </div>
+                    </div>
+                  </el-option>
+                </el-select>
+                <div flex="cross:center main:center" style="width:100%;min-height:50px;">
+                  <template v-if="gmFm1Selected?.image">
+                    <img v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
+                         :src="gmFm1Selected?.image"
+                         alt="">
+                  </template>
+                </div>
+              </el-form-item>
+              <el-form-item label="第二个共鸣2件套">
+                <el-select class="mb_8" v-model="formData.gm_fm_2" filterable>
+                  <el-option
+                      v-for="(item,index) in fmOptions"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                  >
+                    <div flex="cross:center">
+                      <img v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="">
+                      <div>
+                        {{ item.label }}
+                      </div>
+                    </div>
+                  </el-option>
+                </el-select>
+                <div flex="cross:center main:center" style="width:100%;min-height:50px;">
+                  <template v-if="gmFm2Selected?.image">
+                    <img v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
+                         :src="gmFm2Selected?.image"
+                         alt="">
+                  </template>
+                </div>
+              </el-form-item>
+            </div>
+            <base-divider></base-divider>
+
+            <el-table :data="fmShowData">
+              <el-table-column
+                  v-for="(item,index) in fmInputTableColumns" :key="index"
+                  :width="item.width"
+                  :fixed="item.fixed"
+                  :label="item.label" :prop="item.prop">
+                <template #default="scope">
+                  <template v-if="item.label==='部位'">
+                    {{ scope.row.部位 }}
+                  </template>
+                  <template v-else>
+                    <template v-if="scope.row?.部位==='共鸣' && item.prop.indexOf('固定值')!==-1">
+                      <div style="text-align: center;margin-left: -20px;">-</div>
+                    </template>
+                    <mz-number-input
+                        v-else
+                        style="width:100px;"
+                        :disabled="scope.row?.部位==='共鸣'||scope.row?.部位==='总加成'"
+                        :is-percent="item.isPercent"
+                        v-model="scope.row[item.prop]"
+                        :max="item.maxList?.[scope.row?.部位]||Infinity"></mz-number-input>
+                  </template>
+                  <!--                  <template v-else-if="item.isPercent">
+                                      <mz-percent-input :disabled="scope.row?.部位==='共鸣'||scope.row?.部位==='总加成'" :prop="item.prop"
+                                                        :form-data="scope.row"></mz-percent-input>
+                                    </template>
+                                    <template v-else>
+                                      <mz-input :disabled="scope.row?.部位==='共鸣'||scope.row?.部位==='总加成'" :prop="item.prop"
+                                                :form-data="scope.row"></mz-input>
+                                    </template>-->
+                </template>
+              </el-table-column>
+            </el-table>
+
+
+          </el-tab-pane>
+          <el-tab-pane label="职业精通" name="职业精通">
+            <div flex="cross:top">
+              <el-form-item style="display: unset;" label-position="top" label="职业精通是否满值">
+                <el-radio-group v-model="formData.zyjt_input_can_edit">
+                  <el-radio :value="false" label="默认满"/>
+                  <br>
+                  <el-radio :value="true" label="自定义"/>
+                </el-radio-group>
+              </el-form-item>
+              <div>
+                <el-form-item v-for="(item,index) in mianbanList" :key="index" :label="item+'-职业精通'">
+                  <mz-input :disabled="!formData.zyjt_input_can_edit" :prop="item" :formData="formData.zyjt"></mz-input>
+                </el-form-item>
+              </div>
+            </div>
+
+          </el-tab-pane>
+          <el-tab-pane label="铸纹" name="铸纹">
+            <div flex="cross:top">
+              <el-form-item class="item-w-200" style="display: unset;" :label-width="200" label-position="top"
+                            label="选择铸纹类型（默认满级）">
+                <el-radio-group v-model="formData.zw_input_can_edit">
+                  <el-radio :value="false" label="默认关联选择的英雄"/>
+                  <br>
+                  <el-radio :value="true" label="自定义铸纹"/>
+                </el-radio-group>
+              </el-form-item>
+              <div>
+                <el-form-item v-for="(item,index) in mianbanList" :key="index" :label="item+'-职业精通'">
+                  <mz-input :disabled="!formData.zw_input_can_edit" :prop="item" :formData="formData.zw"></mz-input>
+                </el-form-item>
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="神契" name="神契">
+            <div flex>
+              <div style="width:400px;">
+                <div class="error mb_16" style="font-size: 20px;">
+                  请提前在「神契设置区」设置好神契
+                </div>
+                <el-form-item style="width:100%;" label="请选择神契">
+                  <el-select v-model="formData.selected_sq" filterable clearable>
+                    <el-option value="未携带" label="未携带"></el-option>
+                    <el-option
+                        v-for="(item,index) in Object.keys(sq_slsb_dict)"
+                        :value="item"
+                        :key="index"
+                        :label="item">
+                      <div flex="cross:center">
+                        <img v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
+                             :src="sq_slsb_dict[item].image" alt="">
+                        <div>
+                          {{ item }}
+                        </div>
+                      </div>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label=" ">
+                  <img v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
+                       :src="sq_slsb_dict[formData.selected_sq]?.image" alt="">
+                </el-form-item>
+              </div>
+              <div class="green-list" style="max-width:400px;">
+                <div class="item" v-for="key in sqGudingList" :key="key">
+                  <div class="label" style="width:100px;">
+                    {{ key }}
+                  </div>
+                  <div class="value">
+                    +{{ sq_zjc[key] }}
+                  </div>
+                </div>
+                <div class="item" v-for="key in sqPercentList" :key="key">
+                  <div class="label" style="width:100px;">
+                    {{ key }}
+                  </div>
+                  <div class="value">
+                    +{{ round(sq_zjc[key] * 100, 3) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </el-tab-pane>
+          <el-tab-pane label="绿字总加成" name="绿字总加成">
+            <div class="green-list" style="max-width:400px;">
+              <div class="item" v-for="(item,key) in lz" :key="key">
+                <div class="label" style="width:100px;">
+                  {{ key }}
+                </div>
+                <div class="value">
+                  +{{ item }}
+                </div>
+              </div>
+            </div>
+
+          </el-tab-pane>
+        </el-tabs>
+
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>英雄绿字加成统计表</template>
+        <el-table class="mb_16" :data="lzTotalTableData">
+          <el-table-column v-for="(item,index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
+                           :key="index"></el-table-column>
+        </el-table>
+        <div flex>
+          <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
+               :src="currentSelectedJob?.['英雄头像\r']" alt="">
+          <div class="green-list" style="max-width:400px;">
+            <div class="item" style="width:300px;" v-for="key in mianbanList" :key="key">
+              <div class="label" style="width:100px;">
+                {{ key }}
+              </div>
+              <div class="value" flex style="gap:8px;">
+                <div style="color:#333;">
+                  {{ formData.bz[key] }}
+                </div>
+                <div>+</div>
+                <div>
+                  {{ lz[key] }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          英雄战场面板模拟
+        </template>
+
+        <div flex style="gap:16px;">
+          <el-card>
+            <template #header>
+              英雄的白+绿面板
+            </template>
+            <div style="width: 500px;">
+              <el-checkbox
+                  class="mb_16"
+                  v-model="formData.sdsr_pd"
+                  label="默认关联读取以上英雄模拟结果 (想手动输入 进行下面模拟 就取消勾选)"></el-checkbox>
+              <br>
+              <template v-for="(item,index) in mianbanList" :key="index">
+                <el-form-item :label="item">
+                  <mz-input :disabled="formData.sdsr_pd" :prop="item" :form-data="formData.bjl"></mz-input>
+                </el-form-item>
+                <br>
+              </template>
+            </div>
+          </el-card>
+          <el-card>
+            <template #header>
+              英雄竞技精通区
+            </template>
+            <div style="width:500px;">
+              <el-checkbox
+                  class="mb_16"
+                  v-model="formData.jjjt_sfm"
+                  label="竞技精通是否满值 (想手动输入 就取消勾选)"></el-checkbox>
+              <br>
+              <template v-for="(item,index) in mianbanList" :key="index">
+                <el-form-item :label="item">
+                  <mz-input :disabled="formData.jjjt_sfm" :prop="item" :form-data="formData.jjjt"></mz-input>
+                </el-form-item>
+                <br>
+              </template>
+            </div>
+          </el-card>
+        </div>
+
+      </el-card>
+
+      <el-card class="mb_16">
+        <el-form-item label="是否竞技场">
+          <el-radio-group v-model="formData.jjc_pd">
+            <el-radio :value="true">是</el-radio>
+            <el-radio :value="false">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label-width="200" class="item-w-300" label="是否开启超绝特效">
+          <el-radio-group v-model="formData.cj_pd">
+            <el-radio :value="false">未开启</el-radio>
+            <el-radio :value="true">开启</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-table :data="zc_jc_tableData">
+          <el-table-column v-for="(item,index) in zc_jc_Tablecolumn" :key="index" :prop="item.prop" :label="item.label"
+                           :fixed="item.fixed" :width="item.width">
+            <template #default="scope">
+              <template v-if="item.label==='装备特效'">
+                <mz-percent-input :prop="scope.row.prop" :formData="formData.zb_tx"></mz-percent-input>
+              </template>
+              <template v-else-if="item.label==='超绝特效'">
+                <ShowUp :value="cjtx[scope.row.prop]" :isPercent="true"></ShowUp>
+              </template>
+              <template v-else-if="item.label==='附魔加成'">
+                <mz-percent-input v-if="!formData.sdsr_pd" :prop="scope.row.prop"
+                                  :formData="formData.fm4jc"></mz-percent-input>
+                <ShowUp v-else :value="formData.fm4jc?.[scope.row.prop]" :isPercent="true"></ShowUp>
+              </template>
+              <template v-else-if="item.label==='战场其他加成'">
+                <mz-percent-input :prop="scope.row.prop" :formData="formData.zc_qt_jc"></mz-percent-input>
+              </template>
+              <template v-else-if="item.label==='总加成'">
+                <ShowUp :value="scope.row.total" :isPercent="true"></ShowUp>
+              </template>
+              <template v-else>
+                {{ scope.row.prop }}
+              </template>
+            </template>
+          </el-table-column>
+        </el-table>
+
+      </el-card>
+
+      <el-card class="mb_16">
+        <el-collapse>
+          <el-collapse-item title="是否存在 攻转防 防转攻" name="1">
+            <div flex style="gap:8px;">
+              <div style="width:400px;">
+                <el-form-item>
+                  <el-checkbox v-model="formData.zh_pd_fj" label="增加到某属性"></el-checkbox>
+                </el-form-item>
+
+                <div v-if="formData.zh_pd_fj">
+                  <template v-for="(item,index) in fz_list" :key="index">
+                    <el-form-item>
+                      <el-checkbox v-model="formData[item.zhKey]" :label="item.prop+'进行转换'"></el-checkbox>
+                    </el-form-item>
+                    <br>
+                    <el-card class="mb_8" v-if="formData[item.zhKey]">
+                      <template v-for="(mbItem,mbIndex) in mianbanList.filter(i=>i!==item.prop)" :key="mbIndex">
+                        <el-form-item label-width="140" :label="item.prop+'转化'+mbItem+'系数'">
+                          <mz-percent-input :prop="mbItem" :formData="formData[item.zhValueKey]"></mz-percent-input>
+                        </el-form-item>
+                        <br>
+                      </template>
+                    </el-card>
+
+                  </template>
+                </div>
+              </div>
+
+              <div style="width:400px;">
+                <el-form-item>
+                  <el-checkbox v-model="formData.zh_pd_dt" label="代替某属性"></el-checkbox>
+                </el-form-item>
+
+                <div v-if="formData.zh_pd_dt">
+                  <template v-for="(item,index) in fz_list" :key="index">
+                    <el-form-item>
+                      <el-checkbox v-model="formData[item.tdKey]" :label="item.prop+'进行代替'"></el-checkbox>
+                    </el-form-item>
+                    <br>
+                    <el-card class="mb_8" v-if="formData[item.tdKey]">
+                      <template v-for="(mbItem,mbIndex) in mianbanList.filter(i=>i!==item.prop)" :key="mbIndex">
+                        <el-form-item label-width="140" :label="item.prop+'代替'+mbItem+'系数'">
+                          <mz-percent-input :prop="mbItem" :formData="formData[item.tdValueKey]"></mz-percent-input>
+                        </el-form-item>
+                        <br>
+                      </template>
+                    </el-card>
+
+                  </template>
+                </div>
+              </div>
+            </div>
+          </el-collapse-item>
+        </el-collapse>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          英雄的战场面板
+        </template>
+        <div flex>
+          <div>
+
+          </div>
+          <div class="green-list total" flex>
+            <div>
+              <div class="item" v-for="key in ['生命']" :key="key">
+                <div class="label">
+                  {{ key }}：
+                </div>
+                <div class="value" flex style="gap:8px;">
+                  <show-up :value="yx_zdmb_zz[key]"
+                           :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                </div>
+              </div>
+              <img v-if="currentSelectedJob" class="mr_16" style="width:120px;height:120px;display:block;"
+                   :src="currentSelectedJob?.['英雄头像\r']" alt="">
+            </div>
+            <div>
+              <div flex>
+                <div class="item" v-for="key in ['攻击','智力']" :key="key">
+                  <div class="label">
+                    {{ key }}：
+                  </div>
+                  <div class="value" flex style="gap:8px;">
+                    <show-up :value="yx_zdmb_zz[key]"
+                             :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                  </div>
+                </div>
+              </div>
+              <div flex>
+                <div class="item" v-for="key in ['防御','魔防']" :key="key">
+                  <div class="label">
+                    {{ key }}：
+                  </div>
+                  <div class="value" flex style="gap:8px;">
+                    <show-up :value="yx_zdmb_zz[key]"
+                             :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                  </div>
+                </div>
+              </div>
+              <div flex>
+                <div class="item" v-for="key in ['技巧']" :key="key">
+                  <div class="label">
+                    {{ key }}：
+                  </div>
+                  <div class="value" flex style="gap:8px;">
+                    <show-up :value="yx_zdmb_zz[key]"
+                             :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-card>
+
+    </el-form>
+
+    <pre style="user-select: text;">
+      使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。搬运来源：https://moyuanmz-mbjsq.streamlit.app/
+    </pre>
+
+  </view>
+</template>
+
+<script setup>
+import {ref, watch, onMounted, computed, watchEffect} from 'vue'
+import Big from 'big.js'
+import {useRefCache} from "../common/hook";
+import {
+  calculateFormula,
+  exportExcelFun,
+  importExcelFun,
+  parseCSVToObjects,
+  round,
+  selectExcelFile
+} from "../common/utils";
+import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
+import MzInput from "@/components/element-comp/mz-input.vue";
+import ShowUp from '@/pages/components/show-up.vue'
+import {ElMessageBox} from "element-plus";
+import {
+  sq_slsb_table,
+  sq_slsb_table_columns,
+  sq_slsb_dict,
+  getResourceUrl,
+  fmOptions,
+  defaultFmInput,
+  fmInputTableColumns, mianbanList, mianbanDefault
+} from "@/common/constant";
+import _ from 'lodash'
+import BaseDivider from "@/components/base-divider.vue";
+
+
+const prefix = "langrissar-calculator-mbjs-el-"
+const heroList = useRefCache(`${prefix}heroList`, [])
+const zbObj = useRefCache(`${prefix}zbObj`, [])
+import heroesData from '../static/data/梦战英雄白字.csv?raw'
+import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
+import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
+
+const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
+heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+  return {
+    "英雄名": key,
+    list: list,
+  }
+})
+const zbListSource = parseCSVToObjects(zbData);
+zbObj.value = _.groupBy(zbListSource, '类别')
+onMounted(() => {
+  /*uni.request({
+    url: getResourceUrl('./data/梦战英雄白字.csv'),
+    success: (res) => {
+      const heroes = parseCSVToObjects(res.data).filter(i => i.英雄名 !== '自定义英雄')
+      heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+        return {
+          "英雄名": key,
+          list: list,
+        }
+      })
+      // console.log(heroList.value)
+    }
+
+  })*/
+
+
+  /* uni.request({
+     url: getResourceUrl('./data/梦战装备满级基础属性分类.csv'),
+     success: (res) => {
+       const zbListSource = parseCSVToObjects(res.data);
+       zbObj.value = _.groupBy(zbListSource, '类别')
+       /!*zbList.value = Object.entries(_.groupBy(zbListSource, '类别')).map(([key, list]) => {
+         return {
+           "类别": key,
+           list: list,
+         }
+       })*!/
+       console.log(zbObj.value)
+     }
+   })*/
+})
+
+
+const generateList = (number, handler) => {
+  return Array.from({length: number}, (v, k) => {
+    return handler(k)
+  })
+}
+const defaultJJJT = {
+  "生命": 500,
+  "攻击": 60,
+  "智力": 60,
+  "防御": 50,
+  "魔防": 50,
+  "技巧": 80,
+}
+
+const fz_list = [
+  {
+    prop: "生命",
+    zhKey: "yx_sm_fj",
+    zhValueKey: "yx_sm_zhxs",
+    tdKey: "yx_sm_dt",
+    tdValueKey: "yx_sm_dtxs",
+  },
+  {
+    prop: "攻击",
+    zhKey: "yx_gj_fj",
+    zhValueKey: "yx_gj_zhxs",
+    tdKey: "yx_gj_dt",
+    tdValueKey: "yx_gj_dtxs",
+  },
+  {
+    prop: "智力",
+    zhKey: "yx_zl_fj",
+    zhValueKey: "yx_zl_zhxs",
+    tdKey: "yx_zl_dt",
+    tdValueKey: "yx_zl_dtxs",
+  },
+  {
+    prop: "防御",
+    zhKey: "yx_fy_fj",
+    zhValueKey: "yx_fy_zhxs",
+    tdKey: "yx_fy_dt",
+    tdValueKey: "yx_fy_dtxs",
+  },
+  {
+    prop: "魔防",
+    zhKey: "yx_mf_fj",
+    zhValueKey: "yx_mf_zhxs",
+    tdKey: "yx_mf_dt",
+    tdValueKey: "yx_mf_dtxs",
+  },
+  {
+    prop: "技巧",
+    zhKey: "yx_jq_fj",
+    zhValueKey: "yx_jq_zhxs",
+    tdKey: "yx_jq_dt",
+    tdValueKey: "yx_jq_dtxs",
+  }
+]
+
+
+const defaultFormData = {
+  // 选中的英雄
+  selected_hero_row: "",
+  // 选中的职业
+  selected_job: "",
+  // 是否自定义白字
+  bz_input_can_edit: false,
+  // 基础白字
+  bz: _.cloneDeep(mianbanDefault),  // 初始化白字 字典
+  yx_wq: "无",
+  yx_yf: "无",
+  yx_ts: "无",
+  yx_sp: "无",
+  gm_fm_1: "",
+  gm_fm_2: "",
+  fm_input: defaultFmInput,
+  zyjt_input_can_edit: false,
+  zyjt: _.cloneDeep(mianbanDefault),
+  zw_input_can_edit: false,
+  zw: _.cloneDeep(mianbanDefault),
+  selected_sq: "",
+  sdsr_pd: true,
+  bjl: _.cloneDeep(mianbanDefault),
+  jjjt_sfm: true,
+  jjjt: _.cloneDeep(defaultJJJT),
+  jjc_pd: true,
+  zb_tx: _.cloneDeep(mianbanDefault),
+  zc_qt_jc: _.cloneDeep(mianbanDefault),
+  cj_pd: false,
+  zh_pd_fj: false,
+  zh_pd_dt: false,
+  ...fz_list.reduce((acc, item) => {
+    acc[item.zhKey] = false
+    acc[item.zhValueKey] = {}
+    acc[item.tdKey] = false
+    acc[item.tdValueKey] = {}
+    return acc
+  }, {}),
+  fm4jc: {},
+};
+const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
+const resetFormData = () => {
+  formData.value = JSON.parse(JSON.stringify(defaultFormData))
+}
+
+// 输入框二次转换数据
+const inputVariables = computed(() => {
+
+  return {
+    ...formData.value,
+  }
+})
+
+// 计算输入内容 生成需要计算的数据
+const calculateVariables = computed(() => {
+
+
+  return {
+    ...inputVariables.value,
+  }
+})
+
+watch(() => formData.value.selected_hero_row, () => {
+  formData.value.selected_job = currentSelectedHero.value?.list[0].职业名
+})
+const currentSelectedHero = computed(() => {
+  const name = formData.value.selected_hero_row
+  return heroList.value.find(item => item.英雄名 === name)
+})
+const currentSelectedJob = computed(() => {
+  const name = formData.value?.selected_job
+  return currentSelectedHero.value?.list?.find(item => item.职业名 === name)
+})
+
+const resetBz = () => {
+  const fieldsToConvert = mianbanList;
+  formData.value.bz = fieldsToConvert.reduce((acc, key) => {
+    acc[key] = Number(currentSelectedJob.value?.[key]) || 0;
+    return acc;
+  }, {});
+}
+watch(() => formData.value.selected_job, () => {
+  formData.value.bz_input_can_edit = false
+})
+watchEffect(() => {
+  if (!formData.value.bz_input_can_edit) {
+    resetBz()
+  }
+})
+const reset_zyjt = () => {
+  formData.value.zyjt = {"生命": 750, "攻击": 80, "智力": 80, "防御": 60, "魔防": 60, "技巧": 80}
+}
+watchEffect(() => {
+  if (!formData.value.zyjt_input_can_edit) {
+    reset_zyjt()
+  }
+})
+
+const reset_zw = () => {
+  const fieldsToConvert = mianbanList;
+  formData.value.zw = fieldsToConvert.reduce((acc, key) => {
+    acc[key] = Number(currentSelectedJob.value?.[`铸纹${key}`]);
+    return acc;
+  }, {});
+}
+watchEffect(() => {
+  if (!formData.value.zw_input_can_edit) {
+    reset_zw()
+  }
+})
+
+// 神契晨曦加成
+const sqPercentList = ["士兵生命", "士兵攻击", "士兵防御", "士兵魔防"]
+const sqGudingList = ['生命', "攻击", "智力", "防御", "魔防", "技巧"]
+const sqKeyList = [...sqGudingList, ...sqPercentList]
+const getDefaultSqValue = () => {
+  return sqKeyList.reduce((acc, key) => {
+    acc[key] = 0
+    return acc
+  }, {})
+}
+const sq_cxzz = useRefCache(`${prefix}sq_cxzz`, getDefaultSqValue())
+
+const sqExcelOption = sqKeyList.map((item) => {
+  return {
+    label: item,
+    key: item,
+  }
+})
+const export_sq_cxzz = () => {
+  exportExcelFun({
+    data: [sq_cxzz.value],
+    exportOption: sqExcelOption,
+    sheetName: "Sheet1",
+    bookName: "神契晨曦之祝加成",
+  });
+}
+const import_sq_cxzz = () => {
+  selectExcelFile()
+      .then((file) => {
+        importExcelFun({
+          file: file,
+          importOption: sqExcelOption,
+          sheetName: 'Sheet1',
+        })
+            .then((data) => {
+              sq_cxzz.value = data[0]
+            })
+      })
+      .catch(() => {
+        ElMessage.error('导入失败')
+      })
+}
+// 设置筛选的数据
+const sq_filter_data = useRefCache(`${prefix}sq_filter_data`, [])
+const sqAllTableData = computed(() => {
+  const table = [
+    {
+      "名称": "神契晨曦之祝加成",
+    },
+  ]
+  sq_slsb_table.forEach((item) => {
+    table.push(item)
+    // 合计数据
+    table.push({
+      "名称": `${item.名称}总加成`,
+      "原名": item.名称,
+      isTotal: true,
+      ...sqKeyList.reduce((acc, key) => {
+        acc[key] = new Big(sq_cxzz.value?.[key]).plus(item[key] || 0).toNumber()
+        return acc
+      }, {})
+    })
+  })
+  return table
+})
+// 神契最终展示的表格
+const sq_slsb_show_table = computed(() => {
+  if (sq_filter_data.value.length) {
+    const excludeList = _.difference(Object.keys(sq_slsb_dict), sq_filter_data.value)
+    return sqAllTableData.value.filter((item) => {
+      const isExclude = excludeList.find((name) => {
+        return item.名称.indexOf(name) !== -1
+      })
+      return !isExclude
+    })
+  } else {
+    return sqAllTableData.value
+  }
+})
+
+// 设置行样式
+const tableRowClassName = ({row, rowIndex}) => {
+  if (row.isTotal) return "total-row";
+  return "";
+};
+
+const wqFormKey = {
+  武器: "yx_wq",
+  衣服: "yx_yf",
+  头饰: "yx_ts",
+  饰品: "yx_sp",
+}
+
+const wqSelectedObj = computed(() => {
+  return Object.keys(wqFormKey).reduce((res, key) => {
+    const list = zbObj.value[key]
+    res[key] = list.find(item => item["装备名称"] === formData.value?.[wqFormKey[key]]) || list[0]
+    return res
+  }, {})
+})
+const getWqDaibiao = (key) => {
+  const selectedItem = wqSelectedObj.value[key]
+  return selectedItem[`代表\r`].trim().split("，")
+}
+
+const gmFm1Selected = computed(() => {
+  return fmOptions.find(i => i.value === formData.value.gm_fm_1)
+})
+const gmFm2Selected = computed(() => {
+  return fmOptions.find(i => i.value === formData.value.gm_fm_2)
+})
+
+const fmShowData = computed(() => {
+  const columns = fmInputTableColumns.filter(i => i.label !== '部位')
+  const gmInfo = {}
+  columns.forEach(i => {
+    const key = i.prop
+    if (gmFm1Selected.value?.value !== gmFm2Selected.value?.value) {
+      gmInfo[key] = (gmFm1Selected.value?.gm?.[key] || 0) + (gmFm2Selected.value?.gm?.[key] || 0)
+    } else {
+      gmInfo[key] = gmFm1Selected.value?.gm?.[key] || 0
+    }
+  })
+
+  const data = [
+    ...formData.value.fm_input,
+    {
+      "部位": "共鸣",
+      ...gmInfo,
+    },
+  ]
+
+  const totalValue = {}
+  columns.forEach(i => {
+    const key = i.prop
+    totalValue[key] = data.reduce((res, item) => {
+      return new Big(res).plus(item[key] || 0).toNumber()
+    }, 0)
+  })
+  const total = {
+    "部位": "总加成",
+    ...totalValue,
+  }
+
+  return [
+    ...data,
+    total
+  ]
+})
+
+const sq_zjc = computed(() => {
+  if (!formData.value.selected_sq || formData.value.selected_sq === '未携带') {
+    return getDefaultSqValue()
+  } else {
+    const item = sqAllTableData.value.find((i) => {
+      return i.原名 === formData.value.selected_sq
+    })
+    return item || getDefaultSqValue()
+  }
+})
+
+const zb_jc = computed(() => {
+  // 面板累加
+  return mianbanList.reduce((res, mb_key) => {
+    res[mb_key] = Object.keys(wqFormKey).reduce((res, wq_key) => {
+      const number = wqSelectedObj.value?.[wq_key]?.[mb_key] || 0
+      return new Big(res).plus(number).toNumber()
+    }, 0)
+    return res
+  }, {})
+})
+
+const fm_data = computed(() => {
+  const fmTotal = fmShowData.value.filter(i => i.部位 === "总加成")[0]
+  const list = ["生命", "攻击", "智力", "防御", "魔防"]
+  return list.reduce((res, key) => {
+    res.fm_bfb[key] = fmTotal[`${key}百分比`] || 0
+    res.fm_gdz[key] = fmTotal[`${key}固定值`] || 0
+    return res
+  }, {
+    fm_gdz: {},
+    fm_bfb: {},
+  })
+})
+
+const allDataObj = computed(() => {
+  return {
+    zb_jc: zb_jc.value,
+    bz: formData.value.bz,
+    fm_bfb: fm_data.value.fm_bfb,
+    fm_gdz: fm_data.value.fm_gdz,
+    zyjt: formData.value.zyjt,
+    zw: formData.value.zw,
+    sq_zjc: sq_zjc.value
+  }
+})
+
+const lz = computed(() => {
+  const {zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc} = allDataObj.value
+  const res = {
+    生命: round(zb_jc["生命"] + bz["生命"] * fm_bfb["生命"] + fm_gdz["生命"] + zyjt["生命"] + zw["生命"] + sq_zjc["生命"], 1),
+    攻击: round(zb_jc["攻击"] + bz["攻击"] * fm_bfb["攻击"] + fm_gdz["攻击"] + zyjt["攻击"] + zw["攻击"] + sq_zjc["攻击"], 1),
+    智力: round(zb_jc["智力"] + bz["智力"] * fm_bfb["智力"] + fm_gdz["智力"] + zyjt["智力"] + zw["智力"] + sq_zjc["智力"], 1),
+    防御: round(zb_jc["防御"] + bz["防御"] * fm_bfb["防御"] + fm_gdz["防御"] + zyjt["防御"] + zw["防御"] + sq_zjc["防御"], 1),
+    魔防: round(zb_jc["魔防"] + bz["魔防"] * fm_bfb["魔防"] + fm_gdz["魔防"] + zyjt["魔防"] + zw["魔防"] + sq_zjc["魔防"], 1),
+    技巧: round(zb_jc["技巧"] + zyjt["技巧"] + zw["技巧"] + sq_zjc["技巧"], 1)
+  }
+  return res
+})
+
+// 合计 装备基础 附魔百分比 附魔百分比*白字 附魔固定值 职业精通 铸纹 神契
+const lzTotalTableColumns = [
+  {
+    label: '',
+    prop: 'mb_key',
+  },
+  {
+    label: '合计',
+    prop: 'total'
+  },
+  {
+    label: "装备基础",
+    prop: 'zb_jc'
+  },
+  {
+    label: "附魔百分比",
+    prop: 'fm_bfb'
+  },
+  {
+    label: "附魔百分比*白字",
+    prop: 'fm_bfb*bz'
+  },
+  {
+    label: "附魔固定值",
+    prop: 'fm_gdz'
+  },
+  {
+    label: "职业精通",
+    prop: 'zyjt'
+  },
+  {
+    label: "铸纹",
+    prop: 'zw'
+  },
+  {
+    label: "神契",
+    prop: 'sq_zjc'
+  },
+]
+const lzTotalTableData = computed(() => {
+  return mianbanList.reduce((res, mb_key) => {
+    const keyList = ['bz', 'zb_jc', 'fm_bfb', 'fm_bfb', 'fm_gdz', 'zyjt', 'zw', 'sq_zjc']
+    const {zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc} = keyList.reduce((res, key) => {
+      res[key] = allDataObj.value[key][mb_key]
+      return res
+    }, {})
+    const isjq = mb_key === '技巧'
+    res.push({
+      mb_key,
+      total: lz.value[mb_key],
+      zb_jc,
+      fm_bfb: isjq ? '-' : new Big(fm_bfb || 0).times(100).toString() + "%",
+      'fm_bfb*bz': isjq ? '-' : new Big(fm_bfb || 0).times(bz || 0).toString(),
+      fm_gdz: isjq ? '-' : fm_gdz,
+      zyjt,
+      zw,
+      sq_zjc,
+    })
+
+    return res;
+  }, [])
+})
+
+
+const reset_bjl = () => {
+  formData.value.bjl = mianbanList.reduce((acc, key) => {
+    acc[key] = formData.value.bz[key] + lz.value[key]
+    return acc;
+  }, {});
+}
+watchEffect(() => {
+  if (formData.value.sdsr_pd) {
+    reset_bjl()
+  }
+})
+
+const reset_jjjt = () => {
+  formData.value.jjjt = _.cloneDeep(defaultJJJT)
+}
+watchEffect(() => {
+  if (formData.value.jjjt_sfm) {
+    reset_jjjt()
+  }
+})
+
+// 装备特效 超绝特效 附魔加成 战场其他加成 总加成
+// 战场加成
+const zc_jc_Tablecolumn = [
+  {
+    label: " ",
+    prop: "bw",
+    fixed: true,
+    width: 100,
+  },
+  {
+    label: "装备特效",
+    prop: "zb_tx",
+    width: 140,
+  },
+  {
+    label: "超绝特效",
+    prop: "cj_tx",
+    width: 100,
+  },
+  {
+    label: "附魔加成",
+    prop: "fm_jc",
+    width: 140,
+  },
+  {
+    label: "战场其他加成",
+    prop: "zc_qt_jc",
+    width: 200,
+  },
+  {
+    label: "总加成",
+    prop: "total",
+    width: 100,
+  },
+]
+
+const zc_jc_tableData = computed(() => {
+  return mianbanList.map((key) => {
+    const zb_tx = Number(formData.value?.zb_tx?.[key]) || 0
+    const _cjtx = Number(cjtx.value?.[key]) || 0
+    const _fm4jc = Number(formData.value.fm4jc?.[key]) || 0
+    const qtzd_jc = Number(formData.value?.zc_qt_jc?.[key]) || 0
+
+    let total = zb_tx + _cjtx + _fm4jc + qtzd_jc
+    if (key === '生命' && formData.value.jjc_pd) {
+      total += 0.4
+    }
+
+    return {
+      prop: key,
+      total: round(total, 3)
+    }
+  })
+})
+
+const cjtx = computed(() => {
+  if (formData.value.cj_pd) {
+    return {
+      攻击: 0.2,
+      智力: 0.2,
+      防御: 0.2,
+      魔防: 0.3,
+    }
+  } else {
+    return {
+      攻击: 0,
+      智力: 0,
+      防御: 0,
+      魔防: 0,
+    }
+  }
+})
+watchEffect(() => {
+  if (!formData.value.fm4jc) {
+    formData.value.fm4jc = {}
+  }
+  if (formData.value.sdsr_pd) {
+    let res = {}
+    if (gmFm1Selected.value?.value === gmFm2Selected.value?.value) {
+      switch (gmFm1Selected.value?.value) {
+        case '满月':
+          res = {
+            攻击: 0.1,
+            智力: 0.1,
+            防御: 0.1,
+            魔防: 0.1,
+          }
+          break;
+        case '怒涛':
+          res = {
+            攻击: 0.1,
+          }
+          break;
+        case '大树':
+          res = {
+            防御: 0.05,
+            魔防: 0.05,
+          }
+          break;
+      }
+    }
+    formData.value.fm4jc = res
+  }
+})
+
+const zd_zjc = computed(() => {
+  return zc_jc_tableData.value.reduce((acc, item) => {
+    acc[item.prop] = item.total
+    return acc
+  }, {})
+})
+const yx_zdmb = computed(() => {
+  const jjc_pd = formData.value.jjc_pd
+  const bjl = formData.value.bjl
+  const jjjt = formData.value.jjjt
+  const _zd_zjc = zd_zjc.value
+
+  return mianbanList.reduce((acc, prop) => {
+    let res = bjl[prop] * (1 + _zd_zjc[prop])
+    if (jjc_pd) {
+      res = res + jjjt[prop]
+    }
+    acc[prop] = round(res, 3)
+    return acc
+  }, {})
+})
+
+const yx_sx_zhl = computed(() => {
+  const form = formData.value
+  const base = yx_zdmb.value
+  let res = {}
+  if (form.zh_pd_fj) {
+    res = mianbanList.reduce((acc, prop) => {
+      acc[prop] = fz_list.filter(i => i.prop !== prop).reduce((a, item) => {
+        if (form[item.zhKey]) {
+          a = new Big(base[item.prop]).times(form[item.zhValueKey][prop]).plus(a).toNumber()
+        }
+        return a
+      }, 0)
+      return acc
+    }, {})
+  }
+  return res
+})
+
+const yx_sx_dtl = computed(() => {
+  const form = formData.value
+  const base = yx_zdmb.value
+  let res = {}
+  if (form.zh_pd_dt) {
+    res = mianbanList.reduce((acc, prop) => {
+      acc[prop] = fz_list.filter(i => i.prop !== prop).reduce((a, item) => {
+        if (form[item.tdKey]) {
+          a = new Big(base[item.prop]).times(form[item.tdValueKey][prop]).plus(a).toNumber()
+        }
+        return a
+      }, 0)
+      return acc
+    }, {})
+  }
+  return res
+})
+
+
+const yx_zdmb_zz = computed(() => {
+  const base = {
+    ...yx_zdmb.value,
+  }
+  Object.keys(yx_sx_dtl.value).forEach((key) => {
+    if (yx_sx_dtl.value[key]) {
+      base[key] = yx_sx_dtl.value[key]
+    }
+  })
+  return mianbanList.reduce((acc, prop) => {
+    acc[prop] = round(base[prop] + (yx_sx_zhl.value[prop] || 0), 1)
+    return acc
+  }, {})
+})
+const test = ref(0)
+</script>
+<style lang="scss">
+.mbjs-el {
+  .el-table .el-table__row.total-row {
+    background-color: rgb(254, 240.3, 240.3);
+  }
+
+  .green-list {
+    margin: 0 24px;
+
+    &.total {
+      .label {
+        text-align: left;
+      }
+
+      .item {
+        margin-right: 24px;
+      }
+    }
+
+    .item {
+      width: 200px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .label {
+      font-size: 24px;
+      color: #666;
+      text-align: right;
+    }
+
+    .value {
+      margin-left: 16px;
+      font-size: 22px;
+      color: green;
+    }
+
+    .green {
+      color: green;
+    }
+
+    .red {
+      color: red;
+    }
+
+    .normal {
+      color: #333;
+    }
+  }
+
+
+}
+
+</style>

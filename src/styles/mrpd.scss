@@ -1,0 +1,52 @@
+// 方便使用margin padding 在写后台时很多时候不希望来回切html和style和template
+// 为了方便有时设置两个块之间距离 因此出现这个
+// 这里规范是以2为单位 即2、4、6、8、10...60
+// 用法
+/*
+<el-card class="mb_20">这块card距离下面20</el-card>
+<el-card>上面为什么跟我不贴贴啊</el-card>
+*/
+
+/*
+另外这里还建议和flex.css一同使用
+例如两块内容想要横向居中布局  可以
+这个flex.css在旁边  可以看看官网
+https://github.com/lzxb/flex.css
+
+<div flex="cross:center">
+  <div style="line-height:100px;">我高一点</div>
+  <div style="line-height:60px;">我矮一点</div>
+  <i class="el-icon-delete"></i>
+  <div>在html直接写样式，跟当年风靡前端界的bootstrap一样的逻辑，咱后台系统一般专注写html!!!</div>
+</div>
+
+*/
+//.mt_2
+// 相当于margin-top:2px;
+// 有时像el-button那样 有默认属性可能不能覆盖 可以用mri_10 就是margin-right:10px !important;
+$directionList: (
+  (name:'t', value:'top'),
+  (name:'r', value:'right'),
+  (name:'b', value:'bottom'),
+  (name:'l', value:'left'),
+);
+$positionList: (
+  (name:'m', value:"margin"),
+  (name:'p', value:"padding"),
+);
+@for $i from 1 through 30 {
+  @each $directionItem in $directionList {
+    $directionName: map-get($map: $directionItem, $key: name);
+    $directionValue: map-get($map: $directionItem, $key: value);
+    @each $positionItem in $positionList {
+      $positionName: map-get($map: $positionItem, $key: name);
+      $positionValue: map-get($map: $positionItem, $key: value);
+      .#{$positionName}#{$directionName}_#{$i*2} {
+        #{$positionValue}-#{$directionValue}: $i*2*1px;
+      }
+      .#{$positionName}#{$directionName}i_#{$i*2} {
+        #{$positionValue}-#{$directionValue}: $i*2*1px !important;
+      }
+    }
+  }
+}
