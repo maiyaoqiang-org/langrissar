@@ -634,52 +634,24 @@ import BaseDivider from "@/components/base-divider.vue";
 
 
 const prefix = "langrissar-calculator-mbjs-el-"
-const heroList = useRefCache(`${prefix}heroList`, [])
-const zbObj = useRefCache(`${prefix}zbObj`, [])
+const heroList = ref([])
+const zbObj = ref([])
 import heroesData from '../static/data/梦战英雄白字.csv?raw'
 import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 
-const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
-heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-  return {
-    "英雄名": key,
-    list: list,
-  }
-})
-const zbListSource = parseCSVToObjects(zbData);
-zbObj.value = _.groupBy(zbListSource, '类别')
 onMounted(() => {
-  /*uni.request({
-    url: getResourceUrl('./data/梦战英雄白字.csv'),
-    success: (res) => {
-      const heroes = parseCSVToObjects(res.data).filter(i => i.英雄名 !== '自定义英雄')
-      heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-        return {
-          "英雄名": key,
-          list: list,
-        }
-      })
-      // console.log(heroList.value)
+  const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
+  heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+    return {
+      "英雄名": key,
+      list: list,
     }
-
-  })*/
-
-
-  /* uni.request({
-     url: getResourceUrl('./data/梦战装备满级基础属性分类.csv'),
-     success: (res) => {
-       const zbListSource = parseCSVToObjects(res.data);
-       zbObj.value = _.groupBy(zbListSource, '类别')
-       /!*zbList.value = Object.entries(_.groupBy(zbListSource, '类别')).map(([key, list]) => {
-         return {
-           "类别": key,
-           list: list,
-         }
-       })*!/
-       console.log(zbObj.value)
-     }
-   })*/
+  })
+  console.log(heroList.value)
+  const zbListSource = parseCSVToObjects(zbData);
+  zbObj.value = _.groupBy(zbListSource, '类别')
+  console.log(zbObj.value)
 })
 
 
