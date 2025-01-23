@@ -79,7 +79,7 @@ const heroes = ref([])
 const filterDataList = {
   rarityList: {
     canEffectTogether: false,
-    matchKey: "rarity",
+    matchKey: "_rarity",
     data: [
       {
         "name": "LLR",
@@ -213,6 +213,7 @@ onMounted(() => {
       const item = i.toJSON()
       return {
         ...item,
+        _rarity: item.rarity?.split(',').map(i=>i.trim()),
         _camps: item.camp?.split(',').map(i=>i.trim()),
       }
     })
