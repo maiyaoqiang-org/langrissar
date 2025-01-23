@@ -22,6 +22,9 @@
   <navigator url="/pages/mbjs-el">
     <button type="default">面板计算器element版</button>
   </navigator>
+  <navigator url="/pages/bp-simulate">
+    <button type="default">BP模拟器</button>
+  </navigator>
 </view>
 </template>
 
