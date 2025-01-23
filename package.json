@@ -27,6 +27,7 @@
     "@element-plus/icons-vue": "^2.3.1",
     "big.js": "^6.2.2",
     "element-plus": "^2.9.1",
+    "leancloud-storage": "^4.15.2",
     "lodash": "^4.17.21",
     "mathjs": "^14.0.1",
     "vue": "^3.4.21",

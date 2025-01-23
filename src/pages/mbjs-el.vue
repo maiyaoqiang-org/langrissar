@@ -636,19 +636,64 @@ import BaseDivider from "@/components/base-divider.vue";
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = ref([])
 const zbObj = ref({})
-import heroesData from '../static/data/梦战英雄白字.csv?raw'
 import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
+import AV from 'leancloud-storage'
+onMounted(()=>{
+  // 为了处理合并跟墨佬的命名一致
+  // 英雄名,职业名,生命,攻击,智力,防御,魔防,技巧,铸纹生命,铸纹攻击,铸纹智力,铸纹防御,铸纹魔防,铸纹技巧,英雄头像
+  // heroName	occupation	life	attack	intelligence	defense	magicDefense	skill	zwLife	zwAttack	zwIntelligence	zwDefense	zwMagicDefense	zwSkill	logo
+
+  const heroKeyMap = {
+    "heroName":"英雄名",
+    "occupation":"职业名",
+    "life":"生命",
+    "attack":"攻击",
+    "intelligence":"智力",
+    "defense":"防御",
+    "magicDefense":"魔防",
+    "skill":"技巧",
+    "zwLife":"铸纹生命",
+    "zwAttack":"铸纹攻击",
+    "zwIntelligence":"铸纹智力",
+    "zwDefense":"铸纹防御",
+    "zwMagicDefense":"铸纹魔防",
+    "zwSkill":"铸纹技巧",
+    "logo":"英雄头像",
+  }
+  const query = new AV.Query("HeroBasicAttr");
+  query
+      .limit(1000)
+      .find()
+      .then((res)=>{
+        const heroes = res.map((item)=>{
+          const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
+            if(heroKeyMap[key]){
+              acc[heroKeyMap[key]] = value
+            }
+            return acc
+          }, {})
+          return {
+            ...mapAttributes,
+            ...item.attributes,
+          }
+        })
+
+        heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+          return {
+            "英雄名": key,
+            list: list,
+          }
+        })
+        console.log(heroList.value)
+
+      })
+      .catch((err)=>{
+        console.log('查询失败',err)
+      })
+})
 
 onMounted(()=>{
-  const heroes = parseCSVToObjects(heroesData).filter(i => i.英雄名 !== '自定义英雄')
-  heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-    return {
-      "英雄名": key,
-      list: list,
-    }
-  })
-  console.log(heroList.value)
   const zbListSource = parseCSVToObjects(zbData);
   zbObj.value = _.groupBy(zbListSource, '类别')
   console.log(zbObj.value)
