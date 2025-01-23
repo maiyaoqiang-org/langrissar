@@ -19,10 +19,11 @@
       </div>
     </div>
 
-    <div v-for="(item,index) in showHeroes" :key="index">
-      {{ item.heroName }}
+    <div flex style="flex-wrap: wrap;gap:8px;" class="mt_16">
+      <div v-for="(item,index) in showHeroes" :key="index">
+        <img style="width:40px;height:40px;" :src="item.logo" alt="">
+      </div>
     </div>
-
   </div>
 
   <div class="hero-simulator mt_16">
