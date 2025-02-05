@@ -79,7 +79,7 @@ const heroes = ref([])
 const filterDataList = {
   rarityList: {
     canEffectTogether: false,
-    matchKey: "_rarity",
+    matchKey: "rarity",
     data: [
       {
         "name": "LLR",
@@ -109,7 +109,7 @@ const filterDataList = {
   },
   campList: {
     canEffectTogether: true,
-    matchKey: "_camps",
+    matchKey: "camp",
     data: [
       {
         "name": "主角光环",
@@ -161,6 +161,56 @@ const filterDataList = {
       }
     ]
   },
+  occupation: {
+    canEffectTogether: true,
+    matchKey: "occupation",
+    data: [
+      {
+        "name": "龙",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/2/2f/pz59nnz7mma6rjedxkvtcs8uskdxmag.png/30px-%E8%81%8C%E4%B8%9A_%E9%BE%99.png"
+      },
+      {
+        "name": "步兵",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/1/12/sa0ks78ealuwgq8xwgtzp9e2ayz9r1y.png/30px-%E8%81%8C%E4%B8%9A_%E6%AD%A5.png"
+      },
+      {
+        "name": "枪兵",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/b/b9/cs2cwyl3a40gvpa5cxfzcw9rhdoeo5q.png/30px-%E8%81%8C%E4%B8%9A_%E6%9E%AA.png"
+      },
+      {
+        "name": "骑兵",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/a/a9/hss7h15zqps2jsaw3zulq9grkjijvvp.png/30px-%E8%81%8C%E4%B8%9A_%E9%AA%91.png"
+      },
+      {
+        "name": "飞兵",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/5/5c/m164c0n2iilqzko72c8drqwxvlqs97b.png/30px-%E8%81%8C%E4%B8%9A_%E9%A3%9E.png"
+      },
+      {
+        "name": "水兵",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/7/7b/komeh4wh66yzjkvvprgyrq766csmmou.png/30px-%E8%81%8C%E4%B8%9A_%E6%B0%B4.png"
+      },
+      {
+        "name": "弓兵",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/4/45/gjzjhvsewy845rxglq86g2s46h59tw4.png/30px-%E8%81%8C%E4%B8%9A_%E5%BC%93.png"
+      },
+      {
+        "name": "刺客",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/3/38/ibfio5xwtm0m9rvnbl4o3yx3d8cby5n.png/30px-%E8%81%8C%E4%B8%9A_%E5%88%BA.png"
+      },
+      {
+        "name": "僧侣",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/2/28/ojkv3aubd959f27mq6eq907uo3ce0wh.png/30px-%E8%81%8C%E4%B8%9A_%E5%83%A7.png"
+      },
+      {
+        "name": "法师",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/1/13/nh8z9ryognbw1wlxv5qjkh7gkc2hjjm.png/30px-%E8%81%8C%E4%B8%9A_%E6%B3%95.png"
+      },
+      {
+        "name": "魔物",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/a/af/c68unr5jqcpvy6gqq46uiuh3b4s40rm.png/30px-%E8%81%8C%E4%B8%9A_%E9%AD%94.png"
+      }
+    ]
+  },
 }
 
 const filterData = ref(Object.keys(filterDataList).map(i => {
@@ -183,11 +233,11 @@ const showHeroes = computed(() => {
     const filterList = item.data.filter(i => i.active).map(i => i.name)
     if(filterList.length){
       list = list.filter((hero) => {
-        let heroMatchValue = hero[matchKey]
-        // 判断是否是数组
-        if (!Array.isArray(hero[matchKey])) {
-          heroMatchValue = [heroMatchValue]
-        }
+        let heroMatchValue = hero[matchKey].split(/[,，]/).map(i=>i.trim())
+        // // 判断是否是数组
+        // if (!Array.isArray(hero[matchKey])) {
+        //   heroMatchValue = [heroMatchValue]
+        // }
         // 英雄对应heroMatchValue需要包含filterList
         if (item.effectTogether) {
           return _.difference(filterList, heroMatchValue).length === 0
@@ -213,8 +263,6 @@ onMounted(() => {
       const item = i.toJSON()
       return {
         ...item,
-        _rarity: item.rarity?.split(',').map(i=>i.trim()),
-        _camps: item.camp?.split(',').map(i=>i.trim()),
       }
     })
   })
