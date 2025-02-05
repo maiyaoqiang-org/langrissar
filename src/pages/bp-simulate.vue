@@ -1,20 +1,21 @@
 <template>
 
   <div>
-    <div class="list-box rarity mt_16" v-for="(item,index) in filterData" :key="index">
+    <div class="list-box rarity mt_16" v-for="(filterItem,index) in filterData" :key="index">
       <div
           @click="item.active=!item.active"
-          v-for="(item,index) in item.data"
+          v-for="(item,index) in filterItem.data"
           :key="index"
           :class="{active:item.active}"
+          :style="filterItem.customStyle"
           class="item">
         <img :src="item.src" alt="">
       </div>
       <div
-          v-if="item.canEffectTogether"
+          v-if="filterItem.canEffectTogether"
           class="item effect-together"
-          @click="item.effectTogether=!item.effectTogether"
-          :class="{active:item.effectTogether}">
+          @click="filterItem.effectTogether=!filterItem.effectTogether"
+          :class="{active:filterItem.effectTogether}">
         是否组合生效
       </div>
     </div>
@@ -211,11 +212,126 @@ const filterDataList = {
       }
     ]
   },
+  provenance:{
+    customStyle:{width:'180px'},
+    matchKey: "provenance",
+    data:[
+      {
+        "name": "梦幻模拟战手游I",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/7/73/284tuvpt79x5grthchmui5tctsz9j6k.png/90px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98%E6%89%8B%E6%B8%B8I.png"
+      },
+      {
+        "name": "梦幻模拟战手游II",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/b/b9/q0yapp96xhbdwfa5nwyywy18ulz9446.png/91px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98%E6%89%8B%E6%B8%B8II.png"
+      },
+      {
+        "name": "梦幻模拟战手游III",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/0/0f/g5dyni8nx6drfzopy94r58xhqao0to6.png/90px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98%E6%89%8B%E6%B8%B8III.png"
+      },
+      {
+        "name": "梦幻模拟战手游IV",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/f/fc/5f6ot5fu36joe0rl8ebjhkzm5d5jhkx.png/26px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98%E6%89%8B%E6%B8%B8IV.png"
+      },
+      {
+        "name": "梦幻模拟战I",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/d/d9/quxadnsh5m8iybprfzfreycya2h44lu.png/49px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98I.png"
+      },
+      {
+        "name": "梦幻模拟战II",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/7/78/gkiaptvk7lsoqvx5cut1c1z1vqgr4u6.png/49px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98II.png"
+      },
+      {
+        "name": "梦幻模拟战III",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/1/10/12xuqcz0w11penwa6fg89zbd45vqy7l.png/36px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98III.png"
+      },
+      {
+        "name": "梦幻模拟战IV",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/d/d0/pr7qay1tyvw68bfl159j2c7ditvis8k.png/59px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98IV.png"
+      },
+      {
+        "name": "梦幻模拟战V",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/5/58/pb8avxpfm3f4tfl0ytzr0znsmhu6qvi.png/36px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98V.png"
+      },
+      {
+        "name": "梦幻模拟战·转生",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/a/ae/ljq030iiho4vagxk2exhfhvcekk8aef.png/84px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98%C2%B7%E8%BD%AC%E7%94%9F.png"
+      },
+      {
+        "name": "梦幻模拟战·千年纪WS",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/2/23/kr0sphb5ulcn1sv5rj7kj53m62ooi4e.png/56px-%E5%9B%BE%E6%A0%87_%E6%A2%A6%E5%B9%BB%E6%A8%A1%E6%8B%9F%E6%88%98%C2%B7%E5%8D%83%E5%B9%B4%E7%BA%AAWS.png"
+      },
+      {
+        "name": "空之轨迹",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/a/a0/15zunlsidcb4obpdph3lvai4dgielqx.png/68px-%E5%9B%BE%E6%A0%87_%E7%A9%BA%E4%B9%8B%E8%BD%A8%E8%BF%B9.png"
+      },
+      {
+        "name": "樱花大战",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/1/11/l9m5fbvdjj8eehc608omyrtg2n6fzgp.png/66px-%E5%9B%BE%E6%A0%87_%E6%A8%B1%E8%8A%B1%E5%A4%A7%E6%88%98.png"
+      },
+      {
+        "name": "幽☆游☆白书",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/3/34/karpnj6doq2djhnpp3mxrqihd5a8kjp.png/71px-%E5%9B%BE%E6%A0%87_%E5%B9%BD%E2%98%86%E6%B8%B8%E2%98%86%E7%99%BD%E4%B9%A6.png"
+      },
+      {
+        "name": "罗德斯岛",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/9/93/mis4ahs0d7xria6yezjxrql56qmxvv4.png/105px-%E5%9B%BE%E6%A0%87_%E7%BD%97%E5%BE%B7%E6%96%AF%E5%B2%9B.png"
+      },
+      {
+        "name": "闪之轨迹",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/f/f5/gcf536ejo6fml4gof249lm5f9wsrz7f.png/77px-%E5%9B%BE%E6%A0%87_%E9%97%AA%E4%B9%8B%E8%BD%A8%E8%BF%B9.png"
+      },
+      {
+        "name": "OVERLORD",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/1/1e/6fs0t1p982k489vmoav3c5e0wym2gt9.png/92px-%E5%9B%BE%E6%A0%87_OVERLORD.png"
+      },
+      {
+        "name": "魔神英雄传",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/7/71/cik0km1u9qa6jibz8uqd8kae9a7cl1e.png/47px-%E5%9B%BE%E6%A0%87_%E9%AD%94%E7%A5%9E%E8%8B%B1%E9%9B%84%E4%BC%A0.png"
+      },
+      {
+        "name": "魔神坛斗士",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/5/5d/f28e6a86k1sudazkk2b0rdp0b11yx6t.png/53px-%E5%9B%BE%E6%A0%87_%E9%AD%94%E7%A5%9E%E5%9D%9B%E6%96%97%E5%A3%AB.png"
+      },
+      {
+        "name": "战场女武神",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/6/6b/ltqr6f25tgve70qpfp6564dz5fe8oft.png/47px-%E5%9B%BE%E6%A0%87_%E6%88%98%E5%9C%BA%E5%A5%B3%E6%AD%A6%E7%A5%9E.png"
+      },
+      {
+        "name": "银魂",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/4/4e/5m13oz4lxwnuqtgywkrxfvwx36qd524.png/25px-%E5%9B%BE%E6%A0%87_%E9%93%B6%E9%AD%82.png"
+      },
+      {
+        "name": "黎之轨迹",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/b/b9/rxxb0iisn04r3pkx5jgvqxhc3ji163i.png/49px-%E5%9B%BE%E6%A0%87_%E9%BB%8E%E4%B9%8B%E8%BD%A8%E8%BF%B9.png"
+      },
+      {
+        "name": "光明之响",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/a/a9/t002a5hdgn292en2hmanok23yik1mao.png/47px-%E5%9B%BE%E6%A0%87_%E5%85%89%E6%98%8E%E4%B9%8B%E5%93%8D.png"
+      },
+      {
+        "name": "秀逗魔导士",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/f/ff/f2nx6851dy7xyxd21ykuqb6rlvn47t8.png/100px-%E5%9B%BE%E6%A0%87_%E7%A7%80%E9%80%97%E9%AD%94%E5%AF%BC%E5%A3%AB.png"
+      },
+      {
+        "name": "强殖装甲凯普",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/d/d5/jfjnzprtqhxoa2g4pp028769ilchvn2.png/59px-%E5%9B%BE%E6%A0%87_%E5%BC%BA%E6%AE%96%E8%A3%85%E7%94%B2%E5%87%AF%E6%99%AE.png"
+      },
+      {
+        "name": "名将战队",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/e/e8/dpcwrd6w5g3q3flus5apz8aig3t8mwz.png/94px-%E5%9B%BE%E6%A0%87_%E5%90%8D%E5%B0%86%E6%88%98%E9%98%9F.png"
+      },
+      {
+        "name": "死或生",
+        "src": "https://patchwiki.biligame.com/images/langrisser/thumb/3/38/ntsrpj7e937qvg8uxz25lwhgu6hmgaw.png/112px-%E5%9B%BE%E6%A0%87_%E6%AD%BB%E6%88%96%E7%94%9F.png"
+      }
+    ],
+  }
 }
 
 const filterData = ref(Object.keys(filterDataList).map(i => {
   const item = filterDataList[i]
   return {
+    ...item,
     canEffectTogether: item.canEffectTogether,
     matchKey: item.matchKey,
     data: item.data,
@@ -223,6 +339,8 @@ const filterData = ref(Object.keys(filterDataList).map(i => {
     effectTogether: false,
   }
 }))
+
+console.log(filterData.value)
 
 const showHeroes = computed(() => {
   let list = heroes.value
@@ -425,13 +543,12 @@ const currentAction = computed(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url("@/static/images/selectDefault.png");
-    background-size: 100% 100%;
+    border-image: url("@/static/images/selectDefault.png") 40 45 / 35px 40px;
     cursor: pointer;
     color: #fff;
 
     &:hover, &.active {
-      background-image: url("@/static/images/selectActive.png");
+      border-image: url("@/static/images/selectActive.png") 40 45 / 35px 40px;
       color: #333;
     }
 
