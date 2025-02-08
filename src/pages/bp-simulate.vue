@@ -3,7 +3,8 @@
     <div>
       {{ selectedHero }}
     </div>
-    <HeroSelector v-model="selectedHero" />
+    <el-button @click="openHeroSelector">选择英雄</el-button>
+    <HeroSelector ref="heroSelectorRef" />
   </div>
 
   <div class="hero-simulator mt_16">
@@ -55,6 +56,7 @@ import _ from "lodash"
 import HeroSelector from '@/components/HeroSelector.vue';
 
 const selectedHero = ref('');
+const heroSelectorRef = ref(null);
 
 // 初始化英雄池
 const heroes1P = reactive(
@@ -153,6 +155,18 @@ const currentAction = computed(() => {
   if (!step) return '';
   return step.action === 'ban' ? '禁用对手英雄' : '选择自己的英雄';
 });
+
+async function openHeroSelector() {
+  if (heroSelectorRef.value) {
+    const hero = await heroSelectorRef.value.showHeroSelector();
+    if (hero) {
+      selectedHero.value = hero;
+      console.log('Selected Hero:', hero);
+    } else {
+      console.log('Selection cancelled');
+    }
+  }
+}
 </script>
 
 <style scoped>

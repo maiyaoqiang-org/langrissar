@@ -1,43 +1,58 @@
 <template>
-  <div>
-    <div class="list-box rarity mt_16" v-for="(filterItem, index) in filterData" :key="index">
-      <div
-        @click="toggleItemActive(item)"
-        v-for="(item, index) in filterItem.data"
-        :key="index"
-        :class="{active: item.active}"
-        :style="filterItem.customStyle"
-        class="item">
-        <img :src="item.src" alt="">
-      </div>
-      <div
-        v-if="filterItem.canEffectTogether"
-        class="item effect-together"
-        @click="toggleEffectTogether(filterItem)"
-        :class="{active: filterItem.effectTogether}">
-        是否组合生效
-      </div>
-    </div>
+  <el-dialog v-model="visible" title="选择英雄" width="80%" top="5vh" @close="handleCancel">
+    <div style="height:80vh;display: flex;flex-direction: column;">
+      <div flex="cross:top" flex-box="1" style="height:calc(100% - 60px);">
+        <div flex-box="0" style="width:400px;height:100%;overflow-y: auto;">
+          <div v-for="(filterItem, index) in filterData" :key="index" class="filter-section">
+          <div class="filter-header" @click="toggleCollapse(index)">
+            <span>{{ filterItem.label }}</span>
+            <span>{{ filterItem.collapsed ? '展开' : '折叠' }}</span>
+          </div>
+          <div v-if="!filterItem.collapsed" class="list-box rarity mt_16">
+            <div
+              @click="toggleItemActive(item)"
+              v-for="(item, index) in filterItem.data"
+              :key="index"
+              :class="{active: item.active}"
+              :style="filterItem.customStyle"
+              class="item">
+              <img :src="item.src" alt="">
+            </div>
+            <div
+              v-if="filterItem.canEffectTogether"
+              class="item effect-together"
+              @click="toggleEffectTogether(filterItem)"
+              :class="{active: filterItem.effectTogether}">
+              是否组合生效
+            </div>
+          </div>
+        </div>
+        </div>
 
-    <div flex style="flex-wrap: wrap; gap: 8px;" class="mt_16">
-      <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
-           :class="{ 'selected-hero': props.modelValue === item.heroName }">
-        <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
+        <div flex-box="1" flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;height:100%;overflow-y: auto;" class="ml_16">
+          <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
+              :class="{ 'selected-hero': selectedHero === item.heroName }">
+            <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
+          </div>
+        </div>
+      </div>
+      <div flex-box="0" class="mt_16">
+        <el-button @click="handleCancel">取消</el-button>
+        <el-button type="primary" @click="handleConfirm">确认</el-button>
       </div>
     </div>
-  </div>
+    
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, defineExpose } from 'vue';
 import _ from 'lodash';
 import AV from 'leancloud-storage';
 
-const props = defineProps({
-  modelValue: String
-});
-
-const emit = defineEmits(['update:modelValue']);
+const visible = ref(false);
+const selectedHero = ref(null);
+const resolvePromise = ref(null);
 
 const heroes = ref([]);
 
@@ -45,6 +60,7 @@ const filterDataList = {
   rarityList: {
     canEffectTogether: false,
     matchKey: "rarity",
+    label:"稀有度筛选",
     data: [
       {
         "name": "LLR",
@@ -75,6 +91,7 @@ const filterDataList = {
   campList: {
     canEffectTogether: true,
     matchKey: "camp",
+    label:"阵营筛选",
     data: [
       {
         "name": "主角光环",
@@ -129,6 +146,7 @@ const filterDataList = {
   occupation: {
     canEffectTogether: true,
     matchKey: "occupation",
+    label:"职业筛选",
     data: [
       {
         "name": "龙",
@@ -179,6 +197,7 @@ const filterDataList = {
   provenance:{
     customStyle:{width:'180px'},
     matchKey: "provenance",
+    label:"出典筛选",
     data:[
       {
         "name": "梦幻模拟战手游I",
@@ -301,6 +320,7 @@ const filterData = ref(Object.keys(filterDataList).map(i => {
     data: item.data,
     name: i,
     effectTogether: false,
+    collapsed: true,
   };
 }));
 
@@ -334,8 +354,26 @@ function toggleEffectTogether(filterItem) {
   filterItem.effectTogether = !filterItem.effectTogether;
 }
 
+function toggleCollapse(index) {
+  filterData.value[index].collapsed = !filterData.value[index].collapsed;
+}
+
 function selectHero(hero) {
-  emit('update:modelValue', hero.heroName);
+  selectedHero.value = hero.heroName;
+}
+
+function handleConfirm() {
+  if (resolvePromise.value) {
+    resolvePromise.value(selectedHero.value);
+  }
+  visible.value = false;
+}
+
+function handleCancel() {
+  if (resolvePromise.value) {
+    resolvePromise.value(null);
+  }
+  visible.value = false;
 }
 
 onMounted(() => {
@@ -344,21 +382,41 @@ onMounted(() => {
     heroes.value = res.map(i => i.toJSON());
   });
 });
+
+function showHeroSelector() {
+  visible.value = true;
+  selectedHero.value = null;
+  return new Promise((resolve) => {
+    resolvePromise.value = resolve;
+  });
+}
+
+defineExpose({ showHeroSelector });
 </script>
 
 <style scoped lang="scss">
-
-
 .hero-item {
   border: 2px solid transparent;
-    opacity: 0.6;
-    &.selected-hero {
-        border: 2px solid blue; /* 标识选中的英雄 */
-        opacity: 1;
-    }
-    img{
-        display: block;
-    }
+  &.selected-hero {
+    border: 2px solid blue; /* 标识选中的英雄 */
+    opacity: 1;
+  }
+  img {
+    display: block;
+  }
+}
+
+.filter-section {
+  margin-bottom: 16px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
 }
 
 .list-box {
