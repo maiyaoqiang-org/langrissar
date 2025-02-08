@@ -31,7 +31,7 @@
 
         <div flex-box="1" flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;height:100%;overflow-y: auto;" class="ml_16">
           <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
-              :class="{ 'selected-hero': selectedHero === item.heroName }">
+              :class="{ 'selected-hero': selectedHero?.heroName === item.heroName }">
             <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
           </div>
         </div>
@@ -359,7 +359,7 @@ function toggleCollapse(index) {
 }
 
 function selectHero(hero) {
-  selectedHero.value = hero.heroName;
+  selectedHero.value = hero;
 }
 
 function handleConfirm() {

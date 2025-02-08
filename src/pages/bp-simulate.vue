@@ -1,11 +1,19 @@
 <template>
-  <div>
-    <div>
-      {{ selectedHero }}
+  <el-card style="margin:8px;" v-for="(pool,poolIndex) in [heroPool1P,heroPool2P]" :key="poolIndex">
+    <h4>{{poolIndex+1}}P英雄池</h4>
+    <el-button size="small" class="mb_8" @click="addHero(pool)">
+      添加
+    </el-button>
+    <div flex style="gap:8px;">
+      <div
+          v-for="(hero,index) in pool"
+          :key="index"
+          @click="changeHero(pool,index)"
+      >
+        <img style="width:30px;height:30px;" :src="hero.logo" :alt="hero.heroName"/>
+      </div>
     </div>
-    <el-button @click="openHeroSelector">选择英雄</el-button>
-    <HeroSelector ref="heroSelectorRef" />
-  </div>
+  </el-card>
 
   <div class="hero-simulator mt_16">
     <div class="main-layout">
@@ -48,15 +56,19 @@
       </div>
     </div>
   </div>
+
+  <HeroSelector ref="heroSelectorRef" />
 </template>
 
 <script setup>
 import {reactive, computed, onMounted, ref} from 'vue';
-import _ from "lodash"
 import HeroSelector from '@/components/HeroSelector.vue';
+import {useRefCache} from "@/common/hook";
 
-const selectedHero = ref('');
 const heroSelectorRef = ref(null);
+
+const heroPool1P = useRefCache('langrissar-calculator-bp-simulate-heroPool1P"',[])
+const heroPool2P = useRefCache('langrissar-calculator-bp-simulate-heroPool2P"',[])
 
 // 初始化英雄池
 const heroes1P = reactive(
@@ -156,17 +168,24 @@ const currentAction = computed(() => {
   return step.action === 'ban' ? '禁用对手英雄' : '选择自己的英雄';
 });
 
-async function openHeroSelector() {
+async function changeHero(pool,index) {
   if (heroSelectorRef.value) {
     const hero = await heroSelectorRef.value.showHeroSelector();
     if (hero) {
-      selectedHero.value = hero;
-      console.log('Selected Hero:', hero);
-    } else {
-      console.log('Selection cancelled');
+      pool[index] = hero
     }
   }
 }
+async function addHero(pool) {
+  if (heroSelectorRef.value) {
+    const hero = await heroSelectorRef.value.showHeroSelector();
+    if (hero) {
+      pool.push(hero)
+    }
+  }
+}
+
+
 </script>
 
 <style scoped>
