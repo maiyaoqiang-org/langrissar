@@ -1,37 +1,38 @@
 <template>
+  <el-button @click="visible=true">选择英雄</el-button>
   <el-dialog v-model="visible" title="选择英雄" width="80%" top="5vh" @close="handleCancel">
     <div style="height:80vh;display: flex;flex-direction: column;">
       <div flex="cross:top" flex-box="1" style="height:calc(100% - 60px);">
         <div flex-box="0" style="width:400px;height:100%;overflow-y: auto;">
           <div v-for="(filterItem, index) in filterData" :key="index" class="filter-section">
-          <div class="filter-header" @click="toggleCollapse(index)">
-            <span>{{ filterItem.label }}</span>
-            <span>{{ filterItem.collapsed ? '展开' : '折叠' }}</span>
-          </div>
-          <div v-if="!filterItem.collapsed" class="list-box rarity mt_16">
-            <div
-              @click="toggleItemActive(item)"
-              v-for="(item, index) in filterItem.data"
-              :key="index"
-              :class="{active: item.active}"
-              :style="filterItem.customStyle"
-              class="item">
-              <img :src="item.src" alt="">
+            <div class="filter-header" @click="toggleCollapse(index)">
+              <span>{{ filterItem.label }}</span>
+              <span>{{ filterItem.collapsed ? '展开' : '折叠' }}</span>
             </div>
-            <div
-              v-if="filterItem.canEffectTogether"
-              class="item effect-together"
-              @click="toggleEffectTogether(filterItem)"
-              :class="{active: filterItem.effectTogether}">
-              是否组合生效
+            <div v-if="!filterItem.collapsed" class="list-box rarity mt_16">
+              <div
+                @click="toggleItemActive(item)"
+                v-for="(item, index) in filterItem.data"
+                :key="index"
+                :class="{active: item.active}"
+                :style="filterItem.customStyle"
+                class="item">
+                <img :src="item.src" alt="">
+              </div>
+              <div
+                v-if="filterItem.canEffectTogether"
+                class="item effect-together"
+                @click="toggleEffectTogether(filterItem)"
+                :class="{active: filterItem.effectTogether}">
+                是否组合生效
+              </div>
             </div>
           </div>
-        </div>
         </div>
 
         <div flex-box="1" flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;height:100%;overflow-y: auto;" class="ml_16">
           <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
-              :class="{ 'selected-hero': selectedHero?.heroName === item.heroName }">
+              :class="{ 'selected-hero': isSelected(item) }">
             <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
           </div>
         </div>
@@ -41,7 +42,6 @@
         <el-button type="primary" @click="handleConfirm">确认</el-button>
       </div>
     </div>
-    
   </el-dialog>
 </template>
 
@@ -50,9 +50,18 @@ import { ref, computed, onMounted, defineExpose } from 'vue';
 import _ from 'lodash';
 import AV from 'leancloud-storage';
 
+const props = defineProps({
+  modelValue: Array,
+  maxSelection: {
+    type: Number,
+    default: 5
+  }
+});
+
+const emit = defineEmits(['update:modelValue']);
+
 const visible = ref(false);
-const selectedHero = ref(null);
-const resolvePromise = ref(null);
+const selectedHeroes = ref([...props.modelValue]);
 
 const heroes = ref([]);
 
@@ -359,20 +368,24 @@ function toggleCollapse(index) {
 }
 
 function selectHero(hero) {
-  selectedHero.value = hero;
+  const index = selectedHeroes.value.findIndex(h => h.heroName === hero.heroName);
+  if (index !== -1) {
+    selectedHeroes.value.splice(index, 1);
+  } else if (selectedHeroes.value.length < props.maxSelection) {
+    selectedHeroes.value.push(hero);
+  }
+}
+
+function isSelected(hero) {
+  return selectedHeroes.value.some(h => h.heroName === hero.heroName);
 }
 
 function handleConfirm() {
-  if (resolvePromise.value) {
-    resolvePromise.value(selectedHero.value);
-  }
+  emit('update:modelValue', selectedHeroes.value);
   visible.value = false;
 }
 
 function handleCancel() {
-  if (resolvePromise.value) {
-    resolvePromise.value(null);
-  }
   visible.value = false;
 }
 
@@ -383,15 +396,7 @@ onMounted(() => {
   });
 });
 
-function showHeroSelector() {
-  visible.value = true;
-  selectedHero.value = null;
-  return new Promise((resolve) => {
-    resolvePromise.value = resolve;
-  });
-}
-
-defineExpose({ showHeroSelector });
+defineExpose({ showHeroSelector: () => { visible.value = true; } });
 </script>
 
 <style scoped lang="scss">

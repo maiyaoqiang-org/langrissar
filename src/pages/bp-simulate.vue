@@ -1,19 +1,5 @@
 <template>
-  <el-card style="margin:8px;" v-for="(pool,poolIndex) in [heroPool1P,heroPool2P]" :key="poolIndex">
-    <h4>{{poolIndex+1}}P英雄池</h4>
-    <el-button size="small" class="mb_8" @click="addHero(pool)">
-      添加
-    </el-button>
-    <div flex style="gap:8px;">
-      <div
-          v-for="(hero,index) in pool"
-          :key="index"
-          @click="changeHero(pool,index)"
-      >
-        <img style="width:30px;height:30px;" :src="hero.logo" :alt="hero.heroName"/>
-      </div>
-    </div>
-  </el-card>
+   <HeroSelector v-model="heroPool1P" :maxSelection="15" />
 
   <div class="hero-simulator mt_16">
     <div class="main-layout">
@@ -57,7 +43,6 @@
     </div>
   </div>
 
-  <HeroSelector ref="heroSelectorRef" />
 </template>
 
 <script setup>
