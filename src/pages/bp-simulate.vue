@@ -1,11 +1,13 @@
 <template>
-  <h3>1P</h3>
-   <HeroSelector v-model="heroPool1P" :maxSelection="15" />
-   
-   <h3>2P</h3>
-   <HeroSelector v-model="heroPool2P" :maxSelection="15" />
-
-   <el-button type="primary" @click="initHeroes">初始化</el-button>
+  <div>
+    <div>
+      1P:<HeroSelector v-model="heroPool1P" :maxSelection="15" />
+    </div>
+    <div>
+      2P:<HeroSelector v-model="heroPool2P" :maxSelection="15" />
+    </div>
+    <el-button type="primary" @click="initHeroes">初始化BP</el-button>
+  </div>
   <div class="hero-simulator mt_16">
     <div class="main-layout">
       <div class="hero-section">
@@ -67,7 +69,7 @@ const initHeroes = () => {
     logo: hero.logo,
     status: 'available',
   })));
-  
+
 
   // 使用 heroPool2P 初始化 heroes2P
   heroes2P.splice(0, heroes2P.length, ...heroPool2P.value.map((hero, index) => ({

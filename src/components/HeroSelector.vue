@@ -63,7 +63,6 @@
 import { ref, computed, onMounted, defineExpose } from 'vue';
 import _ from 'lodash';
 import AV from 'leancloud-storage';
-import { fa } from 'element-plus/es/locales.mjs';
 
 const props = defineProps({
   modelValue: Array,
