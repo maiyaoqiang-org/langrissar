@@ -3,6 +3,7 @@
   <el-dialog v-model="visible" title="选择英雄" width="80%" top="5vh" @close="handleCancel">
     <div style="height:80vh;display: flex;flex-direction: column;">
       <div flex="cross:top" flex-box="1" style="height:calc(100% - 60px);">
+
         <div flex-box="0" style="width:400px;height:100%;overflow-y: auto;">
           <div v-for="(filterItem, index) in filterData" :key="index" class="filter-section">
             <div class="filter-header" @click="toggleCollapse(index)">
@@ -30,10 +31,21 @@
           </div>
         </div>
 
-        <div flex-box="1" flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;height:100%;overflow-y: auto;" class="ml_16">
-          <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
-              :class="{ 'selected-hero': isSelected(item) }">
-            <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
+        <div flex-box="1" class="ml_16" style="overflow-y: auto;height:100%;">
+          <div class="selected-heroes">
+            <h3>已选择的英雄</h3>
+            <div @click="cancelSelect(hero,index)" class="hero-item" v-for="(hero, index) in selectedHeroes" :key="index">
+              <img style="width: 40px; height: 40px;" :src="hero.logo" alt="">
+            </div>
+          </div>
+          <div>
+            <h3>英雄池</h3>
+            <div flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;">
+              <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
+                   :class="{ 'selected-hero': isSelected(item) }">
+                <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -336,6 +348,10 @@ const filterData = ref(Object.keys(filterDataList).map(i => {
 const showHeroes = computed(() => {
   let list = heroes.value;
 
+  // 过滤掉已选择的英雄
+  const selectedHeroNames = selectedHeroes.value.map(hero => hero.heroName);
+  list = list.filter(hero => !selectedHeroNames.includes(hero.heroName));
+
   filterData.value.forEach((item) => {
     const name = item.name;
     const matchKey = filterDataList[name].matchKey;
@@ -388,6 +404,11 @@ function handleConfirm() {
 function handleCancel() {
   visible.value = false;
 }
+
+function cancelSelect(hero,index){
+  selectedHeroes.value.splice(index, 1);
+}
+
 
 onMounted(() => {
   const heroQuery = new AV.Query('Hero');
@@ -452,6 +473,17 @@ defineExpose({ showHeroSelector: () => { visible.value = true; } });
       width: auto;
       height: 25px;
     }
+  }
+}
+
+.selected-heroes {
+  margin-bottom: 16px;
+  h3 {
+    margin-bottom: 8px;
+  }
+  .hero-item {
+    display: inline-block;
+    margin-right: 8px;
   }
 }
 </style>
