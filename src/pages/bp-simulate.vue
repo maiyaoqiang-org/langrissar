@@ -24,6 +24,9 @@
             <!-- <span>{{ hero.heroName }}</span> -->
           </div>
         </div>
+        <div v-if="!canOperate('1P')" class="overlay">
+          <span>请稍候...</span>
+        </div>
       </div>
 
       <div class="action-info">
@@ -45,6 +48,9 @@
             <img :src="hero.logo" :alt="hero.heroName"/>
             <!-- <span>{{ hero.heroName }}</span> -->
           </div>
+        </div>
+        <div v-if="!canOperate('2P')" class="overlay">
+          <span>请稍候...</span>
         </div>
       </div>
     </div>
@@ -140,26 +146,26 @@ const state = reactive({
 
 const currentStep = computed(() => state.actionSequence[state.turn - 1]);
 
-const handleHeroClick = (hero, pool) => {
+const canOperate = (pool) => {
   const step = currentStep.value;
-
-  if (!step || hero.status !== 'available') return;
+  if (!step) return false;
   const isBan = step.action === 'ban' && pool !== step.player;
   const isPick = step.action === 'pick' && pool === step.player;
-  if (!isBan && !isPick) {
-    return
-  }
+  return isBan || isPick;
+};
 
+const handleHeroClick = (hero, pool) => {
+  if (!canOperate(pool) || hero.status !== 'available') return;
 
-  if (isBan) {
+  const step = currentStep.value;
+  if (step.action === 'ban') {
     hero.status = 'disabled';
-  } else if (isPick) {
+  } else if (step.action === 'pick') {
     hero.status = 'selected';
   }
 
   state.history.push({turn: state.turn, heroId: hero.id, status: hero.status});
   state.turn++;
-
 };
 
 const undoStep = () => {
@@ -203,6 +209,7 @@ const currentAction = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 .heroes {
@@ -240,4 +247,18 @@ const currentAction = computed(() => {
   text-align: center;
 }
 
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+  z-index: 10;
+}
 </style>
