@@ -1,20 +1,25 @@
 <template>
+  <h3>1P</h3>
    <HeroSelector v-model="heroPool1P" :maxSelection="15" />
+   
+   <h3>2P</h3>
+   <HeroSelector v-model="heroPool2P" :maxSelection="15" />
 
+   <el-button type="primary" @click="initHeroes">初始化</el-button>
   <div class="hero-simulator mt_16">
     <div class="main-layout">
       <div class="hero-section">
         <h3>1P 英雄池</h3>
         <div class="heroes">
           <div
-              v-for="hero in heroes1P"
-              :key="hero.id"
+              v-for="(hero,index) in heroes1P"
+              :key="index"
               class="hero"
               :class="{ disabled: hero.status === 'disabled', selected: hero.status === 'selected' }"
               @click="handleHeroClick(hero, '1P')"
           >
-            <img :src="hero.avatar" :alt="hero.name"/>
-            <span>{{ hero.name }}</span>
+            <img :src="hero.logo" :alt="hero.heroName"/>
+            <!-- <span>{{ hero.heroName }}</span> -->
           </div>
         </div>
       </div>
@@ -29,14 +34,14 @@
         <h3>2P 英雄池</h3>
         <div class="heroes">
           <div
-              v-for="hero in heroes2P"
-              :key="hero.id"
+              v-for="(hero,index) in heroes2P"
+              :key="index"
               class="hero"
               :class="{ disabled: hero.status === 'disabled', selected: hero.status === 'selected' }"
               @click="handleHeroClick(hero, '2P')"
           >
-            <img :src="hero.avatar" :alt="hero.name"/>
-            <span>{{ hero.name }}</span>
+            <img :src="hero.logo" :alt="hero.heroName"/>
+            <!-- <span>{{ hero.heroName }}</span> -->
           </div>
         </div>
       </div>
@@ -50,26 +55,48 @@ import {reactive, computed, onMounted, ref} from 'vue';
 import HeroSelector from '@/components/HeroSelector.vue';
 import {useRefCache} from "@/common/hook";
 
-const heroSelectorRef = ref(null);
 
-const heroPool1P = useRefCache('langrissar-calculator-bp-simulate-heroPool1P"',[])
-const heroPool2P = useRefCache('langrissar-calculator-bp-simulate-heroPool2P"',[])
+const heroPool1P = useRefCache('langrissar-calculator-bp-simulate-heroPool1P', []);
+const heroPool2P = useRefCache('langrissar-calculator-bp-simulate-heroPool2P', []);
+
+const initHeroes = () => {
+  // 使用 heroPool1P 初始化 heroes1P
+  heroes1P.splice(0, heroes1P.length, ...heroPool1P.value.map((hero, index) => ({
+    id: `1P_${index + 1}`,
+    heroName: hero.heroName,
+    logo: hero.logo,
+    status: 'available',
+  })));
+  
+
+  // 使用 heroPool2P 初始化 heroes2P
+  heroes2P.splice(0, heroes2P.length, ...heroPool2P.value.map((hero, index) => ({
+    id: `2P_${index + 1}`,
+    heroName: hero.heroName,
+    logo: hero.logo,
+    status: 'available',
+  })));
+};
+
+onMounted(()=>{
+  initHeroes()
+})
 
 // 初始化英雄池
 const heroes1P = reactive(
     Array.from({length: 15}, (_, index) => ({
-      id: index + 1,
-      name: `1P英雄${index + 1}`,
-      avatar: `https://placekitten.com/80/80?image=${index + 1}`,
+      id: `1P_${index + 1}`,
+      heroName: `1P英雄${index + 1}`,
+      logo: `https://placekitten.com/80/80?image=${index + 1}`,
       status: 'available', // 状态: available, disabled, selected
     }))
 );
 
 const heroes2P = reactive(
     Array.from({length: 15}, (_, index) => ({
-      id: index + 16,
-      name: `2P英雄${index + 1}`,
-      avatar: `https://placekitten.com/80/80?image=${index + 16}`,
+      id: `2P_${index + 16}`,
+      heroName: `2P英雄${index + 1}`,
+      logo: `https://placekitten.com/80/80?image=${index + 16}`,
       status: 'available',
     }))
 );
@@ -153,27 +180,10 @@ const currentAction = computed(() => {
   return step.action === 'ban' ? '禁用对手英雄' : '选择自己的英雄';
 });
 
-async function changeHero(pool,index) {
-  if (heroSelectorRef.value) {
-    const hero = await heroSelectorRef.value.showHeroSelector();
-    if (hero) {
-      pool[index] = hero
-    }
-  }
-}
-async function addHero(pool) {
-  if (heroSelectorRef.value) {
-    const hero = await heroSelectorRef.value.showHeroSelector();
-    if (hero) {
-      pool.push(hero)
-    }
-  }
-}
-
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .hero-simulator {
   display: flex;
   flex-direction: column;
@@ -188,20 +198,30 @@ async function addHero(pool) {
 
 .hero-section {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .heroes {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  width: 300px;
+  justify-content: space-between;
 }
 
 .hero {
-  border: 1px solid #ddd;
-  padding: 8px;
+  border: 2px solid transparent;
   cursor: pointer;
   text-align: center;
   transition: border-color 0.3s;
+  width:30%;
+  box-sizing: border-box;
+  img{
+    width:100%;
+    display: block;
+  }
 }
 
 .hero.disabled {
@@ -211,7 +231,6 @@ async function addHero(pool) {
 
 .hero.selected {
   border-color: blue;
-  border-width: 2px;
 }
 
 .action-info {
