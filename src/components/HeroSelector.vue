@@ -62,8 +62,7 @@
 <script setup>
 import { ref, computed, onMounted, defineExpose } from 'vue';
 import _ from 'lodash';
-import AV from 'leancloud-storage';
-
+import {getHeroes} from "@/api/leancloud";
 const props = defineProps({
   modelValue: Array,
   maxSelection: {
@@ -412,11 +411,8 @@ function cancelSelect(hero,index){
 }
 
 
-onMounted(() => {
-  const heroQuery = new AV.Query('Hero');
-  heroQuery.limit(1000).find().then(res => {
-    heroes.value = res.map(i => i.toJSON());
-  });
+onMounted(async () => {
+  heroes.value = await getHeroes()
 });
 
 defineExpose({ showHeroSelector: () => { visible.value = true; } });

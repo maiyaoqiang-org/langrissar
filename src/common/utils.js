@@ -223,3 +223,58 @@ export function selectExcelFile() {
         fileInput.click();
     });
 }
+
+
+// createLatestOnly(asyncFun)该创建函数方法创建一个新异步函数，该函数会跟踪最新的请求，旧的请求都进入catch。
+export function createLatestOnly(asyncFunc) {
+    let latestRequestId = 0 // 用于追踪最新请求的标识符
+    return async function (...args) {
+        const requestId = ++latestRequestId // 为当前请求生成唯一的标识符
+        try {
+            // 调用原始的异步函数并等待结果
+            const result = await asyncFunc(...args)
+            // 只有当当前请求是最新请求时才返回结果
+            if (requestId === latestRequestId) {
+                return result
+            } else {
+                throw new Error("已舍弃请求")
+            }
+        } catch (error) {
+            // 处理可能的错误，但确保忽略已过期的结果
+            if (requestId === latestRequestId) {
+                throw error
+            } else {
+                throw new Error("已舍弃请求")
+            }
+        }
+    }
+}
+
+// createCachedAsyncFunction(asyncFunc,1000) 创建一个，只要参数一致，在一定时间内不再调用异步函数，直接返回缓存结果
+export function createCachedAsyncFunction(asyncFunc, cacheTime = 60000) {
+    const cache = new Map();
+
+    return function (...args) {
+        const key = JSON.stringify(args);
+        const currentTime = Date.now();
+
+        // 检查缓存是否存在且未过期
+        if (cache.has(key)) {
+            const {result, timestamp} = cache.get(key);
+            if (currentTime - timestamp < cacheTime) {
+                return result; // 返回缓存结果
+            }
+        }
+
+        // 创建新的请求
+        const requestPromise = asyncFunc(...args).catch(error => {
+            // 请求失败时，删除缓存
+            cache.delete(key);
+            return Promise.reject(error);
+        });
+
+        // 缓存结果
+        cache.set(key, {result: requestPromise, timestamp: Date.now()});
+        return requestPromise; // 直接返回请求 Promise
+    };
+}
