@@ -34,18 +34,20 @@
         <div flex-box="1" class="ml_16" style="overflow-y: auto;height:100%;">
           <div class="selected-heroes">
             <h3>已选择的英雄</h3>
-            <div @click="cancelSelect(hero,index)" class="hero-item" v-for="(hero, index) in selectedHeroes" :key="index">
-              <img style="width: 40px; height: 40px;" :src="hero.logo" alt="">
-            </div>
+            <transition-group name="fade-up" tag="div">
+              <div @click="cancelSelect(hero,index)" class="hero-item" v-for="(hero, index) in selectedHeroes" :key="hero.heroName">
+                <img style="width: 40px; height: 40px;" :src="hero.logo" alt="">
+              </div>
+            </transition-group>
           </div>
           <div>
             <h3>英雄池</h3>
-            <div flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;">
-              <div class="hero-item" v-for="(item, index) in showHeroes" :key="index" @click="selectHero(item)"
-                   :class="{ 'selected-hero': isSelected(item) }">
+            <transition-group name="fade-down" tag="div" flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;">
+              <div class="hero-item" v-for="(item, index) in showHeroes" :key="item.heroName" @click="selectHero(item)"
+                   :class="{ 'selected-hero': isSelected(item) , 'disabled': selectedHeroes.length >= maxSelection }">
                 <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
               </div>
-            </div>
+            </transition-group>
           </div>
         </div>
       </div>
@@ -61,6 +63,7 @@
 import { ref, computed, onMounted, defineExpose } from 'vue';
 import _ from 'lodash';
 import AV from 'leancloud-storage';
+import { fa } from 'element-plus/es/locales.mjs';
 
 const props = defineProps({
   modelValue: Array,
@@ -341,7 +344,7 @@ const filterData = ref(Object.keys(filterDataList).map(i => {
     data: item.data,
     name: i,
     effectTogether: false,
-    collapsed: true,
+    collapsed: false,
   };
 }));
 
@@ -421,11 +424,45 @@ defineExpose({ showHeroSelector: () => { visible.value = true; } });
 </script>
 
 <style scoped lang="scss">
+.fade-up-enter-active, .fade-up-leave-active {
+  transition: all 0.5s;
+}
+.fade-up-enter-from{
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.fade-up-leave-to{
+  opacity: 0;
+  transform: translateY(30px);
+}
+.fade-up-leave-active {
+  position: absolute;
+}
+
+.fade-down-enter-active, .fade-down-leave-active {
+  transition: all 0.5s;
+}
+.fade-down-enter-from{
+  opacity: 0;
+  transform: translateY(30px);
+}
+.fade-down-leave-to{
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.fade-down-leave-active {
+  position: absolute;
+}
+
+
 .hero-item {
   border: 2px solid transparent;
   &.selected-hero {
     border: 2px solid blue; /* 标识选中的英雄 */
     opacity: 1;
+  }
+  &.disabled{
+    opacity: 0.5;
   }
   img {
     display: block;

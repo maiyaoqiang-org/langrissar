@@ -13,7 +13,7 @@
         <div class="heroes">
           <div
               v-for="(hero,index) in heroes1P"
-              :key="index"
+              :key="hero.heroName"
               class="hero"
               :class="{ disabled: hero.status === 'disabled', selected: hero.status === 'selected' }"
               @click="handleHeroClick(hero, '1P')"
@@ -35,7 +35,7 @@
         <div class="heroes">
           <div
               v-for="(hero,index) in heroes2P"
-              :key="index"
+              :key="hero.heroName"
               class="hero"
               :class="{ disabled: hero.status === 'disabled', selected: hero.status === 'selected' }"
               @click="handleHeroClick(hero, '2P')"
