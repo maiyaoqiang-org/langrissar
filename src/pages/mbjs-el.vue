@@ -660,6 +660,19 @@ onMounted(()=>{
     "zwMagicDefense":"铸纹魔防",
     "zwSkill":"铸纹技巧",
     "logo":"英雄头像",
+    "zwTxLife":"铸纹特效生命",
+    "zwTxAttack":"铸纹特效攻击",
+    "zwTxIntelligence":"铸纹特效智力",
+    "zwTxDefense":"铸纹特效防御",
+    "zwTxMagicDefense":"铸纹特效魔防",
+    "zwTxSkill":"铸纹特效技巧",
+    "soldierLifeAdd":"兵修生命",
+    "soldierAttackAdd":"兵修攻击",
+    "soldierDefenseAdd":"兵修防御",
+    "soldierMagicDefenseAdd":"兵修魔防",
+    "fettersLv4":"心之羁绊4",
+    "fettersLv7":"心之羁绊7",
+    "occupationType":"职业",
   }
   const query = new AV.Query("HeroBasicAttr");
   query
