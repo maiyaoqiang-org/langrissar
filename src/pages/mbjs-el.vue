@@ -641,6 +641,7 @@ import {
 import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
 import ShowUp from '@/pages/components/show-up.vue'
+import EquipDetail_schema from '@/static/data/EquipDetail_schema.json'
 import {ElMessageBox} from "element-plus";
 import {
   sq_slsb_table,
@@ -653,15 +654,17 @@ import {
 } from "@/common/constant";
 import _ from 'lodash'
 import BaseDivider from "@/components/base-divider.vue";
-
+import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
+import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
+import AV from 'leancloud-storage'
 
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = ref([])
 const zbObj = ref({})
-import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
-import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
-import AV from 'leancloud-storage'
-onMounted(()=>{
+
+
+
+const getHeroData = ()=>{
   // 为了处理合并跟墨佬的命名一致
   // 英雄名,职业名,生命,攻击,智力,防御,魔防,技巧,铸纹生命,铸纹攻击,铸纹智力,铸纹防御,铸纹魔防,铸纹技巧,英雄头像
   // heroName	occupation	life	attack	intelligence	defense	magicDefense	skill	zwLife	zwAttack	zwIntelligence	zwDefense	zwMagicDefense	zwSkill	logo
@@ -726,6 +729,51 @@ onMounted(()=>{
       .catch((err)=>{
         console.log('查询失败',err)
       })
+}
+
+const equipDetailList = ref([])
+const getEquipData = ()=>{
+
+  const schema = EquipDetail_schema.schema
+  const EquipDetailMap = Object.keys(schema).reduce((cur,key)=>{
+    cur[key] = schema[key].comment
+    return cur
+  },{})
+  const query = new AV.Query("EquipDetail");
+  query
+      .limit(1000)
+      .find()
+      .then((res)=>{
+        const map = EquipDetailMap
+        const list = res.map((item)=>{
+          const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
+            if(map[key]){
+              acc[map[key]] = value
+            }
+            return acc
+          }, {})
+          return {
+            ...mapAttributes,
+            ...item.attributes,
+          }
+        })
+
+        equipDetailList.value = Object.entries(_.groupBy(list, '类别')).map(([key, list]) => {
+          return {
+            "类别": key,
+            list: list,
+          }
+        })
+        console.log(equipDetailList.value)
+      })
+      .catch((err)=>{
+        console.log('查询失败',err)
+      })
+}
+
+onMounted(()=>{
+  getHeroData()
+  getEquipData()
 })
 
 onMounted(()=>{
