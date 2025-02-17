@@ -16,6 +16,10 @@ export default {
 @import "@/styles/flex.css";
 @import "@/styles/mrpd.scss";
 /*每个页面公共css */
+img,image{
+  //display: none !important;
+  opacity: 0;
+}
 uni-page {
   font-size: 14px;
   color: #606266;

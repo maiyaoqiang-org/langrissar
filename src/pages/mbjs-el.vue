@@ -29,9 +29,31 @@
                       :label="item.职业名"></el-option>
                 </el-select>
               </el-form-item>
+
+              <template v-if="currentSelectedJob">
+                <div flex>
+                  <div flex="dir:top cross:center">
+                    <img style="width:120px;height:120px;display:block;"
+                         :src="currentSelectedJob?.['英雄头像']" alt="">
+                    <div>
+                      {{currentSelectedJob?.['英雄名']}}
+                    </div>
+                  </div>
+
+                  <div class="ml_16" flex="dir:top cross:center">
+                    <img style="width:40px;height:40px;display:block;"
+                         :src="getImageUrl('职业'+currentSelectedJob?.['职业'])" alt="">
+                    <div>
+                      {{currentSelectedJob?.['occupation']}}
+                    </div>
+                  </div>
+
+                </div>
+
+              </template>
+
             </div>
-            <img v-if="currentSelectedJob" style="width:120px;height:120px;display:block;"
-                 :src="currentSelectedJob?.['英雄头像']" alt="">
+
           </div>
           <div>
             <el-form-item label=" ">
@@ -627,7 +649,7 @@ import {
   getResourceUrl,
   fmOptions,
   defaultFmInput,
-  fmInputTableColumns, mianbanList, mianbanDefault
+  fmInputTableColumns, mianbanList, mianbanDefault, getImageUrl
 } from "@/common/constant";
 import _ from 'lodash'
 import BaseDivider from "@/components/base-divider.vue";
