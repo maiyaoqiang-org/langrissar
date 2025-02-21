@@ -18,7 +18,7 @@ export default {
 /*每个页面公共css */
 img,image{
   //display: none !important;
-  opacity: 0;
+  //opacity: 0;
 }
 uni-page {
   font-size: 14px;
