@@ -482,10 +482,15 @@
               <template v-else-if="item.label==='超绝特效'">
                 <ShowUp :value="cjtx[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
-              <template v-else-if="item.label==='附魔加成'">
+              <template v-else-if="item.label==='附魔共鸣'">
                 <mz-percent-input v-if="!formData.sdsr_pd&&scope.row.prop" :prop="scope.row?.prop"
                                   :formData="formData.fm4jc"></mz-percent-input>
                 <ShowUp v-else :value="formData.fm4jc?.[scope.row.prop]" :isPercent="true"></ShowUp>
+              </template>
+              <template v-else-if="item.label==='铸纹特效'">
+                <mz-percent-input v-if="(!formData.sdsr_pd || !formData.selected_job) &&scope.row.prop" :prop="scope.row?.prop"
+                                  :formData="formData.zwtxjc"></mz-percent-input>
+                <ShowUp v-else :value="formData.zwtxjc?.[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
               <template v-else-if="item.label==='战场其他加成'">
                 <mz-percent-input :prop="scope.row.prop" :formData="formData.zc_qt_jc"></mz-percent-input>
@@ -615,6 +620,17 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <el-divider />
+        <div style="margin:0 24px;">
+          <h3>英雄大心效果</h3>
+          <div class="mt_8">
+            心之羁绊4：<span style="color:orange;">{{currentSelectedJob['心之羁绊4']}}</span>
+          </div>
+          <div class="mt_8">
+            心之羁绊7：<span style="color:orange;">{{currentSelectedJob['心之羁绊7']}}</span>
           </div>
         </div>
       </el-card>
@@ -890,6 +906,7 @@ const defaultFormData = {
     return acc
   }, {}),
   fm4jc: {},
+  zwtxjc: {},
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -1253,7 +1270,7 @@ watchEffect(() => {
   }
 })
 
-// 装备特效 超绝特效 附魔加成 战场其他加成 总加成
+// 装备特效 超绝特效 附魔共鸣 战场其他加成 总加成
 // 战场加成
 const zc_jc_Tablecolumn = [
   {
@@ -1268,14 +1285,19 @@ const zc_jc_Tablecolumn = [
     width: 140,
   },
   {
+    label: "附魔共鸣",
+    prop: "fm_jc",
+    width: 140,
+  },
+  {
     label: "超绝特效",
     prop: "cj_tx",
     width: 100,
   },
   {
-    label: "附魔加成",
-    prop: "fm_jc",
-    width: 140,
+    label: "铸纹特效",
+    prop: "zw_tx",
+    width: 200,
   },
   {
     label: "战场其他加成",
@@ -1290,7 +1312,6 @@ const zc_jc_Tablecolumn = [
 ]
 
 const zb_tx_data = computed(() => {
-  console.log(wqSelectedObj.value)
   return mianbanList.reduce((res, key) => {
     res[key] = Object.keys(wqSelectedObj.value).reduce((res,zbkey)=>{
       // formData.value.bdxl_pd 血量
@@ -1328,9 +1349,10 @@ const zc_jc_tableData = computed(() => {
     const zb_tx = zb_tx_data.value[key] || 0
     const _cjtx = Number(cjtx.value?.[key]) || 0
     const _fm4jc = Number(formData.value.fm4jc?.[key]) || 0
+    const _zwtxjc = Number(formData.value.zwtxjc?.[key]) || 0
     const qtzd_jc = Number(formData.value?.zc_qt_jc?.[key]) || 0
 
-    let total = zb_tx + _cjtx + _fm4jc + qtzd_jc
+    let total = zb_tx + _cjtx + _fm4jc + qtzd_jc +_zwtxjc
     if (key === '生命' && formData.value.jjc_pd) {
       total += 0.4
     }
@@ -1360,19 +1382,18 @@ const cjtx = computed(() => {
   }
 })
 watchEffect(() => {
-  if (!formData.value.fm4jc) {
-    formData.value.fm4jc = {}
-  }
   if (formData.value.sdsr_pd) {
     let res = {}
     if (gmFm1Selected.value?.value === gmFm2Selected.value?.value) {
       switch (gmFm1Selected.value?.value) {
         case '满月':
-          res = {
-            攻击: 0.1,
-            智力: 0.1,
-            防御: 0.1,
-            魔防: 0.1,
+          if(formData.value.bdxl_pd ==='满血' || formData.value.bdxl_pd === '80%以上但未满血'){
+            res = {
+              攻击: 0.1,
+              智力: 0.1,
+              防御: 0.1,
+              魔防: 0.1,
+            }
           }
           break;
         case '怒涛':
@@ -1389,6 +1410,14 @@ watchEffect(() => {
       }
     }
     formData.value.fm4jc = res
+
+    if(currentSelectedJob.value){
+      console.log(currentSelectedJob.value)
+      formData.value.zwtxjc = mianbanList.reduce((acc, key) => {
+        acc[key] = Number(currentSelectedJob.value?.[`铸纹特效${key}`]);
+        return acc;
+      }, {});
+    }
   }
 })
 
