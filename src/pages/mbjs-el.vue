@@ -161,14 +161,16 @@
                       ></el-option>
                     </el-select>
                     <div>
-                      武器代表:
-                      <el-tag
-                          class="mr_8 bm_8"
-                          :key="index"
-                          type="primary"
-                          v-for="(item,index) in getWqDaibiao(key)">
-                        {{ item }}
-                      </el-tag>
+                      <img style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="">
+                      <div style="color:#31333f99;">
+                        {{wqSelectedObj[key]?.equipName}}
+                      </div>
+                      <div>
+                        基础加成：<span style="color:green;">{{wqSelectedObj[key]?.basicBonus}}</span>
+                      </div>
+                      <div>
+                        满级特效：<span style="color:orange;">{{wqSelectedObj[key]?.specialEffects}}</span>
+                      </div>
                     </div>
                   </el-form-item>
                   <br>
@@ -731,7 +733,12 @@ const getHeroData = ()=>{
       })
 }
 
-const equipDetailList = ref([])
+import wq_none from '@/static/image/武器未佩戴.png'
+import yf_none from '@/static/image/衣服未佩戴.png'
+import ts_none from '@/static/image/头饰未佩戴.png'
+import sp_none from '@/static/image/饰品未佩戴.png'
+
+
 const getEquipData = ()=>{
 
   const schema = EquipDetail_schema.schema
@@ -745,26 +752,31 @@ const getEquipData = ()=>{
       .find()
       .then((res)=>{
         const map = EquipDetailMap
+        const mapItem = {
+          "武器无":wq_none,
+          "衣服无":yf_none,
+          "头饰无":ts_none,
+          "饰品无":sp_none,
+        }
         const list = res.map((item)=>{
+          if(mapItem[item.attributes.equipName]){
+            item.attributes.picAddr = mapItem[item.attributes.equipName]
+          }
           const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
             if(map[key]){
               acc[map[key]] = value
             }
             return acc
           }, {})
+
           return {
             ...mapAttributes,
             ...item.attributes,
           }
         })
 
-        equipDetailList.value = Object.entries(_.groupBy(list, '类别')).map(([key, list]) => {
-          return {
-            "类别": key,
-            list: list,
-          }
-        })
-        console.log(equipDetailList.value)
+        zbObj.value = _.groupBy(list, '类别')
+        console.log(zbObj.value)
       })
       .catch((err)=>{
         console.log('查询失败',err)
@@ -777,9 +789,9 @@ onMounted(()=>{
 })
 
 onMounted(()=>{
-  const zbListSource = parseCSVToObjects(zbData);
+  /*const zbListSource = parseCSVToObjects(zbData);
   zbObj.value = _.groupBy(zbListSource, '类别')
-  console.log(zbObj.value)
+  console.log(zbObj.value)*/
 
 })
 
@@ -1051,10 +1063,6 @@ const wqSelectedObj = computed(() => {
     return res
   }, {})
 })
-const getWqDaibiao = (key) => {
-  const selectedItem = wqSelectedObj.value[key]
-  return selectedItem?.[`代表`]?.trim()?.split("，")
-}
 
 const gmFm1Selected = computed(() => {
   return fmOptions.find(i => i.value === formData.value.gm_fm_1)
