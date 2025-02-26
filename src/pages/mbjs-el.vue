@@ -36,7 +36,7 @@
                     <img style="width:120px;height:120px;display:block;"
                          :src="currentSelectedJob?.['英雄头像']" alt="">
                     <div>
-                      {{currentSelectedJob?.['英雄名']}}
+                      {{ currentSelectedJob?.['英雄名'] }}
                     </div>
                   </div>
 
@@ -44,7 +44,7 @@
                     <img style="width:40px;height:40px;display:block;"
                          :src="getImageUrl('职业'+currentSelectedJob?.['职业'])" alt="">
                     <div>
-                      {{currentSelectedJob?.['occupation']}}
+                      {{ currentSelectedJob?.['occupation'] }}
                     </div>
                   </div>
 
@@ -163,13 +163,13 @@
                     <div>
                       <img style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="">
                       <div style="color:#31333f99;">
-                        {{wqSelectedObj[key]?.equipName}}
+                        {{ wqSelectedObj[key]?.equipName }}
                       </div>
                       <div>
-                        基础加成：<span style="color:green;">{{wqSelectedObj[key]?.basicBonus}}</span>
+                        基础加成：<span style="color:green;">{{ wqSelectedObj[key]?.basicBonus }}</span>
                       </div>
                       <div>
-                        满级特效：<span style="color:orange;">{{wqSelectedObj[key]?.specialEffects}}</span>
+                        满级特效：<span style="color:orange;">{{ wqSelectedObj[key]?.specialEffects }}</span>
                       </div>
                     </div>
                   </el-form-item>
@@ -267,14 +267,6 @@
                         v-model="scope.row[item.prop]"
                         :max="item.maxList?.[scope.row?.部位]||Infinity"></mz-number-input>
                   </template>
-                  <!--                  <template v-else-if="item.isPercent">
-                                      <mz-percent-input :disabled="scope.row?.部位==='共鸣'||scope.row?.部位==='总加成'" :prop="item.prop"
-                                                        :form-data="scope.row"></mz-percent-input>
-                                    </template>
-                                    <template v-else>
-                                      <mz-input :disabled="scope.row?.部位==='共鸣'||scope.row?.部位==='总加成'" :prop="item.prop"
-                                                :form-data="scope.row"></mz-input>
-                                    </template>-->
                 </template>
               </el-table-column>
             </el-table>
@@ -471,19 +463,27 @@
             <el-radio :value="true">开启</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label-width="200" class="item-w-300" label="部队血量情况">
+          <el-radio-group v-model="formData.bdxl_pd">
+            <el-radio value="满血">满血</el-radio>
+            <el-radio value="80%以上但未满血">80%以上但未满血</el-radio>
+            <el-radio value="50%以上但80%以下">50%以上但80%以下</el-radio>
+            <el-radio value="50%以下">50%以下</el-radio>
+          </el-radio-group>
+        </el-form-item>
 
         <el-table :data="zc_jc_tableData">
           <el-table-column v-for="(item,index) in zc_jc_Tablecolumn" :key="index" :prop="item.prop" :label="item.label"
                            :fixed="item.fixed" :width="item.width">
             <template #default="scope">
               <template v-if="item.label==='装备特效'">
-                <mz-percent-input :prop="scope.row.prop" :formData="formData.zb_tx"></mz-percent-input>
+                <ShowUp :value="zb_tx_data[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
               <template v-else-if="item.label==='超绝特效'">
                 <ShowUp :value="cjtx[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
               <template v-else-if="item.label==='附魔加成'">
-                <mz-percent-input v-if="!formData.sdsr_pd" :prop="scope.row.prop"
+                <mz-percent-input v-if="!formData.sdsr_pd&&scope.row.prop" :prop="scope.row?.prop"
                                   :formData="formData.fm4jc"></mz-percent-input>
                 <ShowUp v-else :value="formData.fm4jc?.[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
@@ -665,50 +665,49 @@ const heroList = ref([])
 const zbObj = ref({})
 
 
-
-const getHeroData = ()=>{
+const getHeroData = () => {
   // 为了处理合并跟墨佬的命名一致
   // 英雄名,职业名,生命,攻击,智力,防御,魔防,技巧,铸纹生命,铸纹攻击,铸纹智力,铸纹防御,铸纹魔防,铸纹技巧,英雄头像
   // heroName	occupation	life	attack	intelligence	defense	magicDefense	skill	zwLife	zwAttack	zwIntelligence	zwDefense	zwMagicDefense	zwSkill	logo
 
   const heroKeyMap = {
-    "heroName":"英雄名",
-    "occupation":"职业名",
-    "life":"生命",
-    "attack":"攻击",
-    "intelligence":"智力",
-    "defense":"防御",
-    "magicDefense":"魔防",
-    "skill":"技巧",
-    "zwLife":"铸纹生命",
-    "zwAttack":"铸纹攻击",
-    "zwIntelligence":"铸纹智力",
-    "zwDefense":"铸纹防御",
-    "zwMagicDefense":"铸纹魔防",
-    "zwSkill":"铸纹技巧",
-    "logo":"英雄头像",
-    "zwTxLife":"铸纹特效生命",
-    "zwTxAttack":"铸纹特效攻击",
-    "zwTxIntelligence":"铸纹特效智力",
-    "zwTxDefense":"铸纹特效防御",
-    "zwTxMagicDefense":"铸纹特效魔防",
-    "zwTxSkill":"铸纹特效技巧",
-    "soldierLifeAdd":"兵修生命",
-    "soldierAttackAdd":"兵修攻击",
-    "soldierDefenseAdd":"兵修防御",
-    "soldierMagicDefenseAdd":"兵修魔防",
-    "fettersLv4":"心之羁绊4",
-    "fettersLv7":"心之羁绊7",
-    "occupationType":"职业",
+    "heroName": "英雄名",
+    "occupation": "职业名",
+    "life": "生命",
+    "attack": "攻击",
+    "intelligence": "智力",
+    "defense": "防御",
+    "magicDefense": "魔防",
+    "skill": "技巧",
+    "zwLife": "铸纹生命",
+    "zwAttack": "铸纹攻击",
+    "zwIntelligence": "铸纹智力",
+    "zwDefense": "铸纹防御",
+    "zwMagicDefense": "铸纹魔防",
+    "zwSkill": "铸纹技巧",
+    "logo": "英雄头像",
+    "zwTxLife": "铸纹特效生命",
+    "zwTxAttack": "铸纹特效攻击",
+    "zwTxIntelligence": "铸纹特效智力",
+    "zwTxDefense": "铸纹特效防御",
+    "zwTxMagicDefense": "铸纹特效魔防",
+    "zwTxSkill": "铸纹特效技巧",
+    "soldierLifeAdd": "兵修生命",
+    "soldierAttackAdd": "兵修攻击",
+    "soldierDefenseAdd": "兵修防御",
+    "soldierMagicDefenseAdd": "兵修魔防",
+    "fettersLv4": "心之羁绊4",
+    "fettersLv7": "心之羁绊7",
+    "occupationType": "职业",
   }
   const query = new AV.Query("HeroBasicAttr");
   query
       .limit(1000)
       .find()
-      .then((res)=>{
-        const heroes = res.map((item)=>{
+      .then((res) => {
+        const heroes = res.map((item) => {
           const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-            if(heroKeyMap[key]){
+            if (heroKeyMap[key]) {
               acc[heroKeyMap[key]] = value
             }
             return acc
@@ -728,8 +727,8 @@ const getHeroData = ()=>{
         console.log(heroList.value)
 
       })
-      .catch((err)=>{
-        console.log('查询失败',err)
+      .catch((err) => {
+        console.log('查询失败', err)
       })
 }
 
@@ -739,31 +738,31 @@ import ts_none from '@/static/image/头饰未佩戴.png'
 import sp_none from '@/static/image/饰品未佩戴.png'
 
 
-const getEquipData = ()=>{
+const getEquipData = () => {
 
   const schema = EquipDetail_schema.schema
-  const EquipDetailMap = Object.keys(schema).reduce((cur,key)=>{
+  const EquipDetailMap = Object.keys(schema).reduce((cur, key) => {
     cur[key] = schema[key].comment
     return cur
-  },{})
+  }, {})
   const query = new AV.Query("EquipDetail");
   query
       .limit(1000)
       .find()
-      .then((res)=>{
+      .then((res) => {
         const map = EquipDetailMap
         const mapItem = {
-          "武器无":wq_none,
-          "衣服无":yf_none,
-          "头饰无":ts_none,
-          "饰品无":sp_none,
+          "武器无": wq_none,
+          "衣服无": yf_none,
+          "头饰无": ts_none,
+          "饰品无": sp_none,
         }
-        const list = res.map((item)=>{
-          if(mapItem[item.attributes.equipName]){
+        const list = res.map((item) => {
+          if (mapItem[item.attributes.equipName]) {
             item.attributes.picAddr = mapItem[item.attributes.equipName]
           }
           const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-            if(map[key]){
+            if (map[key]) {
               acc[map[key]] = value
             }
             return acc
@@ -778,23 +777,22 @@ const getEquipData = ()=>{
         zbObj.value = _.groupBy(list, '类别')
         console.log(zbObj.value)
       })
-      .catch((err)=>{
-        console.log('查询失败',err)
+      .catch((err) => {
+        console.log('查询失败', err)
       })
 }
 
-onMounted(()=>{
+onMounted(() => {
   getHeroData()
   getEquipData()
 })
 
-onMounted(()=>{
+onMounted(() => {
   /*const zbListSource = parseCSVToObjects(zbData);
   zbObj.value = _.groupBy(zbListSource, '类别')
   console.log(zbObj.value)*/
 
 })
-
 
 
 const defaultJJJT = {
@@ -878,6 +876,7 @@ const defaultFormData = {
   jjjt_sfm: true,
   jjjt: _.cloneDeep(defaultJJJT),
   jjc_pd: true,
+  bdxl_pd: "满血",
   zb_tx: _.cloneDeep(mianbanDefault),
   zc_qt_jc: _.cloneDeep(mianbanDefault),
   cj_pd: false,
@@ -1290,9 +1289,43 @@ const zc_jc_Tablecolumn = [
   },
 ]
 
+const zb_tx_data = computed(() => {
+  console.log(wqSelectedObj.value)
+  return mianbanList.reduce((res, key) => {
+    res[key] = Object.keys(wqSelectedObj.value).reduce((res,zbkey)=>{
+      // formData.value.bdxl_pd 血量
+      let tx_cz = Number(wqSelectedObj.value[zbkey]?.[`常驻${key}`]) || 0
+      let tx_mx = 0
+      let tx_80x = 0
+      let tx_50x = 0
+      let tx_50xyx = 0
+      switch (formData.value.bdxl_pd) {
+        case '50%以下':
+          tx_50xyx = Number(wqSelectedObj.value[zbkey]?.[`50血以下${key}`]) || 0
+          break;
+        case '50%以上但80%以下':
+          tx_50x = Number(wqSelectedObj.value[zbkey]?.[`50血${key}`]) || 0
+          break;
+        case '80%以上但未满血':
+          tx_80x = Number(wqSelectedObj.value[zbkey]?.[`80血${key}`]) || 0
+          tx_50x = Number(wqSelectedObj.value[zbkey]?.[`50血${key}`]) || 0
+          break;
+        case '满血':
+        default:
+          tx_mx = Number(wqSelectedObj.value[zbkey]?.[`满血${key}`]) || 0
+          tx_80x = Number(wqSelectedObj.value[zbkey]?.[`80血${key}`]) || 0
+          tx_50x = Number(wqSelectedObj.value[zbkey]?.[`50血${key}`]) || 0
+          break;
+      }
+      return res + tx_cz + tx_mx + tx_50x + tx_50xyx + tx_80x
+    },0)
+    return res
+  }, {})
+})
+
 const zc_jc_tableData = computed(() => {
   return mianbanList.map((key) => {
-    const zb_tx = Number(formData.value?.zb_tx?.[key]) || 0
+    const zb_tx = zb_tx_data.value[key] || 0
     const _cjtx = Number(cjtx.value?.[key]) || 0
     const _fm4jc = Number(formData.value.fm4jc?.[key]) || 0
     const qtzd_jc = Number(formData.value?.zc_qt_jc?.[key]) || 0
