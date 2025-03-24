@@ -42,7 +42,7 @@
 
                   <div class="ml_16" flex="dir:top cross:center">
                     <img style="width:40px;height:40px;display:block;"
-                         :src="getImageUrl('职业'+currentSelectedJob?.['职业'])" alt="">
+                         :src="currentSelectedJob?.['occupationPic']" alt="">
                     <div>
                       {{ currentSelectedJob?.['occupation'] }}
                     </div>
