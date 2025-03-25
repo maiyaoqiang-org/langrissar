@@ -9,8 +9,19 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Login to Aliyun ACR
+        env:
+          ACR_USER: ${{ secrets.ACR_USERNAME }}
+          ACR_PASS: ${{ secrets.ACR_PASSWORD }}
         run: |
-          docker login -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }} crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com
+          # 安全登录（避免密码出现在日志中）
+          echo "$ACR_PASS" | docker login \
+            crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com \
+            -u "$ACR_USER" \
+            --password-stdin
+
+          # 验证登录状态
+          docker info | grep -A 5 "Insecure Registries"
+          echo "ACR login successful"
 
       - name: Build and Push
         run: |
