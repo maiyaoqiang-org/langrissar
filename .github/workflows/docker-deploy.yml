@@ -15,18 +15,16 @@ jobs:
         run: |
           # 安全登录（避免密码出现在日志中）
           echo "$ACR_PASS" | docker login \
-            crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com \
+            registry.cn-guangzhou.aliyuncs.com \
             -u "$ACR_USER" \
             --password-stdin
 
-          # 验证登录状态
-          docker info | grep -A 5 "Insecure Registries"
           echo "ACR login successful"
 
       - name: Build and Push
         run: |
-          docker build -t crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest .
-          docker push crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+          docker build -t registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest .
+          docker push registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
@@ -35,7 +33,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker pull crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+            docker pull registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest
             docker stop langrissar-jsq || true
             docker rm langrissar-jsq || true
-            docker run -d -p 8080:80 --name langrissar-jsq crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+            docker run -d -p 8080:80 --name langrissar-jsq registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest
