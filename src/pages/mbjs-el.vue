@@ -488,7 +488,7 @@
                 <ShowUp v-else :value="formData.fm4jc?.[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
               <template v-else-if="item.label==='铸纹特效'">
-                <mz-percent-input v-if="(!formData.sdsr_pd || !formData.selected_job) &&scope.row.prop" :prop="scope.row?.prop"
+                <mz-percent-input v-if="(!formData.sdsr_pd || !formData.selected_job || formData.selected_job==='自定义') &&scope.row.prop" :prop="scope.row?.prop"
                                   :formData="formData.zwtxjc"></mz-percent-input>
                 <ShowUp v-else :value="formData.zwtxjc?.[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
@@ -675,7 +675,8 @@ import BaseDivider from "@/components/base-divider.vue";
 import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 import AV from 'leancloud-storage'
-
+import zdyLogo from '@/static/image/自定义英雄头像.png'
+import zdyZY from '@/static/image/自定义职业图标.png'
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = ref([])
 const zbObj = ref({})
@@ -722,6 +723,12 @@ const getHeroData = () => {
       .find()
       .then((res) => {
         const heroes = res.map((item) => {
+          // 判断英雄名是否叫【自定义英雄】
+          if (item.attributes.heroName === '自定义英雄') {
+            item.attributes.logo = zdyLogo
+            item.attributes.occupationPic = zdyZY
+          }
+
           const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
             if (heroKeyMap[key]) {
               acc[heroKeyMap[key]] = value

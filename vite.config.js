@@ -5,5 +5,8 @@ export default defineConfig({
   plugins: [
     uni(),
   ],
-  base: './'
+  base: './',
+  server: {
+    port: 5300,
+  },
 })
