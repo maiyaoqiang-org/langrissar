@@ -1,6 +1,12 @@
 <template>
   <view class="mbjs-el" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
+    <el-affix>
+      <div class="mb_16" flex="main:right">
+        <el-button @click="saveHeroCache">缓存英雄数据</el-button>
+        <el-button type="primary" class="ml_8" @click="loadHeroCache">使用缓存</el-button>
+      </div>
+    </el-affix>
 
     <el-form style="min-width: 600px;" label-width="120px" class="base-el-form" label-position="right" :inline="true"
       :model="formData">
@@ -469,7 +475,8 @@
                     <div style="margin-right:32px;">
                       <div v-for="(wq, key) in wqSelectedObj" :key="key" class="mb_16">
                         <div flex="cross:center" class="mb_8">
-                          <img v-if="wq?.picAddr" :src="wq.picAddr" style="width: 40px;height:auto; margin-right: 8px;" />
+                          <img v-if="wq?.picAddr" :src="wq.picAddr"
+                            style="width: 40px;height:auto; margin-right: 8px;" />
                           <div style="font-weight: bold;">{{ key }}：{{ wq?.装备名称 }}</div>
                         </div>
                         <div>特效：<span class="orange">{{ wq?.specialEffects }}</span></div>
@@ -660,6 +667,45 @@
   使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。搬运来源：https://moyuanmz-mbjsq.streamlit.app/
 </pre>
 
+<!-- 添加回到顶部按钮 -->
+<el-backtop :right="40" :bottom="40" />
+
+<!-- 添加缓存名称输入弹窗 -->
+<el-dialog v-model="saveDialogVisible" title="保存英雄数据" width="30%">
+      <el-form>
+        <el-form-item label="缓存名称">
+          <el-input v-model="cacheName" placeholder="请输入缓存名称"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="saveDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmSaveCache">确认</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 添加选择缓存弹窗 -->
+    <el-dialog v-model="loadDialogVisible" title="选择英雄数据" width="30%">
+      <el-table :data="cacheList" style="width: 100%">
+        <el-table-column property="name" label="缓存名称">
+          <template #default="scope">
+            <div flex="cross:center">
+              <img v-if="scope.row.data?.selected_hero_row" 
+                style="width:30px;height:30px;margin-right:8px;" 
+                :src="getHeroAvatar(scope.row.data)" />
+              <span>{{ scope.row.name }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column align="right">
+          <template #default="scope">
+            <el-button size="small" @click="useCache(scope.row)">使用</el-button>
+            <el-button size="small" type="danger" @click="deleteCache(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </view>
 </template>
 
@@ -679,7 +725,7 @@ import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
 import ShowUp from '@/pages/components/show-up.vue'
 import EquipDetail_schema from '@/static/data/EquipDetail_schema.json'
-import { ElMessageBox } from "element-plus";
+import { ElMessageBox ,ElMessage} from "element-plus";
 import {
   sq_slsb_table,
   sq_slsb_table_columns,
@@ -1520,10 +1566,81 @@ const yx_zdmb_zz = computed(() => {
     return acc
   }, {})
 })
+
+
+const saveDialogVisible = ref(false)
+const loadDialogVisible = ref(false)
+const cacheName = ref('')
+const cacheList = ref([])
+
+// 获取英雄头像
+const getHeroAvatar = (data) => {
+  const hero = heroList.value.find(h => h.英雄名 === data?.selected_hero_row)
+  return hero?.list?.[0]?.英雄头像
+}
+
+// 保存缓存
+const saveHeroCache = () => {
+  saveDialogVisible.value = true
+}
+
+const confirmSaveCache = () => {
+  if (!cacheName.value) {
+    ElMessage.warning('请输入缓存名称')
+    return
+  }
+  
+  const key = `${prefix}hero_cache`
+  const cacheData = JSON.parse(localStorage.getItem(key) || '[]')
+  cacheData.push({
+    name: cacheName.value,
+    data: formData.value,
+    timestamp: Date.now()
+  })
+  localStorage.setItem(key, JSON.stringify(cacheData))
+  
+  ElMessage.success('保存成功')
+  saveDialogVisible.value = false
+  cacheName.value = ''
+}
+
+// 加载缓存
+const loadHeroCache = () => {
+  const key = `${prefix}hero_cache`
+  cacheList.value = JSON.parse(localStorage.getItem(key) || '[]')
+  loadDialogVisible.value = true
+}
+
+// 使用缓存
+const useCache = (cache) => {
+  formData.value = _.cloneDeep(cache.data)
+  loadDialogVisible.value = false
+  ElMessage.success('加载成功')
+}
+
+// 删除缓存
+const deleteCache = (cache) => {
+  ElMessageBox.confirm('确认删除该缓存？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    const key = `${prefix}hero_cache`
+    const cacheData = JSON.parse(localStorage.getItem(key) || '[]')
+    const index = cacheData.findIndex(item => item.name === cache.name)
+    if (index > -1) {
+      cacheData.splice(index, 1)
+      localStorage.setItem(key, JSON.stringify(cacheData))
+      cacheList.value = cacheData
+      ElMessage.success('删除成功')
+    }
+  })
+}
+
 </script>
 <style lang="scss">
-.orange{
-  color:#e99700fc;
+.orange {
+  color: #e99700fc;
 }
 
 .mbjs-el {
