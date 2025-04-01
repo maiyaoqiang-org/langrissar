@@ -1,30 +1,32 @@
 name: Deploy to ACR
-on: [push]
+
+on:
+  push:
+    branches:
+      - main  # 指定触发构建的分支，这里假设为main分支
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1  # 使用Docker Buildx插件，提高构建性能和灵活性
 
       - name: Login to Aliyun ACR
         env:
           ACR_USER: ${{ secrets.ACR_USERNAME }}
           ACR_PASS: ${{ secrets.ACR_PASSWORD }}
         run: |
-          # 安全登录（避免密码出现在日志中）
-          echo "$ACR_PASS" | docker login \
-            registry.cn-guangzhou.aliyuncs.com \
-            -u "$ACR_USER" \
-            --password-stdin
-
+          echo "$ACR_PASS" | docker login crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com -u "$ACR_USER" --password-stdin
           echo "ACR login successful"
 
       - name: Build and Push
         run: |
-          docker build -t registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest .
-          docker push registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest
+          docker buildx build --push --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest .
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
@@ -33,7 +35,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker pull registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest
-            docker stop langrissar-jsq || true
-            docker rm langrissar-jsq || true
-            docker run -d -p 8080:80 --name langrissar-jsq registry.cn-guangzhou.aliyuncs.com/myq-space/langrissar-jsq:latest
+            docker pull crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+            docker stop langrissar-jsq || true  # 添加|| true防止因容器不存在导致脚本中断
+            docker rm langrissar-jsq || true  # 清除旧容器
+            docker run -d --name langrissar-jsq crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
