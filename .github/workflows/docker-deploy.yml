@@ -36,6 +36,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             docker pull crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
-            docker stop langrissar-jsq || true  # 添加|| true防止因容器不存在导致脚本中断
-            docker rm langrissar-jsq || true  # 清除旧容器
-            docker run -d --name langrissar-jsq crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+            docker stop langrissar-jsq || true
+            docker rm langrissar-jsq || true
+            docker run -d -p 8080:80 --name langrissar-jsq crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
