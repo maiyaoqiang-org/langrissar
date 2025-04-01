@@ -2,10 +2,8 @@
   <view class="mbjs-el" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
 
-    <el-form
-        style="min-width: 600px;"
-        label-width="120px" class="base-el-form" label-position="right" :inline="true"
-        :model="formData">
+    <el-form style="min-width: 600px;" label-width="120px" class="base-el-form" label-position="right" :inline="true"
+      :model="formData">
       <el-card class="mb_16">
         <template #header>
           英雄白字区
@@ -15,34 +13,30 @@
             <div flex-box="0">
               <el-form-item label="选择英雄名">
                 <el-select v-model="formData.selected_hero_row" filterable>
-                  <el-option v-for="(item,index) in heroList" :value="item.英雄名" :key="index"
-                             :label="item.英雄名"></el-option>
+                  <el-option v-for="(item, index) in heroList" :value="item.英雄名" :key="index"
+                    :label="item.英雄名"></el-option>
                 </el-select>
               </el-form-item>
               <br>
               <el-form-item label="选择职业">
                 <el-select v-model="formData.selected_job" filterable>
-                  <el-option
-                      v-for="(item,index) in currentSelectedHero?.list"
-                      :value="item.职业名"
-                      :key="index"
-                      :label="item.职业名"></el-option>
+                  <el-option v-for="(item, index) in currentSelectedHero?.list" :value="item.职业名" :key="index"
+                    :label="item.职业名"></el-option>
                 </el-select>
               </el-form-item>
 
               <template v-if="currentSelectedJob">
                 <div flex>
                   <div flex="dir:top cross:center">
-                    <img style="width:120px;height:120px;display:block;"
-                         :src="currentSelectedJob?.['英雄头像']" alt="">
+                    <img style="width:120px;height:120px;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
                     <div>
                       {{ currentSelectedJob?.['英雄名'] }}
                     </div>
                   </div>
 
                   <div class="ml_16" flex="dir:top cross:center">
-                    <img style="width:40px;height:40px;display:block;"
-                         :src="currentSelectedJob?.['occupationPic']" alt="">
+                    <img style="width:40px;height:40px;display:block;" :src="currentSelectedJob?.['occupationPic']"
+                      alt="">
                     <div>
                       {{ currentSelectedJob?.['occupation'] }}
                     </div>
@@ -60,9 +54,9 @@
               <el-checkbox v-model="formData.bz_input_can_edit" label="是否自定义白字"></el-checkbox>
             </el-form-item>
             <br>
-            <template v-for="(item,index) in mianbanList" :key="index">
+            <template v-for="(item, index) in mianbanList" :key="index">
               <el-form-item :label="item">
-                <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :min="0"/>
+                <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :min="0" />
               </el-form-item>
               <br>
             </template>
@@ -86,8 +80,7 @@
         <div>
           <el-form-item label="筛选神契">
             <el-select style="min-width:300px;" v-model="sq_filter_data" filterable multiple clearable>
-              <el-option v-for="(item,index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
-                         :label="item">
+              <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index" :label="item">
                 <div flex="cross:center">
                   <img class="mr_16" style="width:30px;height:30px;" :src="sq_slsb_dict[item].image" alt="">
                   <div>
@@ -99,33 +92,21 @@
           </el-form-item>
 
         </div>
-        <el-table
-            border
-            size="small"
-            :row-class-name="tableRowClassName"
-            :data="sq_slsb_show_table">
-          <el-table-column
-              v-for="(item,index) in sq_slsb_table_columns"
-              :fixed="item.fixed"
-              :key="index"
-              :width="item.width"
-              :label="item.label" :prop="item.prop">
+        <el-table border size="small" :row-class-name="tableRowClassName" :data="sq_slsb_show_table">
+          <el-table-column v-for="(item, index) in sq_slsb_table_columns" :fixed="item.fixed" :key="index"
+            :width="item.width" :label="item.label" :prop="item.prop">
             <template #default="scope">
-              <template v-if="scope.row?.名称==='神契晨曦之祝加成'&&item.prop!=='名称'">
+              <template v-if="scope.row?.名称 === '神契晨曦之祝加成' && item.prop !== '名称'">
                 <div style="color:#999;">
                   最大值{{ item.max }}
                 </div>
                 <mz-number-input style="width:120px;" :max="item.max" v-model="sq_cxzz[item.prop]"
-                                 :is-percent="item.isPercent" :min="0"></mz-number-input>
+                  :is-percent="item.isPercent" :min="0"></mz-number-input>
               </template>
               <template v-else>
-                <div v-if="item.prop==='名称'" flex="cross:center">
-                  <img
-                      v-if="sq_slsb_dict[scope.row[item.prop]]?.image"
-                      style="width:30px;height:30px;"
-                      class="mr_8"
-                      :src="sq_slsb_dict[scope.row[item.prop]]?.image"
-                      alt="">
+                <div v-if="item.prop === '名称'" flex="cross:center">
+                  <img v-if="sq_slsb_dict[scope.row[item.prop]]?.image" style="width:30px;height:30px;" class="mr_8"
+                    :src="sq_slsb_dict[scope.row[item.prop]]?.image" alt="">
                   <div>
                     {{ scope.row[item.prop] }}
                   </div>
@@ -151,14 +132,11 @@
           <el-tab-pane class="item-w-340" label="装备" name="装备">
             <div flex>
               <div>
-                <template v-for="(formKey,key) in wqFormKey" :key="key">
-                  <el-form-item :label="'请选择'+key">
+                <template v-for="(formKey, key) in wqFormKey" :key="key">
+                  <el-form-item :label="'请选择' + key">
                     <el-select v-model="formData[formKey]" filterable>
-                      <el-option
-                          v-for="(zbItem,zbIndex) in zbObj[key]" :key="zbIndex"
-                          :label="zbItem.装备名称"
-                          :value="zbItem.装备名称"
-                      ></el-option>
+                      <el-option v-for="(zbItem, zbIndex) in zbObj[key]" :key="zbIndex" :label="zbItem.装备名称"
+                        :value="zbItem.装备名称"></el-option>
                     </el-select>
                     <div>
                       <img style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="">
@@ -169,7 +147,7 @@
                         基础加成：<span style="color:green;">{{ wqSelectedObj[key]?.basicBonus }}</span>
                       </div>
                       <div>
-                        满级特效：<span style="color:orange;">{{ wqSelectedObj[key]?.specialEffects }}</span>
+                        满级特效：<span class="orange">{{ wqSelectedObj[key]?.specialEffects }}</span>
                       </div>
                     </div>
                   </el-form-item>
@@ -196,12 +174,7 @@
             <div>
               <el-form-item label="第一个共鸣2件套">
                 <el-select class="mb_8" v-model="formData.gm_fm_1" filterable>
-                  <el-option
-                      v-for="(item,index) in fmOptions"
-                      :key="index"
-                      :label="item.label"
-                      :value="item.value"
-                  >
+                  <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
                     <div flex="cross:center">
                       <img v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="">
                       <div>
@@ -213,19 +186,13 @@
                 <div flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm1Selected?.image">
                     <img v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
-                         :src="gmFm1Selected?.image"
-                         alt="">
+                      :src="gmFm1Selected?.image" alt="">
                   </template>
                 </div>
               </el-form-item>
               <el-form-item label="第二个共鸣2件套">
                 <el-select class="mb_8" v-model="formData.gm_fm_2" filterable>
-                  <el-option
-                      v-for="(item,index) in fmOptions"
-                      :key="index"
-                      :label="item.label"
-                      :value="item.value"
-                  >
+                  <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
                     <div flex="cross:center">
                       <img v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="">
                       <div>
@@ -237,8 +204,7 @@
                 <div flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm2Selected?.image">
                     <img v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
-                         :src="gmFm2Selected?.image"
-                         alt="">
+                      :src="gmFm2Selected?.image" alt="">
                   </template>
                 </div>
               </el-form-item>
@@ -246,26 +212,19 @@
             <base-divider></base-divider>
 
             <el-table :data="fmShowData">
-              <el-table-column
-                  v-for="(item,index) in fmInputTableColumns" :key="index"
-                  :width="item.width"
-                  :fixed="item.fixed"
-                  :label="item.label" :prop="item.prop">
+              <el-table-column v-for="(item, index) in fmInputTableColumns" :key="index" :width="item.width"
+                :fixed="item.fixed" :label="item.label" :prop="item.prop">
                 <template #default="scope">
-                  <template v-if="item.label==='部位'">
+                  <template v-if="item.label === '部位'">
                     {{ scope.row.部位 }}
                   </template>
                   <template v-else>
-                    <template v-if="scope.row?.部位==='共鸣' && item.prop.indexOf('固定值')!==-1">
+                    <template v-if="scope.row?.部位 === '共鸣' && item.prop.indexOf('固定值') !== -1">
                       <div style="text-align: center;margin-left: -20px;">-</div>
                     </template>
-                    <mz-number-input
-                        v-else
-                        style="width:100px;"
-                        :disabled="scope.row?.部位==='共鸣'||scope.row?.部位==='总加成'"
-                        :is-percent="item.isPercent"
-                        v-model="scope.row[item.prop]"
-                        :max="item.maxList?.[scope.row?.部位]||Infinity"></mz-number-input>
+                    <mz-number-input v-else style="width:100px;"
+                      :disabled="scope.row?.部位 === '共鸣' || scope.row?.部位 === '总加成'" :is-percent="item.isPercent"
+                      v-model="scope.row[item.prop]" :max="item.maxList?.[scope.row?.部位] || Infinity"></mz-number-input>
                   </template>
                 </template>
               </el-table-column>
@@ -277,13 +236,13 @@
             <div flex="cross:top">
               <el-form-item style="display: unset;" label-position="top" label="职业精通是否满值">
                 <el-radio-group v-model="formData.zyjt_input_can_edit">
-                  <el-radio :value="false" label="默认满"/>
+                  <el-radio :value="false" label="默认满" />
                   <br>
-                  <el-radio :value="true" label="自定义"/>
+                  <el-radio :value="true" label="自定义" />
                 </el-radio-group>
               </el-form-item>
               <div>
-                <el-form-item v-for="(item,index) in mianbanList" :key="index" :label="item+'-职业精通'">
+                <el-form-item v-for="(item, index) in mianbanList" :key="index" :label="item + '-职业精通'">
                   <mz-input :disabled="!formData.zyjt_input_can_edit" :prop="item" :formData="formData.zyjt"></mz-input>
                 </el-form-item>
               </div>
@@ -293,15 +252,15 @@
           <el-tab-pane label="铸纹" name="铸纹">
             <div flex="cross:top">
               <el-form-item class="item-w-200" style="display: unset;" :label-width="200" label-position="top"
-                            label="选择铸纹类型（默认满级）">
+                label="选择铸纹类型（默认满级）">
                 <el-radio-group v-model="formData.zw_input_can_edit">
-                  <el-radio :value="false" label="默认关联选择的英雄"/>
+                  <el-radio :value="false" label="默认关联选择的英雄" />
                   <br>
-                  <el-radio :value="true" label="自定义铸纹"/>
+                  <el-radio :value="true" label="自定义铸纹" />
                 </el-radio-group>
               </el-form-item>
               <div>
-                <el-form-item v-for="(item,index) in mianbanList" :key="index" :label="item+'-职业精通'">
+                <el-form-item v-for="(item, index) in mianbanList" :key="index" :label="item + '-职业精通'">
                   <mz-input :disabled="!formData.zw_input_can_edit" :prop="item" :formData="formData.zw"></mz-input>
                 </el-form-item>
               </div>
@@ -316,14 +275,11 @@
                 <el-form-item style="width:100%;" label="请选择神契">
                   <el-select v-model="formData.selected_sq" filterable clearable>
                     <el-option value="未携带" label="未携带"></el-option>
-                    <el-option
-                        v-for="(item,index) in Object.keys(sq_slsb_dict)"
-                        :value="item"
-                        :key="index"
-                        :label="item">
+                    <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
+                      :label="item">
                       <div flex="cross:center">
                         <img v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
-                             :src="sq_slsb_dict[item].image" alt="">
+                          :src="sq_slsb_dict[item].image" alt="">
                         <div>
                           {{ item }}
                         </div>
@@ -333,7 +289,7 @@
                 </el-form-item>
                 <el-form-item label=" ">
                   <img v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
-                       :src="sq_slsb_dict[formData.selected_sq]?.image" alt="">
+                    :src="sq_slsb_dict[formData.selected_sq]?.image" alt="">
                 </el-form-item>
               </div>
               <div class="green-list" style="max-width:400px;">
@@ -360,7 +316,7 @@
           </el-tab-pane>
           <el-tab-pane label="绿字总加成" name="绿字总加成">
             <div class="green-list" style="max-width:400px;">
-              <div class="item" v-for="(item,key) in lz" :key="key">
+              <div class="item" v-for="(item, key) in lz" :key="key">
                 <div class="label" style="width:100px;">
                   {{ key }}
                 </div>
@@ -378,12 +334,12 @@
       <el-card class="mb_16">
         <template #header>英雄绿字加成统计表</template>
         <el-table class="mb_16" :data="lzTotalTableData">
-          <el-table-column v-for="(item,index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
-                           :key="index"></el-table-column>
+          <el-table-column v-for="(item, index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
+            :key="index"></el-table-column>
         </el-table>
         <div flex>
           <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
-               :src="currentSelectedJob?.['英雄头像']" alt="">
+            :src="currentSelectedJob?.['英雄头像']" alt="">
           <div class="green-list" style="max-width:400px;">
             <div class="item" style="width:300px;" v-for="key in mianbanList" :key="key">
               <div class="label" style="width:100px;">
@@ -415,12 +371,10 @@
               英雄的白+绿面板
             </template>
             <div style="width: 500px;">
-              <el-checkbox
-                  class="mb_16"
-                  v-model="formData.sdsr_pd"
-                  label="默认关联读取以上英雄模拟结果 (想手动输入 进行下面模拟 就取消勾选)"></el-checkbox>
+              <el-checkbox class="mb_16" v-model="formData.sdsr_pd"
+                label="默认关联读取以上英雄模拟结果 (想手动输入 进行下面模拟 就取消勾选)"></el-checkbox>
               <br>
-              <template v-for="(item,index) in mianbanList" :key="index">
+              <template v-for="(item, index) in mianbanList" :key="index">
                 <el-form-item :label="item">
                   <mz-input :disabled="formData.sdsr_pd" :prop="item" :form-data="formData.bjl"></mz-input>
                 </el-form-item>
@@ -433,12 +387,9 @@
               英雄竞技精通区
             </template>
             <div style="width:500px;">
-              <el-checkbox
-                  class="mb_16"
-                  v-model="formData.jjjt_sfm"
-                  label="竞技精通是否满值 (想手动输入 就取消勾选)"></el-checkbox>
+              <el-checkbox class="mb_16" v-model="formData.jjjt_sfm" label="竞技精通是否满值 (想手动输入 就取消勾选)"></el-checkbox>
               <br>
-              <template v-for="(item,index) in mianbanList" :key="index">
+              <template v-for="(item, index) in mianbanList" :key="index">
                 <el-form-item :label="item">
                   <mz-input :disabled="formData.jjjt_sfm" :prop="item" :form-data="formData.jjjt"></mz-input>
                 </el-form-item>
@@ -472,7 +423,7 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-table :data="zc_jc_tableData">
+        <!-- <el-table :data="zc_jc_tableData">
           <el-table-column v-for="(item,index) in zc_jc_Tablecolumn" :key="index" :prop="item.prop" :label="item.label"
                            :fixed="item.fixed" :width="item.width">
             <template #default="scope">
@@ -492,7 +443,7 @@
                                   :formData="formData.zwtxjc"></mz-percent-input>
                 <ShowUp v-else :value="formData.zwtxjc?.[scope.row.prop]" :isPercent="true"></ShowUp>
               </template>
-              <template v-else-if="item.label==='战场其他加成'">
+              <template v-else-if="item.label==='战场其他加成（手输）'">
                 <mz-percent-input :prop="scope.row.prop" :formData="formData.zc_qt_jc"></mz-percent-input>
               </template>
               <template v-else-if="item.label==='总加成'">
@@ -503,7 +454,75 @@
               </template>
             </template>
           </el-table-column>
-        </el-table>
+        </el-table> -->
+
+        <el-tabs model-value="装备特效">
+          <el-tab-pane v-for="item in zc_jc_Tablecolumn.filter(i => i.label !== '总加成')" :key="item.label"
+            :name="item.label" :label="item.label">
+            <div flex="main:left">
+              <div style="flex: 1;">
+                <div class="mb_16" style="font-weight: bold;">{{ item.label }}</div>
+
+                <div flex>
+                  <!-- 添加装备特效展示区域 -->
+                  <template v-if="item.label === '装备特效'">
+                    <div style="margin-right:32px;">
+                      <div v-for="(wq, key) in wqSelectedObj" :key="key" class="mb_16">
+                        <div flex="cross:center" class="mb_8">
+                          <img v-if="wq?.picAddr" :src="wq.picAddr" style="width: 40px;height:auto; margin-right: 8px;" />
+                          <div style="font-weight: bold;">{{ key }}：{{ wq?.装备名称 }}</div>
+                        </div>
+                        <div>特效：<span class="orange">{{ wq?.specialEffects }}</span></div>
+                      </div>
+                    </div>
+                  </template>
+                  <div>
+                    <div v-for="row in zc_jc_tableData" :key="row.prop" class="mb_16">
+                      <div flex="cross:center">
+                        <span style="width: 100px;">{{ row.prop }}：</span>
+                        <template v-if="item.label === '装备特效'">
+                          <ShowUp :value="zb_tx_data[row.prop]" :isPercent="true"></ShowUp>
+                        </template>
+                        <template v-else-if="item.label === '超绝特效'">
+                          <ShowUp :value="cjtx[row.prop]" :isPercent="true"></ShowUp>
+                        </template>
+                        <template v-else-if="item.label === '附魔共鸣'">
+                          <mz-percent-input v-if="!formData.sdsr_pd && row.prop" :prop="row.prop"
+                            :formData="formData.fm4jc"></mz-percent-input>
+                          <ShowUp v-else :value="formData.fm4jc?.[row.prop]" :isPercent="true"></ShowUp>
+                        </template>
+                        <template v-else-if="item.label === '铸纹特效'">
+                          <mz-percent-input
+                            v-if="(!formData.sdsr_pd || !formData.selected_job || formData.selected_job === '自定义') && row.prop"
+                            :prop="row.prop" :formData="formData.zwtxjc"></mz-percent-input>
+                          <ShowUp v-else :value="formData.zwtxjc?.[row.prop]" :isPercent="true"></ShowUp>
+                        </template>
+                        <template v-else-if="item.label === '战场其他加成（手输）'">
+                          <mz-percent-input :prop="row.prop" :formData="formData.zc_qt_jc"></mz-percent-input>
+                        </template>
+                        <template v-else-if="item.label === '总加成'">
+                          <ShowUp :value="row.total" :isPercent="true"></ShowUp>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- 总加成固定在右侧 -->
+              <div style="width: 200px; margin-left: 24px; border-left: 1px solid #eee; padding-left: 24px;">
+                <div class="mb_16" style="font-weight: bold;">总加成</div>
+                <div v-for="row in zc_jc_tableData" :key="row.prop" class="mb_16">
+                  <div flex="main:justify cross:center">
+                    <span style="width: 100px;">{{ row.prop }}：</span>
+                    <ShowUp :value="row.total" :isPercent="true"></ShowUp>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
 
       </el-card>
 
@@ -517,14 +536,14 @@
                 </el-form-item>
 
                 <div v-if="formData.zh_pd_fj">
-                  <template v-for="(item,index) in fz_list" :key="index">
+                  <template v-for="(item, index) in fz_list" :key="index">
                     <el-form-item>
-                      <el-checkbox v-model="formData[item.zhKey]" :label="item.prop+'进行转换'"></el-checkbox>
+                      <el-checkbox v-model="formData[item.zhKey]" :label="item.prop + '进行转换'"></el-checkbox>
                     </el-form-item>
                     <br>
                     <el-card class="mb_8" v-if="formData[item.zhKey]">
-                      <template v-for="(mbItem,mbIndex) in mianbanList.filter(i=>i!==item.prop)" :key="mbIndex">
-                        <el-form-item label-width="140" :label="item.prop+'转化'+mbItem+'系数'">
+                      <template v-for="(mbItem, mbIndex) in mianbanList.filter(i => i !== item.prop)" :key="mbIndex">
+                        <el-form-item label-width="140" :label="item.prop + '转化' + mbItem + '系数'">
                           <mz-percent-input :prop="mbItem" :formData="formData[item.zhValueKey]"></mz-percent-input>
                         </el-form-item>
                         <br>
@@ -541,14 +560,14 @@
                 </el-form-item>
 
                 <div v-if="formData.zh_pd_dt">
-                  <template v-for="(item,index) in fz_list" :key="index">
+                  <template v-for="(item, index) in fz_list" :key="index">
                     <el-form-item>
-                      <el-checkbox v-model="formData[item.tdKey]" :label="item.prop+'进行代替'"></el-checkbox>
+                      <el-checkbox v-model="formData[item.tdKey]" :label="item.prop + '进行代替'"></el-checkbox>
                     </el-form-item>
                     <br>
                     <el-card class="mb_8" v-if="formData[item.tdKey]">
-                      <template v-for="(mbItem,mbIndex) in mianbanList.filter(i=>i!==item.prop)" :key="mbIndex">
-                        <el-form-item label-width="140" :label="item.prop+'代替'+mbItem+'系数'">
+                      <template v-for="(mbItem, mbIndex) in mianbanList.filter(i => i !== item.prop)" :key="mbIndex">
+                        <el-form-item label-width="140" :label="item.prop + '代替' + mbItem + '系数'">
                           <mz-percent-input :prop="mbItem" :formData="formData[item.tdValueKey]"></mz-percent-input>
                         </el-form-item>
                         <br>
@@ -579,32 +598,32 @@
                 </div>
                 <div class="value" flex style="gap:8px;">
                   <show-up :value="yx_zdmb_zz[key]"
-                           :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                    :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
                 </div>
               </div>
               <img v-if="currentSelectedJob" class="mr_16" style="width:120px;height:120px;display:block;"
-                   :src="currentSelectedJob?.['英雄头像']" alt="">
+                :src="currentSelectedJob?.['英雄头像']" alt="">
             </div>
             <div>
               <div flex>
-                <div class="item" v-for="key in ['攻击','智力']" :key="key">
+                <div class="item" v-for="key in ['攻击', '智力']" :key="key">
                   <div class="label">
                     {{ key }}：
                   </div>
                   <div class="value" flex style="gap:8px;">
                     <show-up :value="yx_zdmb_zz[key]"
-                             :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                      :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
                   </div>
                 </div>
               </div>
               <div flex>
-                <div class="item" v-for="key in ['防御','魔防']" :key="key">
+                <div class="item" v-for="key in ['防御', '魔防']" :key="key">
                   <div class="label">
                     {{ key }}：
                   </div>
                   <div class="value" flex style="gap:8px;">
                     <show-up :value="yx_zdmb_zz[key]"
-                             :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                      :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
                   </div>
                 </div>
               </div>
@@ -615,7 +634,7 @@
                   </div>
                   <div class="value" flex style="gap:8px;">
                     <show-up :value="yx_zdmb_zz[key]"
-                             :show-class="(zd_zjc[key]>0||yx_sx_zhl[key]!=0)?'up':zd_zjc[key]<0?'down':''"></show-up>
+                      :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
                   </div>
                 </div>
               </div>
@@ -627,10 +646,10 @@
         <div style="margin:0 24px;">
           <h3>英雄大心效果</h3>
           <div class="mt_8">
-            心之羁绊4：<span style="color:orange;">{{currentSelectedJob['心之羁绊4']}}</span>
+            心之羁绊4：<span class="orange">{{ currentSelectedJob['心之羁绊4'] }}</span>
           </div>
           <div class="mt_8">
-            心之羁绊7：<span style="color:orange;">{{currentSelectedJob['心之羁绊7']}}</span>
+            心之羁绊7：<span class="orange">{{ currentSelectedJob['心之羁绊7'] }}</span>
           </div>
         </div>
       </el-card>
@@ -638,16 +657,16 @@
     </el-form>
 
     <pre style="user-select: text;">
-      使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。搬运来源：https://moyuanmz-mbjsq.streamlit.app/
-    </pre>
+  使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。搬运来源：https://moyuanmz-mbjsq.streamlit.app/
+</pre>
 
   </view>
 </template>
 
 <script setup>
-import {ref, watch, onMounted, computed, watchEffect} from 'vue'
+import { ref, watch, onMounted, computed, watchEffect } from 'vue'
 import Big from 'big.js'
-import {useRefCache} from "../common/hook";
+import { useRefCache } from "../common/hook";
 import {
   calculateFormula,
   exportExcelFun,
@@ -660,7 +679,7 @@ import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
 import ShowUp from '@/pages/components/show-up.vue'
 import EquipDetail_schema from '@/static/data/EquipDetail_schema.json'
-import {ElMessageBox} from "element-plus";
+import { ElMessageBox } from "element-plus";
 import {
   sq_slsb_table,
   sq_slsb_table_columns,
@@ -719,40 +738,40 @@ const getHeroData = () => {
   }
   const query = new AV.Query("HeroBasicAttr");
   query
-      .limit(1000)
-      .find()
-      .then((res) => {
-        const heroes = res.map((item) => {
-          // 判断英雄名是否叫【自定义英雄】
-          if (item.attributes.heroName === '自定义英雄') {
-            item.attributes.logo = zdyLogo
-            item.attributes.occupationPic = zdyZY
-          }
+    .limit(1000)
+    .find()
+    .then((res) => {
+      const heroes = res.map((item) => {
+        // 判断英雄名是否叫【自定义英雄】
+        if (item.attributes.heroName === '自定义英雄') {
+          item.attributes.logo = zdyLogo
+          item.attributes.occupationPic = zdyZY
+        }
 
-          const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-            if (heroKeyMap[key]) {
-              acc[heroKeyMap[key]] = value
-            }
-            return acc
-          }, {})
-          return {
-            ...mapAttributes,
-            ...item.attributes,
+        const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
+          if (heroKeyMap[key]) {
+            acc[heroKeyMap[key]] = value
           }
-        })
-
-        heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-          return {
-            "英雄名": key,
-            list: list,
-          }
-        })
-        console.log(heroList.value)
-
+          return acc
+        }, {})
+        return {
+          ...mapAttributes,
+          ...item.attributes,
+        }
       })
-      .catch((err) => {
-        console.log('查询失败', err)
+
+      heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+        return {
+          "英雄名": key,
+          list: list,
+        }
       })
+      console.log(heroList.value)
+
+    })
+    .catch((err) => {
+      console.log('查询失败', err)
+    })
 }
 
 import wq_none from '@/static/image/武器未佩戴.png'
@@ -770,39 +789,39 @@ const getEquipData = () => {
   }, {})
   const query = new AV.Query("EquipDetail");
   query
-      .limit(1000)
-      .find()
-      .then((res) => {
-        const map = EquipDetailMap
-        const mapItem = {
-          "武器无": wq_none,
-          "衣服无": yf_none,
-          "头饰无": ts_none,
-          "饰品无": sp_none,
+    .limit(1000)
+    .find()
+    .then((res) => {
+      const map = EquipDetailMap
+      const mapItem = {
+        "武器无": wq_none,
+        "衣服无": yf_none,
+        "头饰无": ts_none,
+        "饰品无": sp_none,
+      }
+      const list = res.map((item) => {
+        if (mapItem[item.attributes.equipName]) {
+          item.attributes.picAddr = mapItem[item.attributes.equipName]
         }
-        const list = res.map((item) => {
-          if (mapItem[item.attributes.equipName]) {
-            item.attributes.picAddr = mapItem[item.attributes.equipName]
+        const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
+          if (map[key]) {
+            acc[map[key]] = value
           }
-          const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-            if (map[key]) {
-              acc[map[key]] = value
-            }
-            return acc
-          }, {})
+          return acc
+        }, {})
 
-          return {
-            ...mapAttributes,
-            ...item.attributes,
-          }
-        })
+        return {
+          ...mapAttributes,
+          ...item.attributes,
+        }
+      })
 
-        zbObj.value = _.groupBy(list, '类别')
-        console.log(zbObj.value)
-      })
-      .catch((err) => {
-        console.log('查询失败', err)
-      })
+      zbObj.value = _.groupBy(list, '类别')
+      console.log(zbObj.value)
+    })
+    .catch((err) => {
+      console.log('查询失败', err)
+    })
 }
 
 onMounted(() => {
@@ -965,7 +984,7 @@ watchEffect(() => {
   }
 })
 const reset_zyjt = () => {
-  formData.value.zyjt = {"生命": 750, "攻击": 80, "智力": 80, "防御": 60, "魔防": 60, "技巧": 80}
+  formData.value.zyjt = { "生命": 750, "攻击": 80, "智力": 80, "防御": 60, "魔防": 60, "技巧": 80 }
 }
 watchEffect(() => {
   if (!formData.value.zyjt_input_can_edit) {
@@ -1014,19 +1033,19 @@ const export_sq_cxzz = () => {
 }
 const import_sq_cxzz = () => {
   selectExcelFile()
-      .then((file) => {
-        importExcelFun({
-          file: file,
-          importOption: sqExcelOption,
-          sheetName: 'Sheet1',
+    .then((file) => {
+      importExcelFun({
+        file: file,
+        importOption: sqExcelOption,
+        sheetName: 'Sheet1',
+      })
+        .then((data) => {
+          sq_cxzz.value = data[0]
         })
-            .then((data) => {
-              sq_cxzz.value = data[0]
-            })
-      })
-      .catch(() => {
-        ElMessage.error('导入失败')
-      })
+    })
+    .catch(() => {
+      ElMessage.error('导入失败')
+    })
 }
 // 设置筛选的数据
 const sq_filter_data = useRefCache(`${prefix}sq_filter_data`, [])
@@ -1067,7 +1086,7 @@ const sq_slsb_show_table = computed(() => {
 })
 
 // 设置行样式
-const tableRowClassName = ({row, rowIndex}) => {
+const tableRowClassName = ({ row, rowIndex }) => {
   if (row.isTotal) return "total-row";
   return "";
 };
@@ -1180,7 +1199,7 @@ const allDataObj = computed(() => {
 })
 
 const lz = computed(() => {
-  const {zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc} = allDataObj.value
+  const { zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc } = allDataObj.value
   const res = {
     生命: round(zb_jc["生命"] + bz["生命"] * fm_bfb["生命"] + fm_gdz["生命"] + zyjt["生命"] + zw["生命"] + sq_zjc["生命"], 1),
     攻击: round(zb_jc["攻击"] + bz["攻击"] * fm_bfb["攻击"] + fm_gdz["攻击"] + zyjt["攻击"] + zw["攻击"] + sq_zjc["攻击"], 1),
@@ -1234,7 +1253,7 @@ const lzTotalTableColumns = [
 const lzTotalTableData = computed(() => {
   return mianbanList.reduce((res, mb_key) => {
     const keyList = ['bz', 'zb_jc', 'fm_bfb', 'fm_bfb', 'fm_gdz', 'zyjt', 'zw', 'sq_zjc']
-    const {zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc} = keyList.reduce((res, key) => {
+    const { zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc } = keyList.reduce((res, key) => {
       res[key] = allDataObj.value[key][mb_key]
       return res
     }, {})
@@ -1277,7 +1296,7 @@ watchEffect(() => {
   }
 })
 
-// 装备特效 超绝特效 附魔共鸣 战场其他加成 总加成
+// 装备特效 超绝特效 附魔共鸣 战场其他加成（手输） 总加成
 // 战场加成
 const zc_jc_Tablecolumn = [
   {
@@ -1307,7 +1326,7 @@ const zc_jc_Tablecolumn = [
     width: 200,
   },
   {
-    label: "战场其他加成",
+    label: "战场其他加成（手输）",
     prop: "zc_qt_jc",
     width: 200,
   },
@@ -1320,7 +1339,7 @@ const zc_jc_Tablecolumn = [
 
 const zb_tx_data = computed(() => {
   return mianbanList.reduce((res, key) => {
-    res[key] = Object.keys(wqSelectedObj.value).reduce((res,zbkey)=>{
+    res[key] = Object.keys(wqSelectedObj.value).reduce((res, zbkey) => {
       // formData.value.bdxl_pd 血量
       let tx_cz = Number(wqSelectedObj.value[zbkey]?.[`常驻${key}`]) || 0
       let tx_mx = 0
@@ -1346,7 +1365,7 @@ const zb_tx_data = computed(() => {
           break;
       }
       return res + tx_cz + tx_mx + tx_50x + tx_50xyx + tx_80x
-    },0)
+    }, 0)
     return res
   }, {})
 })
@@ -1359,7 +1378,7 @@ const zc_jc_tableData = computed(() => {
     const _zwtxjc = Number(formData.value.zwtxjc?.[key]) || 0
     const qtzd_jc = Number(formData.value?.zc_qt_jc?.[key]) || 0
 
-    let total = zb_tx + _cjtx + _fm4jc + qtzd_jc +_zwtxjc
+    let total = zb_tx + _cjtx + _fm4jc + qtzd_jc + _zwtxjc
     if (key === '生命' && formData.value.jjc_pd) {
       total += 0.4
     }
@@ -1394,7 +1413,7 @@ watchEffect(() => {
     if (gmFm1Selected.value?.value === gmFm2Selected.value?.value) {
       switch (gmFm1Selected.value?.value) {
         case '满月':
-          if(formData.value.bdxl_pd ==='满血' || formData.value.bdxl_pd === '80%以上但未满血'){
+          if (formData.value.bdxl_pd === '满血' || formData.value.bdxl_pd === '80%以上但未满血') {
             res = {
               攻击: 0.1,
               智力: 0.1,
@@ -1418,7 +1437,7 @@ watchEffect(() => {
     }
     formData.value.fm4jc = res
 
-    if(currentSelectedJob.value){
+    if (currentSelectedJob.value) {
       console.log(currentSelectedJob.value)
       formData.value.zwtxjc = mianbanList.reduce((acc, key) => {
         acc[key] = Number(currentSelectedJob.value?.[`铸纹特效${key}`]);
@@ -1501,9 +1520,12 @@ const yx_zdmb_zz = computed(() => {
     return acc
   }, {})
 })
-const test = ref(0)
 </script>
 <style lang="scss">
+.orange{
+  color:#e99700fc;
+}
+
 .mbjs-el {
   .el-table .el-table__row.total-row {
     background-color: rgb(254, 240.3, 240.3);
@@ -1556,5 +1578,4 @@ const test = ref(0)
 
 
 }
-
 </style>
