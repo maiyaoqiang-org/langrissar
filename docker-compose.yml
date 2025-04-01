@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   web:
-    image: crpi-98ymlx0yqe646pye-vpc.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+    image: crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
     ports:
       - "8080:80"
     restart: always
