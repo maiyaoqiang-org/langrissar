@@ -61,8 +61,9 @@
             </el-form-item>
             <br>
             <template v-for="(item, index) in mianbanList" :key="index">
-              <el-form-item :label="item">
-                <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :min="0" />
+              <el-form-item :label="item" style="--el-form-item__content_width:300px;display: flex;">
+                  <div v-if="!formData.bz_input_can_edit" style="font-size: 20px;margin-right: 8px;">{{round(formData.bz[item])}}</div>
+                  <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :precision="2" :min="0" />
               </el-form-item>
               <br>
             </template>
@@ -341,7 +342,11 @@
         <template #header>英雄绿字加成统计表</template>
         <el-table class="mb_16" :data="lzTotalTableData">
           <el-table-column v-for="(item, index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
-            :key="index"></el-table-column>
+            :key="index">
+            <template v-slot="scope" v-if="item.prop === 'fm_bfb*bz'">
+              {{round(Number(scope.row[item.prop]),1)||'-'}}
+            </template>
+          </el-table-column>
         </el-table>
         <div flex>
           <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
@@ -691,8 +696,8 @@
         <el-table-column property="name" label="缓存名称">
           <template #default="scope">
             <div flex="cross:center">
-              <img v-if="scope.row.data?.selected_hero_row" 
-                style="width:30px;height:30px;margin-right:8px;" 
+              <img v-if="scope.row.data?.selected_hero_row"
+                style="width:30px;height:30px;margin-right:8px;"
                 :src="getHeroAvatar(scope.row.data)" />
               <span>{{ scope.row.name }}</span>
             </div>
@@ -755,12 +760,12 @@ const getHeroData = () => {
   const heroKeyMap = {
     "heroName": "英雄名",
     "occupation": "职业名",
-    "life": "生命",
-    "attack": "攻击",
-    "intelligence": "智力",
-    "defense": "防御",
-    "magicDefense": "魔防",
-    "skill": "技巧",
+    "lifeXs": "生命",
+    "attackXs": "攻击",
+    "intelligenceXs": "智力",
+    "defenseXs": "防御",
+    "magicDefenseXs": "魔防",
+    "skillXs": "技巧",
     "zwLife": "铸纹生命",
     "zwAttack": "铸纹攻击",
     "zwIntelligence": "铸纹智力",
@@ -1017,7 +1022,7 @@ const currentSelectedJob = computed(() => {
 const resetBz = () => {
   const fieldsToConvert = mianbanList;
   formData.value.bz = fieldsToConvert.reduce((acc, key) => {
-    acc[key] = Number(currentSelectedJob.value?.[key]) || 0;
+    acc[key] = round(Number(currentSelectedJob.value?.[key]),2) || 0;
     return acc;
   }, {});
 }
@@ -1323,7 +1328,7 @@ const lzTotalTableData = computed(() => {
 
 const reset_bjl = () => {
   formData.value.bjl = mianbanList.reduce((acc, key) => {
-    acc[key] = formData.value.bz[key] + lz.value[key]
+    acc[key] = round(formData.value.bz[key] + lz.value[key],2)
     return acc;
   }, {});
 }
@@ -1589,7 +1594,7 @@ const confirmSaveCache = () => {
     ElMessage.warning('请输入缓存名称')
     return
   }
-  
+
   const key = `${prefix}hero_cache`
   const cacheData = JSON.parse(localStorage.getItem(key) || '[]')
   cacheData.push({
@@ -1598,7 +1603,7 @@ const confirmSaveCache = () => {
     timestamp: Date.now()
   })
   localStorage.setItem(key, JSON.stringify(cacheData))
-  
+
   ElMessage.success('保存成功')
   saveDialogVisible.value = false
   cacheName.value = ''

@@ -104,8 +104,9 @@ uni-page {
       }
     }
 
+    --el-form-item__content_width: 140px;
     .el-form-item__content {
-      width: 140px;
+      width: var(--el-form-item__content_width);
     }
 
     .el-card__body {
