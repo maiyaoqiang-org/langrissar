@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite'
-import uni from '@dcloudio/vite-plugin-uni'
+import vue from '@vitejs/plugin-vue'
 import viteCompression from 'vite-plugin-compression';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    uni(),
+    vue(),
     viteCompression({
       verbose: true,
       disable: false,
@@ -15,6 +15,11 @@ export default defineConfig({
   ],
   base: './',
   server: {
-    port: 5300,
+    port: 5400,
   },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  }
 })

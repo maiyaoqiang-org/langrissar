@@ -1,128 +1,60 @@
-<script>
-export default {
-  onLaunch: function () {
-    console.log('App Launch')
-  },
-  onShow: function () {
-    console.log('App Show')
-  },
-  onHide: function () {
-    console.log('App Hide')
-  },
-}
+<template>
+  <router-view></router-view>
+</template>
+
+<script setup>
+// App.vue now uses composition API
 </script>
 
 <style lang="scss">
 @import "@/styles/flex.css";
 @import "@/styles/mrpd.scss";
-/*每个页面公共css */
-img,image{
-  // display: none !important;
-  // opacity: 0;
+
+/* Global CSS */
+img {
+  max-width: 100%;
+  height: auto;
 }
-uni-page {
-  font-size: 14px;
-  color: #606266;
 
-  uni-page-body {
-    > view {
-      overflow: auto;
-    }
-  }
+.primary {
+  color: var(--el-color-primary);
+}
 
-  uni-button {
-    font-size: 14px;
-    padding: 0;
-    background-color: $uni-color-primary;
-    color: #fff;
-  }
+.success {
+  color: var(--el-color-success);
+}
 
-  .uni-forms-item__content {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-  }
+.warning {
+  color: var(--el-color-warning);
+}
 
+.error {
+  color: var(--el-color-error);
+}
+
+.base-el-form {
   .average-box {
     display: flex;
-    font-size: 24rpx;
+    font-size: 18px;
 
-    > view {
+    > div {
       flex: 1;
     }
 
     .value {
-      font-size: 28rpx;
+      font-size: 20px;
     }
   }
 
-  .primary {
-    color: $uni-color-primary;
+  .card-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+
+    .el-card {
+      width: 640px;
+    }
   }
-
-  .success {
-    color: $uni-color-success;
-  }
-
-  .warning {
-    color: $uni-color-warning;
-  }
-
-  .error {
-    color: $uni-color-error;
-  }
-
-
-  .base-el-form {
-    .average-box {
-      display: flex;
-      font-size: 18px;
-
-      > view {
-        flex: 1;
-      }
-
-      .value {
-        font-size: 20px;
-      }
-    }
-
-    .card-box {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-
-      .el-card {
-        width: 640px;
-      }
-    }
-
-    &.el-form--inline.el-form--label-top {
-      .el-form-item {
-        display: inline-block;
-      }
-    }
-
-    --el-form-item__content_width: 140px;
-    .el-form-item__content {
-      width: var(--el-form-item__content_width);
-    }
-
-    .el-card__body {
-      overflow: auto;
-    }
-
-    @for $i from 1 through 50{
-      .item-w-#{$i*10} {
-        &.el-form-item__content, .el-form-item__content {
-          width: $i*10px;
-        }
-      }
-    }
-
-  }
-
-
 }
 </style>

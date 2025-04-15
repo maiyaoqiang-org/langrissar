@@ -1,5 +1,5 @@
 <template>
-  <view class="mbjs-el" style="padding:24px;">
+  <div class="mbjs-el" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
     <el-affix>
       <div class="mb_16" flex="main:right">
@@ -658,10 +658,10 @@
         <div style="margin:0 24px;">
           <h3>英雄大心效果</h3>
           <div class="mt_8">
-            心之羁绊4：<span class="orange">{{ currentSelectedJob['心之羁绊4'] }}</span>
+            心之羁绊4：<span class="orange">{{ currentSelectedJob?.['心之羁绊4'] }}</span>
           </div>
           <div class="mt_8">
-            心之羁绊7：<span class="orange">{{ currentSelectedJob['心之羁绊7'] }}</span>
+            心之羁绊7：<span class="orange">{{ currentSelectedJob?.['心之羁绊7'] }}</span>
           </div>
         </div>
       </el-card>
@@ -711,7 +711,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-  </view>
+  </div>
 </template>
 
 <script setup>
@@ -945,9 +945,9 @@ const fz_list = [
 
 const defaultFormData = {
   // 选中的英雄
-  selected_hero_row: "",
+  selected_hero_row: "自定义英雄",
   // 选中的职业
-  selected_job: "",
+  selected_job: "自定义",
   // 是否自定义白字
   bz_input_can_edit: false,
   // 基础白字
@@ -1016,7 +1016,7 @@ const currentSelectedHero = computed(() => {
 })
 const currentSelectedJob = computed(() => {
   const name = formData.value?.selected_job
-  return currentSelectedHero.value?.list?.find(item => item.职业名 === name)
+  return currentSelectedHero.value?.list?.find(item => item.职业名 === name)||{}
 })
 
 const resetBz = () => {
