@@ -12,9 +12,6 @@ export const useUserStore = defineStore('user', {
   getters: {
     isAuthenticated: (state) => {
       if (!state.user?.token) return false
-      console.log(78,state.user , state.loginTime ,
-        ((new Date().getTime() - state.loginTime) < state.user.expireIn));
-      
       return state.user.expireIn && state.loginTime && 
         ((new Date().getTime() - state.loginTime) < state.user.expireIn)
     },

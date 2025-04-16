@@ -4,22 +4,32 @@ export const menuRoutes = [
   {
     path: '/pages/ddjsq-el',
     component: () => import('@/pages/ddjsq-el.vue'),
-    meta: { title: '单点计算器' }
+    meta: { title: '单点计算器', requiresAuth: false }
   },
   {
     path: '/pages/aoejsq-el',
     component: () => import('@/pages/aoejsq-el.vue'),
-    meta: { title: 'AOE计算器' }
+    meta: { title: 'AOE计算器', requiresAuth: false }
   },
   {
     path: '/pages/mbjs-el',
     component: () => import('@/pages/mbjs-el.vue'),
-    meta: { title: '面板模拟计算器' }
+    meta: { title: '面板模拟计算器', requiresAuth: false }
   },
   {
     path: '/pages/bp-simulate',
     component: () => import('@/pages/bp-simulate.vue'),
-    meta: { title: 'BP模拟器' }
+    meta: { title: 'BP模拟器', requiresAuth: false }
+  },
+  {
+    path: '/pages/invitation-code',
+    component: () => import('@/pages/invitation-code.vue'),
+    meta: { title: '邀请码管理', requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/pages/user-management',
+    component: () => import('@/pages/user-management.vue'),
+    meta: { title: '用户管理', requiresAuth: true, requiresAdmin: true }
   },
 ]
 const routes = [
@@ -64,6 +74,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const isAuthenticated = userStore.isAuthenticated
+  
   // 如果是登录页面，直接放行
   if (to.path === '/pages/login') {
     next()
@@ -71,11 +82,16 @@ router.beforeEach((to, from, next) => {
   }
 
   // 如果路由需要登录且用户未登录，则重定向到登录页
-  if (!isAuthenticated) {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
+  
+  if (requiresAuth && !isAuthenticated) {
     next({
       path: '/pages/login',
       query: { redirect: to.fullPath }
     })
+  } else if (requiresAdmin && userStore.user?.role !== 'admin') {
+    next('/')
   } else {
     next()
   }

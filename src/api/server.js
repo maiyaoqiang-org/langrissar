@@ -82,6 +82,16 @@ export const createInvitationCodes = async (count) => {
   }
 };
 
+// 分页查询邀请码
+export const queryInvitationCodes = async (data) => {
+  try {
+    const response = await api.post('/user/invitation-code/query', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
 // 退出登录
 export const logout = () => {
   const userStore = useUserStore();

@@ -5,7 +5,10 @@
         <h2>梦战工具</h2>
       </div>
       <el-menu class="el-menu-vertical" mode="vertical" :router="true" :default-active="$route.path">
-        <el-menu-item v-for="route in menuRoutes" :key="route.path" :index="route.path">
+        <el-menu-item 
+          v-for="route in filteredMenuRoutes" 
+          :key="route.path" 
+          :index="route.path">
           {{ route.meta.title }}
         </el-menu-item>
       </el-menu>
@@ -14,6 +17,7 @@
       <el-header>
         <div class="header-content">
           <div style="flex-grow: 1"></div>
+          <el-button v-if="!userStore.user" type="primary" @click="router.push('/pages/login')">登录</el-button>
           <div class="user-info" v-if="userStore.user">
             <el-dropdown @command="handleCommand">
               <div class="avatar-container">
@@ -47,9 +51,20 @@
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { menuRoutes } from '@/router'
+import { computed } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
+
+// 过滤菜单路由
+const filteredMenuRoutes = computed(() => {
+  return menuRoutes.filter(route => {
+    if (route.meta.requiresAuth && !userStore.user) {
+      return false
+    }
+    return route.meta.requiresAdmin ? userStore.user.role === 'admin' : true
+  })
+})
 
 // 处理下拉菜单命令
 const handleCommand = (command) => {
@@ -84,6 +99,7 @@ body {
   align-items: center;
   justify-content: center;
   background-color: #001529;
+
   h2 {
     color: white;
     margin: 0;
@@ -98,11 +114,15 @@ body {
 .el-aside {
   background-color: #001529;
   color: white;
+
   .el-menu {
     background-color: #001529;
+
     .el-menu-item {
       color: #fff;
-      &:hover, &.is-active {
+
+      &:hover,
+      &.is-active {
         background-color: #1890ff;
       }
     }
@@ -141,9 +161,10 @@ body {
   color: #909399;
   text-decoration: none;
   font-size: 12px;
+
   &:hover {
     color: #409EFF;
-  }  
+  }
 }
 
 .user-info {
@@ -226,7 +247,7 @@ img {
     display: flex;
     font-size: 18px;
 
-    > div {
+    >div {
       flex: 1;
     }
 
