@@ -88,6 +88,16 @@
               </el-input>
             </el-form-item>
 
+            <el-form-item prop="username">
+              <el-input 
+                v-model="registerForm.username" 
+                placeholder="请输入用户名">
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
             <el-form-item prop="captcha">
               <div class="captcha-container">
                 <el-input 
@@ -149,6 +159,7 @@ console.log(666,userStore,userStore.isAuthenticated);
         phone: '',
         password: '',
         invitationCode: '',
+        username: '',
         captcha: ''
       },
       useCaptcha: false,
@@ -181,6 +192,10 @@ console.log(666,userStore,userStore.isAuthenticated);
         ],
         invitationCode: [
           { required: true, message: '请输入邀请码', trigger: 'blur' }
+        ],
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, message: '用户名长度不能小于3位', trigger: 'blur' }
         ],
         captcha: [
           { required: true, message: '请输入验证码', trigger: 'blur' },

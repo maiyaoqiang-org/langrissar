@@ -97,3 +97,23 @@ export const logout = () => {
   const userStore = useUserStore();
   userStore.clearUser();
 };
+
+// 获取用户列表
+export const getUsers = async (data) => {
+  try {
+    const response = await api.post('/user/query',data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// 更新用户信息
+export const updateUser = async (userData) => {
+  try {
+    const response = await api.post('/user/update', userData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
