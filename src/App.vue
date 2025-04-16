@@ -34,6 +34,11 @@
       <el-main>
         <router-view></router-view>
       </el-main>
+      <el-footer height="40px">
+        <div class="footer-content">
+          <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">粤ICP备xxx号</a>
+        </div>
+      </el-footer>
     </el-container>
   </el-container>
 </template>
@@ -115,8 +120,30 @@ body {
 
 .el-main {
   background-color: #f5f7fa;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 100px);
   overflow-y: auto;
+}
+
+.el-footer {
+  background-color: #f5f7fa;
+  border-top: 1px solid #dcdfe6;
+  padding: 0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.beian-link {
+  color: #909399;
+  text-decoration: none;
+  font-size: 12px;
+  &:hover {
+    color: #409EFF;
+  }  
 }
 
 .user-info {
