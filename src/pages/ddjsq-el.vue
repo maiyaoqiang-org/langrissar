@@ -479,15 +479,6 @@
 
     </el-form>
 
-    <uni-forms
-        class="my-form"
-        :label-width="160"
-        label-align="right"
-        validateTrigger="blur"
-        ref="formRef" :modelValue="formData">
-
-
-    </uni-forms>
 
     <base-divider></base-divider>
     <pre style="user-select: text;">

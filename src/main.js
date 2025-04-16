@@ -23,8 +23,8 @@ const piniaPersistedState = createPersistedState({
 		return `${import.meta.env.VITE_STORE_PERFIX}_${storeKey}`
 	},
 	storage: {
-		setItem: localStorage.setItem,
-		getItem: localStorage.getItem,
+		setItem: (key, value) => localStorage.setItem(key, value),
+		getItem: (key) => localStorage.getItem(key)
 	}
 })
 pinia.use(piniaPersistedState)

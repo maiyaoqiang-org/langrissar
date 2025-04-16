@@ -1,9 +1,11 @@
 import axios from 'axios';
 import {createCachedAsyncFunction} from "@/common/utils";
+import { useUserStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
 
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_APP_API_URL || 'http://localhost:3000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -12,12 +14,33 @@ const api = axios.create({
 
 // 请求拦截器 - 添加 token
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
+  const userStore = useUserStore();
+  const token = userStore.currentUser?.token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+// 响应拦截器 - 处理401未授权
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      // 清除用户状态
+      const userStore = useUserStore();
+      userStore.clearUser();
+      
+      // 跳转到登录页
+      const router = useRouter();
+      router.push({
+        path: '/pages/login',
+        query: { redirect: router.currentRoute.value.fullPath }
+      });
+    }
+    return Promise.reject(error);
+  }
+);
 
 // 用户注册
 export const register = async (userData) => {
@@ -33,8 +56,6 @@ export const register = async (userData) => {
 export const login = async (loginData) => {
   try {
     const response = await api.post('/user/login', loginData);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -63,5 +84,6 @@ export const createInvitationCodes = async (count) => {
 
 // 退出登录
 export const logout = () => {
-  localStorage.removeItem('token');
+  const userStore = useUserStore();
+  userStore.clearUser();
 };

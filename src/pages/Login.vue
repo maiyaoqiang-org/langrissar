@@ -114,6 +114,7 @@
 import { useUserStore } from '@/stores/user'
 import { Iphone, Lock, Key, View, Hide } from '@element-plus/icons-vue'
 import { login, register, getCaptcha } from '@/api/server';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
   name: 'Login',
@@ -123,6 +124,18 @@ export default {
     Key,
     View,
     Hide
+  },
+  setup() {
+    const userStore = useUserStore()
+    const route = useRoute()
+    const router = useRouter()
+console.log(666,userStore,userStore.isAuthenticated);
+
+    // 如果已登录，重定向到目标页面或首页
+    if (userStore.isAuthenticated) {
+      const redirectPath = route.query.redirect || '/pages/ddjsq-el'
+      router.replace(redirectPath)
+    }
   },
   data() {
     return {
@@ -208,10 +221,15 @@ export default {
           phone: result.phone,
           role: result.role,
           token: result.access_token,
-          expiresIn: result.expiresIn
+          expireIn: result.expireIn
         });
         
-        const redirect = this.$route.query.redirect || '/pages/index';
+        // 获取重定向地址并进行安全验证
+        let redirect = this.$route.query.redirect || '/';
+        // 确保重定向地址以/开头，防止恶意跳转
+        if (!redirect.startsWith('/')) {
+          redirect = '/';
+        }
         this.$router.push(redirect);
       } catch (error) {
         this.$message.error(error.message || '登录失败');
