@@ -139,7 +139,6 @@ export default {
     const userStore = useUserStore()
     const route = useRoute()
     const router = useRouter()
-console.log(666,userStore,userStore.isAuthenticated);
 
     // 如果已登录，重定向到目标页面或首页
     if (userStore.isAuthenticated) {

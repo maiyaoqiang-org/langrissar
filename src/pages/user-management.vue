@@ -34,7 +34,7 @@
                 </el-table-column>
                 <el-table-column prop="createdAt" label="创建时间" />
                 <el-table-column prop="updatedAt" label="更新时间" />
-                <el-table-column label="操作" width="200">
+                <el-table-column label="操作" width="300">
                     <template #default="scope">
                         <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
                         <el-button size="small" :type="scope.row.status === 'active' ? 'danger' : 'success'"

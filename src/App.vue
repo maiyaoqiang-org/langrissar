@@ -28,6 +28,7 @@
               </div>
               <template #dropdown>
                 <el-dropdown-menu>
+                  <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
                   <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -45,13 +46,15 @@
       </el-footer>
     </el-container>
   </el-container>
+  <ChangePasswordDialog ref="changePasswordDialogRef" />
 </template>
 
 <script setup>
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { menuRoutes } from '@/router'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -67,12 +70,17 @@ const filteredMenuRoutes = computed(() => {
 })
 
 // 处理下拉菜单命令
+const changePasswordDialogRef = ref(null)
+
 const handleCommand = (command) => {
   if (command === 'logout') {
     userStore.logout()
     router.push('/pages/login')
+  } else if (command === 'changePassword') {
+    changePasswordDialogRef.value?.show()
   }
 }
+
 </script>
 
 <style lang="scss">

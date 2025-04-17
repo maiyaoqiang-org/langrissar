@@ -127,3 +127,13 @@ export const updateUser = async (userData) => {
     throw error.response?.data || error;
   }
 };
+
+// 修改密码
+export const changePassword = async (data) => {
+  try {
+    const response = await api.post('/user/change-password', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
