@@ -3,13 +3,13 @@
         <el-card>
             <div class="header">
                 <el-form :inline="true" :model="filterForm" class="filter-form">
-                    <el-form-item label="用户名">
+                    <el-form-item label="用户名" style="width:240px;">
                         <el-input v-model="filterForm.username" placeholder="请输入用户名" clearable />
                     </el-form-item>
-                    <el-form-item label="手机号">
+                    <el-form-item label="手机号" style="width:240px;">
                         <el-input v-model="filterForm.phone" placeholder="请输入手机号" clearable />
                     </el-form-item>
-                    <el-form-item label="角色">
+                    <el-form-item label="角色" style="width:240px;">
                         <el-select v-model="filterForm.role" placeholder="请选择角色" clearable>
                             <el-option label="普通用户" value="user" />
                             <el-option label="管理员" value="admin" />
