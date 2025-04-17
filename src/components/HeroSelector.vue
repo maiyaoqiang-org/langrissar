@@ -1,6 +1,6 @@
 <template>
   <el-button @click="visible=true">选择英雄</el-button>
-  <el-dialog v-model="visible" title="选择英雄" width="80%" top="5vh" @close="handleCancel">
+  <el-dialog v-model="visible" title="选择英雄" top="5vh" @close="handleCancel" :style="{ minWidth: '800px',width:'80%' }">
     <div style="height:80vh;display: flex;flex-direction: column;">
       <div flex="cross:top" flex-box="1" style="height:calc(100% - 60px);">
 
@@ -34,20 +34,20 @@
         <div flex-box="1" class="ml_16" style="overflow-y: auto;height:100%;">
           <div class="selected-heroes">
             <h3>已选择的英雄</h3>
-            <transition-group name="fade-up" tag="div">
+            <div>
               <div @click="cancelSelect(hero,index)" class="hero-item" v-for="(hero, index) in selectedHeroes" :key="hero.heroName">
                 <img style="width: 40px; height: 40px;" :src="hero.logo" alt="">
               </div>
-            </transition-group>
+            </div>
           </div>
           <div>
             <h3>英雄池</h3>
-            <transition-group name="fade-down" tag="div" flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;">
+            <div flex="cross:top" style="flex-wrap: wrap; gap: 8px;align-items: flex-start;">
               <div class="hero-item" v-for="(item, index) in showHeroes" :key="item.heroName" @click="selectHero(item)"
                    :class="{ 'selected-hero': isSelected(item) , 'disabled': selectedHeroes.length >= maxSelection }">
                 <img style="width: 40px; height: 40px;" :src="item.logo" alt="">
               </div>
-            </transition-group>
+            </div>
           </div>
         </div>
       </div>

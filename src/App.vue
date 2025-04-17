@@ -89,6 +89,7 @@ const handleCommand = (command) => {
 
 body {
   margin: 0;
+  min-width: 800px;
 }
 
 .el-container {
