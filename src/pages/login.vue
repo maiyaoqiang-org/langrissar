@@ -240,7 +240,6 @@ export default {
         }
         this.$router.push(redirect);
       } catch (error) {
-        this.$message.error(error.message || '登录失败');
         this.refreshCaptcha(); // 登录失败时刷新验证码
       } finally {
         this.loading = false;

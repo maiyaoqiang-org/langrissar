@@ -1,7 +1,6 @@
 import axios from 'axios';
-import {createCachedAsyncFunction} from "@/common/utils";
 import { useUserStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
+import router from '@/router';
 
 // 创建 axios 实例
 const api = axios.create({
@@ -41,12 +40,13 @@ api.interceptors.response.use(
       const userStore = useUserStore();
       userStore.clearUser();
       
-      // 跳转到登录页
-      const router = useRouter();
-      router.push({
-        path: '/pages/login',
-        query: { redirect: router.currentRoute.value.fullPath }
-      });
+      // 确保router对象已初始化
+      if (router && router.currentRoute.value.path !== '/pages/login') {
+        router.push({
+          path: '/pages/login',
+          query: { redirect: router.currentRoute.value.fullPath }
+        });
+      }
     }
     const message = error.response?.data?.message || '请求失败';
     ElMessage.error(message);
