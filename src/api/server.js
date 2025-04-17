@@ -118,6 +118,16 @@ export const getUsers = async (data) => {
   }
 };
 
+// 添加新用户
+export const createUser = async (userData) => {
+  try {
+    const response = await api.post('/user/create', userData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
 // 更新用户信息
 export const updateUser = async (userData) => {
   try {

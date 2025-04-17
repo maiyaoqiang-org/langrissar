@@ -55,7 +55,7 @@
 
         <!-- 添加用户对话框 -->
         <el-dialog v-model="showAddDialog" title="添加用户" width="30%">
-            <el-form :model="addForm" label-width="80px">
+            <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
                 <el-form-item label="用户名">
                     <el-input v-model="addForm.username" />
                 </el-form-item>
@@ -67,6 +67,12 @@
                         <el-option label="普通用户" value="user" />
                         <el-option label="管理员" value="admin" />
                     </el-select>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                    <el-input v-model="addForm.password" type="password" show-password />
+                </el-form-item>
+                <el-form-item label="确认密码" prop="confirmPassword">
+                    <el-input v-model="addForm.confirmPassword" type="password" show-password />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -118,7 +124,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { getUsers, updateUser,updatePassword } from '@/api/server'
+import { getUsers, updateUser, updatePassword, createUser } from '@/api/server'
 import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
@@ -137,8 +143,28 @@ const filterForm = ref({
 const addForm = ref({
     username: '',
     phone: '',
-    role: 'user'
+    role: 'user',
+    password: '',
+    confirmPassword: ''
 })
+// 密码验证规则
+const addFormRules = {
+    password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+    confirmPassword: [
+        { required: true, message: '请确认密码', trigger: 'blur' },
+        {
+            validator: (rule, value, callback) => {
+                
+                if (value !== addForm.value.password) {
+                    callback(new Error('两次输入的密码不一致'))
+                } else {
+                    callback()
+                }
+            },
+            trigger: 'blur'
+        }
+    ]
+}
 
 const editForm = ref({
     id: '',
@@ -199,18 +225,32 @@ const resetFilter = () => {
 }
 
 // 添加用户
+const addFormRef = ref(null)
+
 const handleAddUser = async () => {
+    if (!addFormRef.value) return
+    
     try {
-        await updateUser(addForm.value)
+        await addFormRef.value.validate()
+        
+        const { confirmPassword, ...userData } = addForm.value
+        await createUser(userData)
         showAddDialog.value = false
         fetchUsers()
         addForm.value = {
             username: '',
             phone: '',
-            role: 'user'
+            role: 'user',
+            password: '',
+            confirmPassword: ''
         }
     } catch (error) {
-        console.error(error)
+        if (error.response?.data?.message) {
+            ElMessage.error(error.response.data.message)
+        } else {
+            console.error(error)
+            ElMessage.error('添加用户失败')
+        }
     }
 }
 
@@ -257,8 +297,7 @@ const handleUpdatePassword = async () => {
             id: passwordForm.value.id,
             password: passwordForm.value.password
         }
-        await updateUser(updateData)
-        // await updatePassword(updateData)
+        await updatePassword(updateData)
         showPasswordDialog.value = false
         ElMessage.success('密码修改成功')
     } catch (error) {
