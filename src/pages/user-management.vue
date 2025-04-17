@@ -154,7 +154,7 @@ const addFormRules = {
         { required: true, message: '请确认密码', trigger: 'blur' },
         {
             validator: (rule, value, callback) => {
-                
+
                 if (value !== addForm.value.password) {
                     callback(new Error('两次输入的密码不一致'))
                 } else {
@@ -200,13 +200,10 @@ const passwordRules = {
 
 // 获取用户列表
 const fetchUsers = async () => {
-    try {
-        const res = await getUsers(filterForm.value)
-        userList.value = res.items
-        total.value = res.total
-    } catch (error) {
-        console.error(error)
-    }
+    const res = await getUsers(filterForm.value)
+    userList.value = res.items
+    total.value = res.total
+    
 }
 
 // 筛选用户
@@ -229,29 +226,20 @@ const addFormRef = ref(null)
 
 const handleAddUser = async () => {
     if (!addFormRef.value) return
-    
-    try {
-        await addFormRef.value.validate()
-        
-        const { confirmPassword, ...userData } = addForm.value
-        await createUser(userData)
-        showAddDialog.value = false
-        fetchUsers()
-        addForm.value = {
-            username: '',
-            phone: '',
-            role: 'user',
-            password: '',
-            confirmPassword: ''
-        }
-    } catch (error) {
-        if (error.response?.data?.message) {
-            ElMessage.error(error.response.data.message)
-        } else {
-            console.error(error)
-            ElMessage.error('添加用户失败')
-        }
+    await addFormRef.value.validate()
+
+    const { confirmPassword, ...userData } = addForm.value
+    await createUser(userData)
+    showAddDialog.value = false
+    fetchUsers()
+    addForm.value = {
+        username: '',
+        phone: '',
+        role: 'user',
+        password: '',
+        confirmPassword: ''
     }
+    
 }
 
 // 编辑用户
@@ -267,13 +255,10 @@ const handleEdit = (user) => {
 
 // 更新用户
 const handleUpdateUser = async () => {
-    try {
-        await updateUser(editForm.value)
-        showEditDialog.value = false
-        fetchUsers()
-    } catch (error) {
-        console.error(error)
-    }
+    await updateUser(editForm.value)
+    showEditDialog.value = false
+    fetchUsers()
+    
 }
 
 // 打开修改密码对话框
@@ -289,38 +274,26 @@ const handleChangePassword = (user) => {
 // 更新密码
 const handleUpdatePassword = async () => {
     if (!passwordFormRef.value) return
-    
-    try {
-        await passwordFormRef.value.validate()
-        
-        const updateData = {
-            id: passwordForm.value.id,
-            password: passwordForm.value.password
-        }
-        await updatePassword(updateData)
-        showPasswordDialog.value = false
-        ElMessage.success('密码修改成功')
-    } catch (error) {
-        if (error.response?.data?.message) {
-            ElMessage.error(error.response.data.message)
-        } else {
-            console.error(error)
-            ElMessage.error('密码修改失败')
-        }
+
+    await passwordFormRef.value.validate()
+
+    const updateData = {
+        id: passwordForm.value.id,
+        password: passwordForm.value.password
     }
+    await updatePassword(updateData)
+    showPasswordDialog.value = false
+    ElMessage.success('密码修改成功')
+
 }
 
 // 切换用户状态
 const handleToggleStatus = async (user) => {
-    try {
-        await updateUser({
-            id: user.id,
-            isActive: !user.isActive
-        })
-        fetchUsers()
-    } catch (error) {
-        console.error(error)
-    }
+    await updateUser({
+        id: user.id,
+        isActive: !user.isActive
+    })
+    fetchUsers()
 }
 
 onMounted(() => {

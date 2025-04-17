@@ -128,8 +128,6 @@ const fetchInvitationCodes = async () => {
         const result = await queryInvitationCodes(params)
         invitationCodes.value = result.items
         total.value = result.total
-    } catch (error) {
-        ElMessage.error(error.message || '获取邀请码列表失败')
     } finally {
         loading.value = false
     }
@@ -150,8 +148,6 @@ const handleSubmit = async () => {
         ElMessage.success('创建成功')
         dialogVisible.value = false
         fetchInvitationCodes()
-    } catch (error) {
-        ElMessage.error(error.message || '创建失败')
     } finally {
         submitLoading.value = false
     }

@@ -22,9 +22,19 @@ api.interceptors.request.use(config => {
   return config;
 });
 
-// 响应拦截器 - 处理401未授权
+import { ElMessage } from 'element-plus';
+
+// 响应拦截器 - 统一处理返回格式和错误信息
 api.interceptors.response.use(
-  response => response,
+  response => {
+    const { code, message, data } = response.data;
+    if (code === 0) {
+      return data;
+    } else {
+      ElMessage.error(message);
+      return Promise.reject(new Error(message));
+    }
+  },
   error => {
     if (error.response?.status === 401) {
       // 清除用户状态
@@ -38,58 +48,35 @@ api.interceptors.response.use(
         query: { redirect: router.currentRoute.value.fullPath }
       });
     }
+    const message = error.response?.data?.message || '请求失败';
+    ElMessage.error(message);
     return Promise.reject(error);
   }
 );
 
 // 用户注册
 export const register = async (userData) => {
-  try {
-    const response = await api.post('/user/register', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/register', userData);
 };
 
 // 用户登录
 export const login = async (loginData) => {
-  try {
-    const response = await api.post('/user/login', loginData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/login', loginData);
 };
 
 // 获取验证码
 export const getCaptcha = async () => {
-  try {
-    const response = await api.get(`/user/captcha`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.get(`/user/captcha`);
 };
 
 // 创建邀请码
 export const createInvitationCodes = async (count) => {
-  try {
-    const response = await api.post('/user/invitation-code', { count });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/invitation-code', { count });
 };
 
 // 分页查询邀请码
 export const queryInvitationCodes = async (data) => {
-  try {
-    const response = await api.post('/user/invitation-code/query', data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/invitation-code/query', data);
 };
 
 // 退出登录
@@ -100,50 +87,25 @@ export const logout = () => {
 
 // 修改密码
 export const updatePassword = async (data) => {
-  try {
-    const response = await api.post('/user/update-password', data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/update-password', data);
 };
 
 // 获取用户列表
 export const getUsers = async (data) => {
-  try {
-    const response = await api.post('/user/query',data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/query',data);
 };
 
 // 添加新用户
 export const createUser = async (userData) => {
-  try {
-    const response = await api.post('/user/create', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/create', userData);
 };
 
 // 更新用户信息
 export const updateUser = async (userData) => {
-  try {
-    const response = await api.post('/user/update', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/update', userData);
 };
 
 // 修改密码
 export const changePassword = async (data) => {
-  try {
-    const response = await api.post('/user/change-password', data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+  return await api.post('/user/change-password', data);
 };
