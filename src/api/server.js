@@ -98,6 +98,16 @@ export const logout = () => {
   userStore.clearUser();
 };
 
+// 修改密码
+export const updatePassword = async (data) => {
+  try {
+    const response = await api.post('/user/update-password', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
 // 获取用户列表
 export const getUsers = async (data) => {
   try {

@@ -41,6 +41,7 @@
                             @click="handleToggleStatus(scope.row)">
                             {{ scope.row.isActive ? '禁用' : '启用' }}
                         </el-button>
+                        <el-button size="small" type="warning" @click="handleChangePassword(scope.row)">修改密码</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -78,7 +79,7 @@
         <el-dialog v-model="showEditDialog" title="编辑用户" width="30%">
             <el-form :model="editForm" label-width="80px">
                 <el-form-item label="用户名">
-                    <el-input v-model="editForm.username" disabled />
+                    <el-input v-model="editForm.username" />
                 </el-form-item>
                 <el-form-item label="手机号">
                     <el-input v-model="editForm.phone" />
@@ -95,13 +96,30 @@
                 <el-button type="primary" @click="handleUpdateUser">确定</el-button>
             </template>
         </el-dialog>
+
+        <!-- 修改密码对话框 -->
+        <el-dialog v-model="showPasswordDialog" title="修改密码" width="30%">
+            <el-form :model="passwordForm" :rules="passwordRules" ref="passwordFormRef" label-width="100px">
+                <el-form-item label="新密码" prop="password">
+                    <el-input v-model="passwordForm.password" type="password" show-password />
+                </el-form-item>
+                <el-form-item label="确认新密码" prop="confirmPassword">
+                    <el-input v-model="passwordForm.confirmPassword" type="password" show-password />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="showPasswordDialog = false">取消</el-button>
+                <el-button type="primary" @click="handleUpdatePassword">确定</el-button>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { getUsers, updateUser } from '@/api/server'
+import { getUsers, updateUser,updatePassword } from '@/api/server'
+import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
 const userList = ref([])
@@ -128,6 +146,31 @@ const editForm = ref({
     phone: '',
     role: ''
 })
+
+const showPasswordDialog = ref(false)
+const passwordFormRef = ref(null)
+const passwordForm = ref({
+    id: '',
+    password: '',
+    confirmPassword: ''
+})
+
+const passwordRules = {
+    password: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
+    confirmPassword: [
+        { required: true, message: '请确认新密码', trigger: 'blur' },
+        {
+            validator: (rule, value, callback) => {
+                if (value !== passwordForm.value.password) {
+                    callback(new Error('两次输入的密码不一致'))
+                } else {
+                    callback()
+                }
+            },
+            trigger: 'blur'
+        }
+    ]
+}
 
 // 获取用户列表
 const fetchUsers = async () => {
@@ -190,6 +233,41 @@ const handleUpdateUser = async () => {
         fetchUsers()
     } catch (error) {
         console.error(error)
+    }
+}
+
+// 打开修改密码对话框
+const handleChangePassword = (user) => {
+    passwordForm.value = {
+        id: user.id,
+        password: '',
+        confirmPassword: ''
+    }
+    showPasswordDialog.value = true
+}
+
+// 更新密码
+const handleUpdatePassword = async () => {
+    if (!passwordFormRef.value) return
+    
+    try {
+        await passwordFormRef.value.validate()
+        
+        const updateData = {
+            id: passwordForm.value.id,
+            password: passwordForm.value.password
+        }
+        await updateUser(updateData)
+        // await updatePassword(updateData)
+        showPasswordDialog.value = false
+        ElMessage.success('密码修改成功')
+    } catch (error) {
+        if (error.response?.data?.message) {
+            ElMessage.error(error.response.data.message)
+        } else {
+            console.error(error)
+            ElMessage.error('密码修改失败')
+        }
     }
 }
 
