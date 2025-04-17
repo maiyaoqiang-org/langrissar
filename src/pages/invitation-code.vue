@@ -25,7 +25,13 @@
         </div>
 
         <el-table :data="invitationCodes" border style="width: 100%" v-loading="loading">
-            <el-table-column prop="code" label="邀请码" width="180" />
+            <el-table-column prop="code" label="邀请码" width="180" >
+                <template #default="{ row }">
+                    <div>
+                        <el-link type="primary" @click="handleCopy(row.code)">{{ row.code }}</el-link>
+                    </div>
+                </template>
+            </el-table-column>
             <el-table-column prop="isUsed" label="状态" width="120">
                 <template #default="{ row }">
                     <el-tag :type="!row.isUsed ? 'success' : 'info'">
@@ -33,21 +39,24 @@
                     </el-tag>
                 </template>
             </el-table-column>
-            <el-table-column prop="createTime" label="创建时间" width="180" />
-            <el-table-column prop="usedTime" label="使用时间" width="180" />
+            <el-table-column prop="createdAt" label="创建时间" width="180" />
+            <el-table-column prop="usedAt" label="使用时间" width="180" />
             <el-table-column label="使用者" width="180">
                 <template #default="{ row }">
-                    {{ row.usedBy?.phone || '' }}
+                    <div v-if="row.usedBy">
+                        用户名：{{ row.usedBy?.username || '' }}
+                        <br>
+                        手机：{{ row.usedBy?.phone || '' }}
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column label="创建者" width="180">
                 <template #default="{ row }">
-                    {{ row.createdBy?.phone || '' }}
-                </template>
-            </el-table-column>
-            <el-table-column label="操作" fixed="right">
-                <template #default="{ row }">
-                    <!-- <el-button link type="danger" @click="handleDelete(row)">删除</el-button> -->
+                    <div v-if="row.createdBy">
+                        用户名：{{ row.createdBy?.username || '' }}
+                        <br>
+                        手机：{{ row.createdBy?.phone || '' }}
+                    </div>
                 </template>
             </el-table-column>
         </el-table>
@@ -168,6 +177,16 @@ const handleFilter = () => {
 
 // 初始化获取数据
 fetchInvitationCodes()
+
+// 复制邀请码
+const handleCopy = async (code) => {
+    try {
+        await navigator.clipboard.writeText(code)
+        ElMessage.success('复制成功')
+    } catch (error) {
+        ElMessage.error('复制失败')
+    }
+}
 </script>
 
 <style scoped>

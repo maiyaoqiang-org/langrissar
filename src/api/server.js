@@ -15,7 +15,7 @@ const api = axios.create({
 // 请求拦截器 - 添加 token
 api.interceptors.request.use(config => {
   const userStore = useUserStore();
-  const token = userStore.currentUser?.token;
+  const token = userStore.currentUser?.access_token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

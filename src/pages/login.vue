@@ -230,13 +230,7 @@ export default {
         this.$message.success('登录成功');
         
         const userStore = useUserStore()
-        userStore.setUser({
-          id: result.id,
-          phone: result.phone,
-          role: result.role,
-          token: result.access_token,
-          expireIn: result.expireIn
-        });
+        userStore.setUser(result);
         
         // 获取重定向地址并进行安全验证
         let redirect = this.$route.query.redirect || '/';

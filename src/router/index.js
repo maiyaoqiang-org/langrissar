@@ -1,26 +1,26 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 export const menuRoutes = [
-  {
-    path: '/pages/ddjsq-el',
-    component: () => import('@/pages/ddjsq-el.vue'),
-    meta: { title: '单点计算器', requiresAuth: false }
-  },
-  {
-    path: '/pages/aoejsq-el',
-    component: () => import('@/pages/aoejsq-el.vue'),
-    meta: { title: 'AOE计算器', requiresAuth: false }
-  },
-  {
-    path: '/pages/mbjs-el',
-    component: () => import('@/pages/mbjs-el.vue'),
-    meta: { title: '面板模拟计算器', requiresAuth: false }
-  },
-  {
-    path: '/pages/bp-simulate',
-    component: () => import('@/pages/bp-simulate.vue'),
-    meta: { title: 'BP模拟器', requiresAuth: false }
-  },
+  // {
+  //   path: '/pages/ddjsq-el',
+  //   component: () => import('@/pages/ddjsq-el.vue'),
+  //   meta: { title: '单点计算器', requiresAuth: false }
+  // },
+  // {
+  //   path: '/pages/aoejsq-el',
+  //   component: () => import('@/pages/aoejsq-el.vue'),
+  //   meta: { title: 'AOE计算器', requiresAuth: false }
+  // },
+  // {
+  //   path: '/pages/mbjs-el',
+  //   component: () => import('@/pages/mbjs-el.vue'),
+  //   meta: { title: '面板模拟计算器', requiresAuth: false }
+  // },
+  // {
+  //   path: '/pages/bp-simulate',
+  //   component: () => import('@/pages/bp-simulate.vue'),
+  //   meta: { title: 'BP模拟器', requiresAuth: false }
+  // },
   {
     path: '/pages/invitation-code',
     component: () => import('@/pages/invitation-code.vue'),
