@@ -41,9 +41,9 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no root@47.113.147.241 << EOF
                             docker pull ${ACR_REGISTRY}/${ACR_NAMESPACE}/${ACR_REPO}:${env.BUILD_ID}
-                            docker stop vue-app || true
-                            docker rm vue-app || true
-                            docker run -d -p 80:80 --name vue-app ${ACR_REGISTRY}/${ACR_NAMESPACE}/${ACR_REPO}:${env.BUILD_ID}
+                            docker stop langrissar-jsq || true
+                            docker rm langrissar-jsq || true
+                            docker run -d -p 80:80 --name langrissar-jsq ${ACR_REGISTRY}/${ACR_NAMESPACE}/${ACR_REPO}:${env.BUILD_ID}
                             EOF
                         """
                     }
