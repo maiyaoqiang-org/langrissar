@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout') {
             steps {
                  git(
-                    url: 'https://github.com/your-username/your-repo.git',
+                    url: 'https://github.com/maiyaoqiang-org/langrissar',
                     credentialsId: 'github-token',
                     branch: 'main'
                 )
