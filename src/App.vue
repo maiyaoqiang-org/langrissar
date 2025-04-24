@@ -41,7 +41,7 @@
       </el-main>
       <el-footer height="40px">
         <div class="footer-content">
-          <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">粤ICP备xxx号</a>
+          <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">粤ICP备2025406882号</a>
         </div>
       </el-footer>
     </el-container>
