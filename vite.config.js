@@ -16,6 +16,13 @@ export default defineConfig({
   base: './',
   server: {
     port: 5400,
+    proxy: {
+      '/api': {
+        target: 'https://maiyaoqiang.fun/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
   resolve: {
     alias: {

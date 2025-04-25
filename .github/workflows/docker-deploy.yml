@@ -47,4 +47,4 @@ jobs:
             docker pull crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
             docker stop langrissar-jsq || true
             docker rm langrissar-jsq || true
-            docker run -d -p 80:80 --name langrissar-jsq crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+            docker run -d --restart unless-stopped -p 3100:80 --name langrissar-jsq crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
