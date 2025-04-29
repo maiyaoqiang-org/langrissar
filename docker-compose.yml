@@ -1,0 +1,10 @@
+version: '3'
+services:
+  langrissar-jsq:
+    image: crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+    container_name: langrissar-jsq
+    restart: unless-stopped
+    ports:
+      - "3100:80"
+    environment:
+      - VITE_APP_API_URL=${VITE_APP_API_URL:-/api}
