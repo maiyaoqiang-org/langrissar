@@ -4,7 +4,7 @@ import router from '@/router';
 
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_APP_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
