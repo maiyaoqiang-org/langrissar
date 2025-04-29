@@ -29,13 +29,11 @@ jobs:
           VITE_APP_AV_APP_ID: ${{ secrets.VITE_APP_AV_APP_ID }}
           VITE_APP_AV_APP_KEY: ${{ secrets.VITE_APP_AV_APP_KEY }}
           VITE_APP_AV_SERVER_URL: ${{ secrets.VITE_APP_AV_SERVER_URL }}
-          VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
         run: |
           cp .env.production .env.production.bak
           echo "VITE_APP_AV_APP_ID=$VITE_APP_AV_APP_ID" > .env.production
           echo "VITE_APP_AV_APP_KEY=$VITE_APP_AV_APP_KEY" >> .env.production
           echo "VITE_APP_AV_SERVER_URL=$VITE_APP_AV_SERVER_URL" >> .env.production
-          echo "VITE_APP_API_URL=$VITE_APP_API_URL" >> .env.production
           cat .env.production.bak >> .env.production
           docker buildx build --push --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest .
 

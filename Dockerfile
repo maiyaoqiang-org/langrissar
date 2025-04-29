@@ -5,6 +5,9 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 # 生产阶段
 FROM nginx:stable-alpine AS production-stage
