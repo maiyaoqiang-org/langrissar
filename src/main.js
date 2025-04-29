@@ -7,6 +7,8 @@ import AV from 'leancloud-storage'
 import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import router from './router'
+
+console.log("当前请求环境：",import.meta.env.VITE_APP_API_URL)
 AV.init({
 	appId: import.meta.env.VITE_APP_AV_APP_ID,
 	appKey: import.meta.env.VITE_APP_AV_APP_KEY,
