@@ -1,10 +1,9 @@
 import axios from 'axios';
 import { useUserStore } from '@/stores/user';
 import router from '@/router';
-
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL || '/api',
+  baseURL: window.RUNTIME_CONFIG?.VITE_APP_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
