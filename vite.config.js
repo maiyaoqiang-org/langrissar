@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import viteCompression from 'vite-plugin-compression';
+import { createHtmlPlugin } from 'vite-plugin-html'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -12,6 +13,14 @@ export default defineConfig({
       algorithm: 'gzip',
       ext: '.gz',
     }),
+    createHtmlPlugin({
+      minify: true,
+      inject: {
+        data: {
+          buildTime: new Date().getTime()
+        }
+      }
+    })
   ],
   base: './',
   server: {

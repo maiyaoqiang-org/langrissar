@@ -30,6 +30,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "sass": "1.32.13",
     "vite": "5.2.8",
-    "vite-plugin-compression": "^0.5.1"
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-html": "^3.2.2"
   }
 }
