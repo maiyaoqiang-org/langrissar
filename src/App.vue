@@ -38,6 +38,7 @@
       </el-header>
       <el-main>
         <router-view></router-view>
+        <HideContentButton />
       </el-main>
       <el-footer height="40px">
         <div class="footer-content">
@@ -55,6 +56,7 @@ import { useRouter } from 'vue-router'
 import { menuRoutes } from '@/router'
 import { computed, ref } from 'vue'
 import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue'
+import HideContentButton from './components/HideContentButton.vue';
 
 const userStore = useUserStore()
 const router = useRouter()

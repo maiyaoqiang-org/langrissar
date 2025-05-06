@@ -9,7 +9,7 @@
     "docker-stop": "docker-compose down",
     "docker-logs": "docker-compose logs -f",
     "docker-restart": "docker-compose restart",
-    "docker-update": "docker-compose down && docker rmi -f crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest && npm run docker-run"
+    "docker-update": "docker-compose down && docker container prune -f && docker image rm -f crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest && npm run docker-run"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
