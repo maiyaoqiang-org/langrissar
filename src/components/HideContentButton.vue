@@ -1,5 +1,5 @@
 <template>
-  <div class="hide-content-button" @click="toggleHideContent">
+  <div v-if="useHide" class="hide-content-button" @click="toggleHideContent">
     <el-button type="primary" circle>
       <el-icon>
         <component :is="hideContent ? 'View' : 'Hide'" />
@@ -13,7 +13,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { View, Hide } from '@element-plus/icons-vue';
 
 const hideContent = ref(false);
-const useHide = ref(import.meta.env.DEV)
+const useHide = ref(import.meta.env.DEV);
 
 const toggleHideContent = () => {
   hideContent.value = !hideContent.value;
@@ -21,7 +21,6 @@ const toggleHideContent = () => {
 };
 
 onMounted(() => {
-  // 检查是否为本地环境
   if (useHide.value) {
     hideContent.value = true;
     document.body.classList.add('content-hidden');
