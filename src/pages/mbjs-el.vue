@@ -770,6 +770,36 @@
         </div>
       </el-card>
 
+      <el-card class="mb_16">
+        <template #header>
+          士兵白字区
+        </template>
+        <div style="width:1000px;display: flex;">
+          <div style="width:90px;">
+            <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+            <div style="color:#999;text-align: center;">
+              {{ currentSelectedJob?.['英雄名'] }}
+            </div>
+          </div>
+          <div style="width:130px;">
+            <img style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="">
+            <div style="color:#999;text-align: center;">
+              {{ sb_selected_row?.['士兵名'] }}
+            </div>
+          </div>
+          <div style="margin-left: 60px;" >
+            <div v-for="(item,key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;"> 
+              {{key}}：
+              {{ round(item,2) }}
+              <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key]*formData.yx_bx_jc?.['兵修'+key],2) }}（{{round(formData.yx_bx_jc?.["兵修"+key]*100)}}%）</span>
+            </div>
+          </div>
+        </div>
+        
+
+
+      </el-card>
+
     </el-form>
 
     <pre style="user-select: text;">
@@ -1132,7 +1162,6 @@ const defaultFormData = {
   sb_cs: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 }, // 初始化士兵初始值 字典
   sb_sq_jc: { "士兵生命": 0, "士兵攻击": 0, "士兵防御": 0, "士兵魔防": 0 }, // 初始化士兵神契加成 字典
   yx_bx_jc: { "兵修生命": 0, "兵修攻击": 0, "兵修防御": 0, "兵修魔防": 0 }, // 初始英雄兵修加成 字典
-  sb_bz: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始士兵白字 字典
   sb_cjtx: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵超绝特效加成 字典
   sb_kj_jc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵科技加成 字典
   sb_bztx_qtjc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵兵种特效及其他加成 字典
@@ -1831,6 +1860,16 @@ watchEffect(() => {
     formData.value.yx_bx_jc["兵修攻击"] = currentSelectedJob.value["兵修攻击"]
     formData.value.yx_bx_jc["兵修防御"] = currentSelectedJob.value["兵修防御"]
     formData.value.yx_bx_jc["兵修魔防"] = currentSelectedJob.value["兵修魔防"]
+  }
+})
+
+const sb_bz = computed(() => {
+
+  return {
+    生命: Number(formData.value.sb_cs.生命) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵生命"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
+    攻击: Number(formData.value.sb_cs.攻击) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵攻击"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
+    防御: Number(formData.value.sb_cs.防御) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵防御"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
+    魔防: Number(formData.value.sb_cs.魔防) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵魔防"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
   }
 })
 
