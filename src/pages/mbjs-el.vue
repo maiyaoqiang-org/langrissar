@@ -739,6 +739,23 @@
         </div>
       </el-card>
 
+      <el-card class="mb_16">
+        <template #header>
+          英雄兵修区
+        </template>
+        <div>
+          <el-form-item label="">
+            <el-checkbox v-model="formData.yxbx_sdsr_pd" label="默认关联读取以上英雄模拟结果 (想手动输入 就取消勾选)"></el-checkbox>
+          </el-form-item>
+          <div style="width:1000px;">
+            <el-form-item label-width="180px" v-for="(item,index) in ['兵修生命','兵修攻击','兵修防御','兵修魔防']" :key="index" :label="item"> 
+              <mz-percent-input :disabled="formData.yxbx_sdsr_pd && formData.selected_hero_row!=='自定义英雄'" :prop="item" :form-data="formData.yx_bx_jc"></mz-percent-input>
+            </el-form-item>
+          </div>
+
+        </div>
+      </el-card>
+
     </el-form>
 
     <pre style="user-select: text;">
@@ -1110,6 +1127,7 @@ const defaultFormData = {
   sb_zdmb_klkz: { "生命": 0, "物理攻击": 0, "魔法攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵战斗面板（考虑克制加成） 字典
   selected_sb_names: [],
   sbsq_sdsr_pd: true,
+  yxbx_sdsr_pd: true,
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -1339,12 +1357,6 @@ const sq_zjc = computed(() => {
   }
 })
 
-onMounted(()=>{
-  setTimeout(()=>{
-    console.log(111,sq_zjc.value);
-  },3000)
-  
-})
 
 const zb_jc = computed(() => {
   // 面板累加
@@ -1796,6 +1808,15 @@ watchEffect(() => {
     formData.value.sb_sq_jc["士兵攻击"] = sq_zjc.value["士兵攻击"]
     formData.value.sb_sq_jc["士兵防御"] = sq_zjc.value["士兵防御"]
     formData.value.sb_sq_jc["士兵魔防"] = sq_zjc.value["士兵魔防"]
+  }
+})
+
+watchEffect(() => {
+  if (formData.value.yxbx_sdsr_pd && formData.value.selected_hero_row!=='自定义英雄') {
+    formData.value.yx_bx_jc["兵修生命"] = currentSelectedJob.value["兵修生命"]
+    formData.value.yx_bx_jc["兵修攻击"] = currentSelectedJob.value["兵修攻击"]
+    formData.value.yx_bx_jc["兵修防御"] = currentSelectedJob.value["兵修防御"]
+    formData.value.yx_bx_jc["兵修魔防"] = currentSelectedJob.value["兵修魔防"]
   }
 })
 
