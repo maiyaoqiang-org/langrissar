@@ -747,11 +747,25 @@
           <el-form-item label="">
             <el-checkbox v-model="formData.yxbx_sdsr_pd" label="默认关联读取以上英雄模拟结果 (想手动输入 就取消勾选)"></el-checkbox>
           </el-form-item>
-          <div style="width:1000px;">
+          <div v-if="formData.yxbx_sdsr_pd&&formData.selected_hero_row!=='自定义英雄'" style="width:1000px;display: flex;">
+            <div style="width:90px;margin-top: 24px;">
+              <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+              <div style="color:#999;text-align: center;">
+                {{ currentSelectedJob?.['英雄名'] }}
+              </div>
+            </div>
+            <div style="margin-left: 60px;">
+              <h3 v-for="(item,index) in ['兵修生命','兵修攻击','兵修防御','兵修魔防']" :key="index"> 
+                {{ item }}：<strong class="green">{{ round(formData.yx_bx_jc?.[item]*100) }}%</strong>
+              </h3>
+            </div>
+          </div>
+          <div v-else style="width:1000px;">
             <el-form-item label-width="180px" v-for="(item,index) in ['兵修生命','兵修攻击','兵修防御','兵修魔防']" :key="index" :label="item"> 
-              <mz-percent-input :disabled="formData.yxbx_sdsr_pd && formData.selected_hero_row!=='自定义英雄'" :prop="item" :form-data="formData.yx_bx_jc"></mz-percent-input>
+              <mz-percent-input :prop="item" :form-data="formData.yx_bx_jc"></mz-percent-input>
             </el-form-item>
           </div>
+
 
         </div>
       </el-card>
@@ -1824,6 +1838,9 @@ watchEffect(() => {
 <style lang="scss">
 .orange {
   color: #e99700fc;
+}
+.green {
+  color: green;
 }
 
 .mbjs-el {
