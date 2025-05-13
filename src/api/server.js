@@ -108,3 +108,23 @@ export const updateUser = async (userData) => {
 export const changePassword = async (data) => {
   return await api.post('/user/change-password', data);
 };
+
+// 获取账号列表
+export const getAccounts = async (data) => {
+  return await api.post('/account/query', data);
+};
+
+// 添加账号
+export const createAccount = async (accountData) => {
+  return await api.post('/account', accountData);
+};
+
+// 更新账号
+export const updateAccount = async (accountData) => {
+  return await api.put(`/account/${accountData.id}`, accountData);
+};
+
+// 删除账号
+export const deleteAccount = async (id) => {
+  return await api.delete(`/account/${id}`);
+};

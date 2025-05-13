@@ -27,7 +27,8 @@ export default defineConfig({
     port: 5400,
     proxy: {
       '/api': {
-        target: 'https://maiyaoqiang.fun/api',
+        target: 'http://localhost:3000',
+        // target: 'https://maiyaoqiang.fun/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

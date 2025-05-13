@@ -31,6 +31,11 @@ export const menuRoutes = [
     component: () => import('@/pages/user-management.vue'),
     meta: { title: '用户管理', requiresAuth: true, requiresAdmin: true }
   },
+  {
+    path: '/pages/account-management',
+    component: () => import('@/pages/account-management.vue'),
+    meta: { title: '领奖账号管理', requiresAuth: true, requiresAdmin: true }
+  },
 ]
 const routes = [
   {
