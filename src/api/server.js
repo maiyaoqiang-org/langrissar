@@ -128,3 +128,39 @@ export const updateAccount = async (accountData) => {
 export const deleteAccount = async (id) => {
   return await api.delete(`/account/${id}`);
 };
+
+// 获取每日福利
+export const getPredayReward = async () => {
+    return await api.get('/account/get-preday-reward');
+};
+
+// 获取每周福利
+export const getWeeklyReward = async () => {
+    return await api.get('/account/get-weekly-reward');
+};
+
+// 获取每月福利
+export const getMonthlyReward = async () => {
+    return await api.get('/account/get-monthly-reward');
+};
+
+// 获取CDKey奖励
+export const getCdkeyReward = async (cdkey) => {
+    return await api({
+        url: `/account/get-cdkey-reward`,
+        method: 'get',
+        params: {
+            cdkey
+        },
+    });
+};
+
+// 自动获取CDKey奖励
+export const autoCdkeyReward = async () => {
+    return await api.get('/account/auto-cdkey-reward');
+};
+
+// 清除CDKey缓存
+export const clearCdkeyCache = async () => {
+    return await api.get('/account/clear-cdkey-cache');
+};
