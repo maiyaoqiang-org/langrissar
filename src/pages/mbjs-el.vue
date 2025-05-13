@@ -62,8 +62,11 @@
             <br>
             <template v-for="(item, index) in mianbanList" :key="index">
               <el-form-item :label="item" style="--el-form-item__content_width:300px;display: flex;">
-                  <div v-if="!formData.bz_input_can_edit" style="font-size: 20px;margin-right: 8px;">{{round(formData.bz[item])}}</div>
-                  <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :precision="2" :min="0" />
+                <div v-if="!formData.bz_input_can_edit" style="font-size: 20px;margin-right: 8px;">
+                  {{ round(formData.bz[item]) }}
+                </div>
+                <el-input-number :disabled="!formData.bz_input_can_edit" v-model="formData.bz[item]" :precision="2"
+                  :min="0" />
               </el-form-item>
               <br>
             </template>
@@ -344,7 +347,7 @@
           <el-table-column v-for="(item, index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
             :key="index">
             <template v-slot="scope" v-if="item.prop === 'fm_bfb*bz'">
-              {{round(Number(scope.row[item.prop]),1)||'-'}}
+              {{ round(Number(scope.row[item.prop]), 1) || '-' }}
             </template>
           </el-table-column>
         </el-table>
@@ -666,17 +669,87 @@
         </div>
       </el-card>
 
+      <el-card class="mb_16">
+        <template #header>
+          士兵初始值区
+        </template>
+        <div>
+          <el-cascader filterable v-model="formData.selected_sb_names" :options="df3CascaderOptions"
+            placeholder="请选择士兵">
+            <template #default="{ node, data }">
+              <div style="display: flex;">
+                <span>{{ data.label }}</span>
+                <img v-if="node.isLeaf" style="width:auto;height:30px;margin-left: 8px;" :src="data?.图片地址" alt="" />
+              </div>
+            </template>
+          </el-cascader>
+          <div style="display: flex;">
+            <div class="mt_16" style="width:150px;display: flex;align-items: center;flex-direction: column;">
+              <img style="width:100%;height:auto;" :src="sb_selected_row?.['图片地址']" alt="">
+              <div style="color:#999;">
+                {{ sb_selected_row?.["士兵名"] }}
+              </div>
+            </div>
+
+            <div class="ml_24">
+              <h3>
+                生命：{{ formData?.sb_cs?.["生命"] }}
+              </h3>
+              <h3>
+                攻击：{{ formData?.sb_cs?.["攻击"] }}
+              </h3>
+              <h3>
+                防御：{{ formData?.sb_cs?.["防御"] }}
+              </h3>
+              <h3>
+                魔防：{{ formData?.sb_cs?.["魔防"] }}
+              </h3>
+            </div>
+          </div>
+
+          <div class="mt_24">
+            <div>
+              士兵等级：<span class="orange">{{ sb_selected_row?.["等级"]  }}</span>
+            </div>
+            <div>
+              满级士兵技能：<span class="orange">{{ sb_selected_row?.["满级技能"]  }}</span>
+            </div>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          士兵神契加成区
+
+        </template>
+        <div>
+          <div class="error mb_16">
+            请提前在「神契设置区」设置好神契
+          </div>
+          <el-form-item label="">
+            <el-checkbox v-model="formData.sbsq_sdsr_pd" label="默认关联读取此前神契设置区的加成 (想手动输入神契加成 就取消勾选)"></el-checkbox>
+          </el-form-item>
+          <div style="width:1000px;">
+            <el-form-item label-width="180px" v-for="(item,index) in ['士兵生命','士兵攻击','士兵防御','士兵魔防']" :key="index" :label="item + (!formData.sbsq_sdsr_pd?'最大值24%':'')"> 
+              <mz-percent-input :disabled="formData.sbsq_sdsr_pd" :prop="item" :form-data="formData.sb_sq_jc"></mz-percent-input>
+            </el-form-item>
+          </div>
+
+        </div>
+      </el-card>
+
     </el-form>
 
     <pre style="user-select: text;">
   使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。搬运来源：https://moyuanmz-mbjsq.streamlit.app/
 </pre>
 
-<!-- 添加回到顶部按钮 -->
-<el-backtop :right="40" :bottom="40" />
+    <!-- 添加回到顶部按钮 -->
+    <el-backtop :right="40" :bottom="40" />
 
-<!-- 添加缓存名称输入弹窗 -->
-<el-dialog v-model="saveDialogVisible" title="保存英雄数据" width="30%">
+    <!-- 添加缓存名称输入弹窗 -->
+    <el-dialog v-model="saveDialogVisible" title="保存英雄数据" width="30%">
       <el-form>
         <el-form-item label="缓存名称">
           <el-input v-model="cacheName" placeholder="请输入缓存名称"></el-input>
@@ -696,8 +769,7 @@
         <el-table-column property="name" label="缓存名称">
           <template #default="scope">
             <div flex="cross:center">
-              <img v-if="scope.row.data?.selected_hero_row"
-                style="width:30px;height:30px;margin-right:8px;"
+              <img v-if="scope.row.data?.selected_hero_row" style="width:30px;height:30px;margin-right:8px;"
                 :src="getHeroAvatar(scope.row.data)" />
               <span>{{ scope.row.name }}</span>
             </div>
@@ -730,7 +802,7 @@ import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
 import ShowUp from '@/pages/components/show-up.vue'
 import EquipDetail_schema from '@/static/data/EquipDetail_schema.json'
-import { ElMessageBox ,ElMessage} from "element-plus";
+import { ElMessageBox, ElMessage } from "element-plus";
 import {
   sq_slsb_table,
   sq_slsb_table_columns,
@@ -747,9 +819,15 @@ import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 import AV from 'leancloud-storage'
 import zdyLogo from '@/static/image/自定义英雄头像.png'
 import zdyZY from '@/static/image/自定义职业图标.png'
+import sbFileData from '../static/data/梦战士兵数据.csv?raw'
+import sbKjFileData from '../static/data/梦战士兵科技数据.csv?raw'
+
+
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = ref([])
 const zbObj = ref({})
+const df3 = ref([])
+const df4 = ref({})
 
 
 const getHeroData = () => {
@@ -875,9 +953,45 @@ const getEquipData = () => {
     })
 }
 
+function transformDataToCascaderFormat(data) {
+  const result = {};
+
+  data.forEach(item => {
+    const { 兵种, 士兵名 } = item;
+
+    if (!result[兵种]) {
+      result[兵种] = {
+        label: 兵种,
+        value: 兵种,
+        children: []
+      };
+    }
+
+    result[兵种].children.push({
+      label: 士兵名,
+      value: 士兵名,
+      ...item
+    });
+  });
+
+  return Object.values(result);
+}
+
+const getSbData = () => {
+  df3.value = parseCSVToObjects(sbFileData)
+}
+const df3CascaderOptions = computed(() => {
+  return transformDataToCascaderFormat(df3.value);
+});
+const getSbKjData = () => {
+  df4.value = parseCSVToObjects(sbKjFileData);
+}
+
 onMounted(() => {
   getHeroData()
   getEquipData()
+  getSbData()
+  getSbKjData()
 })
 
 onMounted(() => {
@@ -984,6 +1098,18 @@ const defaultFormData = {
   }, {}),
   fm4jc: {},
   zwtxjc: {},
+  sb_cs: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 }, // 初始化士兵初始值 字典
+  sb_sq_jc: { "士兵生命": 0, "士兵攻击": 0, "士兵防御": 0, "士兵魔防": 0 }, // 初始化士兵神契加成 字典
+  yx_bx_jc: { "兵修生命": 0, "兵修攻击": 0, "兵修防御": 0, "兵修魔防": 0 }, // 初始英雄兵修加成 字典
+  sb_bz: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始士兵白字 字典
+  sb_cjtx: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵超绝特效加成 字典
+  sb_kj_jc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵科技加成 字典
+  sb_bztx_qtjc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵兵种特效及其他加成 字典
+  sb_zd_zjc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵战斗总加成 字典
+  sb_zdmb: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵战斗面板 字典
+  sb_zdmb_klkz: { "生命": 0, "物理攻击": 0, "魔法攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵战斗面板（考虑克制加成） 字典
+  selected_sb_names: [],
+  sbsq_sdsr_pd: true,
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -1016,13 +1142,13 @@ const currentSelectedHero = computed(() => {
 })
 const currentSelectedJob = computed(() => {
   const name = formData.value?.selected_job
-  return currentSelectedHero.value?.list?.find(item => item.职业名 === name)||{}
+  return currentSelectedHero.value?.list?.find(item => item.职业名 === name) || {}
 })
 
 const resetBz = () => {
   const fieldsToConvert = mianbanList;
   formData.value.bz = fieldsToConvert.reduce((acc, key) => {
-    acc[key] = round(Number(currentSelectedJob.value?.[key]),2) || 0;
+    acc[key] = round(Number(currentSelectedJob.value?.[key]), 2) || 0;
     return acc;
   }, {});
 }
@@ -1213,6 +1339,13 @@ const sq_zjc = computed(() => {
   }
 })
 
+onMounted(()=>{
+  setTimeout(()=>{
+    console.log(111,sq_zjc.value);
+  },3000)
+  
+})
+
 const zb_jc = computed(() => {
   // 面板累加
   return mianbanList.reduce((res, mb_key) => {
@@ -1328,7 +1461,7 @@ const lzTotalTableData = computed(() => {
 
 const reset_bjl = () => {
   formData.value.bjl = mianbanList.reduce((acc, key) => {
-    acc[key] = round(formData.value.bz[key] + lz.value[key],2)
+    acc[key] = round(formData.value.bz[key] + lz.value[key], 2)
     return acc;
   }, {});
 }
@@ -1641,6 +1774,30 @@ const deleteCache = (cache) => {
     }
   })
 }
+
+
+const sb_selected_row = computed(() => {
+  const current = formData.value.selected_sb_names[formData.value.selected_sb_names.length - 1]
+  return df3.value.find(item => item.士兵名 === current) || df3.value[0]
+})
+
+watchEffect(() => {
+  formData.value.sb_cs = {
+    生命: sb_selected_row.value?.生命 || 0,
+    攻击: sb_selected_row.value?.攻击 || 0,
+    防御: sb_selected_row.value?.防御 || 0,
+    魔防: sb_selected_row.value?.魔防 || 0,
+  }
+})
+
+watchEffect(() => {
+  if (formData.value.sbsq_sdsr_pd) {
+    formData.value.sb_sq_jc["士兵生命"] = sq_zjc.value["士兵生命"]
+    formData.value.sb_sq_jc["士兵攻击"] = sq_zjc.value["士兵攻击"]
+    formData.value.sb_sq_jc["士兵防御"] = sq_zjc.value["士兵防御"]
+    formData.value.sb_sq_jc["士兵魔防"] = sq_zjc.value["士兵魔防"]
+  }
+})
 
 </script>
 <style lang="scss">
