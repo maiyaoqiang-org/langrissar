@@ -1009,8 +1009,8 @@ import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
 import ShowUp from '@/pages/components/show-up.vue'
 import EquipDetail_schema from '@/static/data/EquipDetail_schema.json'
-import Sodier_schema from '@/static/data/Sodier_schema.json'
-import SodierTechnology_schema from '@/static/data/SodierTechnology_schema.json'
+import Soldier_schema from '@/static/data/Soldier_schema.json'
+import SoldierTechnology_schema from '@/static/data/SoldierTechnology_schema.json'
 import { ElMessageBox, ElMessage } from "element-plus";
 import {
   sq_slsb_table,
@@ -1229,7 +1229,7 @@ const getAVDataAndMapKey = (className, schema) => {
 
 const getSbData = async () => {
   // df3.value = parseCSVToObjects(sbFileData)
-  const { list } = await getAVDataAndMapKey('Sodier', Sodier_schema.schema)
+  const { list } = await getAVDataAndMapKey('Soldier', Soldier_schema.schema)
 
   df3.value = list
 }
@@ -1238,7 +1238,7 @@ const df3CascaderOptions = computed(() => {
 });
 const getSbKjData = async () => {
   // df4.value = parseCSVToObjects(sbKjFileData);
-  const { list } = await getAVDataAndMapKey('SodierTechnology', SodierTechnology_schema.schema)
+  const { list } = await getAVDataAndMapKey('SoldierTechnology', SoldierTechnology_schema.schema)
   df4.value = list
 }
 
