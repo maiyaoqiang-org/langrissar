@@ -1204,13 +1204,13 @@ const getAVDataAndMapKey = (className, schema) => {
             }
             return acc
           },{})
-          
+
           return {
             ...mapAttributes,
             ...item.attributes,
           }
         })
-        
+
         resolve({
           list,
           Map
@@ -1230,7 +1230,7 @@ const getAVDataAndMapKey = (className, schema) => {
 const getSbData = async () => {
   // df3.value = parseCSVToObjects(sbFileData)
   const { list } = await getAVDataAndMapKey('Sodier', Sodier_schema.schema)
-  
+
   df3.value = list
 }
 const df3CascaderOptions = computed(() => {
@@ -2084,6 +2084,10 @@ const sb_cjtx = computed(() => {
       魔防: 0.3,
     }
   }
+})
+
+watch(()=>unit_techs.value,()=>{
+  formData.value.selected_kj = {}
 })
 
 const sb_kj_jc = computed(() => {
