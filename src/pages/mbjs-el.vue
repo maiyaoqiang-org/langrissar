@@ -824,7 +824,7 @@
 
             <h3>{{ sb_selected_row?.['兵种'] }}可用科技</h3>
 
-            <template v-for="(item, index) in unit_techs" :key="index">
+            <template v-for="(item) in unit_techs" :key="item.科技名称">
               <el-checkbox v-model="formData.selected_kj[item.科技名称]" :label="item.科技名称"></el-checkbox>
               <div class="orange">
                 {{ item.科技效果 }}
