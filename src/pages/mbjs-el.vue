@@ -887,59 +887,60 @@
         <template #header>
           士兵战场面板
         </template>
-        <div style="width:1000px;display: flex;font-size: 25px;">
+        <div style="width:1000px;display: flex;">
           <div style="width:90px;">
             <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
             <div style="color:#999;text-align: center;">
               {{ currentSelectedJob?.['英雄名'] }}
             </div>
           </div>
-          <div style="width:130px;">
+          <div class="ml_8" style="width:130px;">
             <img style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="">
             <div style="color:#999;text-align: center;">
               {{ sb_selected_row?.['士兵名'] }}
             </div>
           </div>
 
-          <el-tabs model-value="不考虑克制" style="min-height: 300px;">
-            <el-tab-pane label="不考虑克制" name="不考虑克制">
-              <div style="display: flex;font-size: 28px;line-height: 2;font-weight: bold;" v-for="(item, index) in ['生命', '攻击', '防御', '魔防']"
-                :key="index">
-                {{ item }}：
-                <ShowUp :judgeValue="sb_zd_zjc[item]" :isPercent="false">
-                  {{ round(sb_zdmb[item], 1) }} <span style="font-size: 26px;">+ {{
-                    round(sb_zdmb[item] * formData.yx_bx_jc["兵修"+item],1)
-                    }}（{{ round(formData.yx_bx_jc["兵修" + item] * 100) }}%）</span>
-                </ShowUp>
-                = {{ round(sb_zdmb[item] * (1 + Number(formData.yx_bx_jc["兵修" + item])), 1) }}
-              </div>
-            </el-tab-pane>
-            <el-tab-pane label="考虑克制" name="考虑克制">
-              <div style="font-size: 28px;line-height: 2;">
-                <div style="font-weight: bold;">
-                  生命：{{ round(sb_zdmb_klkz["生命"], 1) }} <strong class="green"
-                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["生命克制修正"] * 100) }}%）</strong>
+          <div class="ml_24" style="font-size: 25px;">
+            <el-tabs model-value="不考虑克制" style="min-height: 300px;">
+              <el-tab-pane label="不考虑克制" name="不考虑克制">
+                <div style="display: flex;font-size: 28px;line-height: 2;font-weight: bold;"
+                  v-for="(item, index) in ['生命', '攻击', '防御', '魔防']" :key="index">
+                  {{ item }}：
+                  <ShowUp :judgeValue="sb_zd_zjc[item]" :isPercent="false">
+                    {{ round(sb_zdmb[item], 1) }} <span style="font-size: 26px;">+ {{
+                      round(sb_zdmb[item] * formData.yx_bx_jc["兵修" + item], 1)
+                      }}（{{ round(formData.yx_bx_jc["兵修" + item] * 100) }}%）</span>
+                  </ShowUp>
+                  = {{ round(sb_zdmb[item] * (1 + Number(formData.yx_bx_jc["兵修" + item])), 1) }}
                 </div>
-                <div style="font-weight: bold;">
-                  物理攻击{{ round(sb_zdmb_klkz["物理攻击"], 1) }} <strong class="green"
-                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["攻击克制修正"] * 100) }}%）</strong>
+              </el-tab-pane>
+              <el-tab-pane label="考虑克制" name="考虑克制">
+                <div style="font-size: 28px;line-height: 2;">
+                  <div style="font-weight: bold;">
+                    生命：{{ round(sb_zdmb_klkz["生命"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                      round(sb_zd_zjc["生命克制修正"] * 100) }}%）</strong>
+                  </div>
+                  <div style="font-weight: bold;">
+                    物理攻击{{ round(sb_zdmb_klkz["物理攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                      round(sb_zd_zjc["攻击克制修正"] * 100) }}%）</strong>
+                  </div>
+                  <div style="font-weight: bold;">
+                    魔法攻击{{ round(sb_zdmb_klkz["魔法攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                      round(sb_zd_zjc["智力克制修正"] * 100) }}%）</strong>
+                  </div>
+                  <div style="font-weight: bold;">
+                    防御{{ round(sb_zdmb_klkz["防御"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                      round(sb_zd_zjc["防御克制修正"] * 100) }}%）</strong>
+                  </div>
+                  <div style="font-weight: bold;">
+                    魔防{{ round(sb_zdmb_klkz["魔防"], 1) }}<strong class="green" style="font-size: 20px;">（克制加成{{
+                      round(sb_zd_zjc["魔防克制修正"] * 100) }}%）</strong>
+                  </div>
                 </div>
-                <div style="font-weight: bold;">
-                  魔法攻击{{ round(sb_zdmb_klkz["魔法攻击"], 1) }} <strong class="green"
-                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["智力克制修正"] * 100) }}%）</strong>
-                </div>
-                <div style="font-weight: bold;">
-                  防御{{ round(sb_zdmb_klkz["防御"], 1) }} <strong class="green"
-                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["防御克制修正"] * 100) }}%）</strong>
-                </div>
-                <div style="font-weight: bold;">
-                  魔防{{ round(sb_zdmb_klkz["魔防"], 1) }}<strong class="green"
-                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["魔防克制修正"] * 100) }}%）</strong>
-                </div>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
-
+              </el-tab-pane>
+            </el-tabs>
+          </div>
         </div>
       </el-card>
 
@@ -1008,6 +1009,8 @@ import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
 import ShowUp from '@/pages/components/show-up.vue'
 import EquipDetail_schema from '@/static/data/EquipDetail_schema.json'
+import Sodier_schema from '@/static/data/Sodier_schema.json'
+import SodierTechnology_schema from '@/static/data/SodierTechnology_schema.json'
 import { ElMessageBox, ElMessage } from "element-plus";
 import {
   sq_slsb_table,
@@ -1020,13 +1023,13 @@ import {
 } from "@/common/constant";
 import _ from 'lodash'
 import BaseDivider from "@/components/base-divider.vue";
-import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
+// import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
 import AV from 'leancloud-storage'
 import zdyLogo from '@/static/image/自定义英雄头像.png'
 import zdyZY from '@/static/image/自定义职业图标.png'
-import sbFileData from '../static/data/梦战士兵数据.csv?raw'
-import sbKjFileData from '../static/data/梦战士兵科技数据.csv?raw'
+// import sbFileData from '../static/data/梦战士兵数据.csv?raw'
+// import sbKjFileData from '../static/data/梦战士兵科技数据.csv?raw'
 
 
 const prefix = "langrissar-calculator-mbjs-el-"
@@ -1183,19 +1186,65 @@ function transformDataToCascaderFormat(data) {
   return Object.values(result);
 }
 
-const getSbData = () => {
-  df3.value = parseCSVToObjects(sbFileData)
+const getAVDataAndMapKey = (className, schema) => {
+  return new Promise((resolve, reject) => {
+    const Map = Object.keys(schema).reduce((cur, key) => {
+      cur[key] = schema[key].comment
+      return cur
+    }, {})
+    const query = new AV.Query(className);
+    query
+      .limit(1000)
+      .find()
+      .then((res) => {
+        const list = res.map((item) => {
+          const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
+            if (Map[key]) {
+              acc[Map[key]] = value
+            }
+            return acc
+          },{})
+          
+          return {
+            ...mapAttributes,
+            ...item.attributes,
+          }
+        })
+        
+        resolve({
+          list,
+          Map
+        })
+      })
+      .catch((err) => {
+        console.log(`查询${className}数据失败`, err);
+        ElMessage.error(`查询${className}数据失败`)
+        resolve({
+          list: [],
+          Map: {}
+        })
+      })
+  })
+}
+
+const getSbData = async () => {
+  // df3.value = parseCSVToObjects(sbFileData)
+  const { list } = await getAVDataAndMapKey('Sodier', Sodier_schema.schema)
+  
+  df3.value = list
 }
 const df3CascaderOptions = computed(() => {
   return transformDataToCascaderFormat(df3.value);
 });
-const getSbKjData = () => {
-  df4.value = parseCSVToObjects(sbKjFileData);
+const getSbKjData = async () => {
+  // df4.value = parseCSVToObjects(sbKjFileData);
+  const { list } = await getAVDataAndMapKey('SodierTechnology', SodierTechnology_schema.schema)
+  df4.value = list
 }
 
 const unit_techs = computed(() => {
   return df4.value?.filter((item) => {
-    return item['兵种'] === sb_selected_row.value['兵种']
+    return item['兵种'] === sb_selected_row.value?.['兵种']
   })
 })
 
@@ -1982,7 +2031,7 @@ const deleteCache = (cache) => {
 
 const sb_selected_row = computed(() => {
   const current = formData.value.selected_sb_names[formData.value.selected_sb_names.length - 1]
-  return df3.value.find(item => item.士兵名 === current) || df3.value[0]
+  return df3.value.find(item => item.士兵名 === current) || df3.value[0] || {}
 })
 
 watchEffect(() => {
