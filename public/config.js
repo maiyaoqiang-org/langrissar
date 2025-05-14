@@ -1,3 +1,0 @@
-window.RUNTIME_CONFIG = {
-  VITE_APP_API_URL: ""
-};
