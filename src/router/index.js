@@ -37,9 +37,9 @@ export const menuRoutes = [
     meta: { title: '领奖账号管理', requiresAuth: true, requiresAdmin: true }
   },
   {
-    path: '/pages/moyuan-ai',
-    component: () => import('@/pages/moyuan-ai.vue'),
-    meta: { title: '墨源AI', requiresAuth: true, requiresAdmin: false }
+    path: '/pages/coze',
+    component: () => import('@/pages/coze.vue'),
+    meta: { title: '扣子配置', requiresAuth: true, requiresAdmin: false }
   },
 ]
 const routes = [

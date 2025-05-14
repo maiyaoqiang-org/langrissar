@@ -7,6 +7,7 @@ import AV from 'leancloud-storage'
 import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import router from './router'
+import { hasRole } from './directives/hasRole'
 
 AV.init({
 	appId: import.meta.env.VITE_APP_AV_APP_ID,
@@ -32,4 +33,5 @@ pinia.use(piniaPersistedState)
 app.use(pinia)
 app.use(router)
 app.mount('#app')
+app.directive('has-role', hasRole)
 

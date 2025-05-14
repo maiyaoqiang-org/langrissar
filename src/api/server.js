@@ -164,3 +164,25 @@ export const autoCdkeyReward = async () => {
 export const clearCdkeyCache = async () => {
     return await api.get('/account/clear-cdkey-cache');
 };
+
+
+// Coze相关接口
+// 分页查询Coze配置
+export const queryCoze = async (data) => {
+  return await api.post('/coze/query', data);
+};
+
+// 创建Coze配置
+export const createCoze = async (data) => {
+  return await api.post('/coze', data);
+};
+
+// 更新Coze配置
+export const updateCoze = async (id, data) => {
+  return await api.put(`/coze/${id}`, data);
+};
+
+// 删除Coze配置
+export const deleteCoze = async (id) => {
+  return await api.delete(`/coze/${id}`);
+};
