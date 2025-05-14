@@ -709,10 +709,10 @@
 
           <div class="mt_24">
             <div>
-              士兵等级：<span class="orange">{{ sb_selected_row?.["等级"]  }}</span>
+              士兵等级：<span class="orange">{{ sb_selected_row?.["等级"] }}</span>
             </div>
             <div>
-              满级士兵技能：<span class="orange">{{ sb_selected_row?.["满级技能"]  }}</span>
+              满级士兵技能：<span class="orange">{{ sb_selected_row?.["满级技能"] }}</span>
             </div>
           </div>
         </div>
@@ -731,8 +731,10 @@
             <el-checkbox v-model="formData.sbsq_sdsr_pd" label="默认关联读取此前神契设置区的加成 (想手动输入神契加成 就取消勾选)"></el-checkbox>
           </el-form-item>
           <div style="width:1000px;">
-            <el-form-item label-width="180px" v-for="(item,index) in ['士兵生命','士兵攻击','士兵防御','士兵魔防']" :key="index" :label="item + (!formData.sbsq_sdsr_pd?'最大值24%':'')"> 
-              <mz-percent-input :disabled="formData.sbsq_sdsr_pd" :prop="item" :form-data="formData.sb_sq_jc"></mz-percent-input>
+            <el-form-item label-width="180px" v-for="(item, index) in ['士兵生命', '士兵攻击', '士兵防御', '士兵魔防']" :key="index"
+              :label="item + (!formData.sbsq_sdsr_pd ? '最大值24%' : '')">
+              <mz-percent-input :disabled="formData.sbsq_sdsr_pd" :prop="item"
+                :form-data="formData.sb_sq_jc"></mz-percent-input>
             </el-form-item>
           </div>
 
@@ -747,7 +749,8 @@
           <el-form-item label="">
             <el-checkbox v-model="formData.yxbx_sdsr_pd" label="默认关联读取以上英雄模拟结果 (想手动输入 就取消勾选)"></el-checkbox>
           </el-form-item>
-          <div v-if="formData.yxbx_sdsr_pd&&formData.selected_hero_row!=='自定义英雄'" style="width:1000px;display: flex;">
+          <div v-if="formData.yxbx_sdsr_pd && formData.selected_hero_row !== '自定义英雄'"
+            style="width:1000px;display: flex;">
             <div style="width:90px;margin-top: 24px;">
               <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
               <div style="color:#999;text-align: center;">
@@ -755,13 +758,14 @@
               </div>
             </div>
             <div style="margin-left: 60px;">
-              <h3 v-for="(item,index) in ['兵修生命','兵修攻击','兵修防御','兵修魔防']" :key="index"> 
-                {{ item }}：<strong class="green">{{ round(formData.yx_bx_jc?.[item]*100) }}%</strong>
+              <h3 v-for="(item, index) in ['兵修生命', '兵修攻击', '兵修防御', '兵修魔防']" :key="index">
+                {{ item }}：<strong class="green">{{ round(formData.yx_bx_jc?.[item] * 100) }}%</strong>
               </h3>
             </div>
           </div>
           <div v-else style="width:1000px;">
-            <el-form-item label-width="180px" v-for="(item,index) in ['兵修生命','兵修攻击','兵修防御','兵修魔防']" :key="index" :label="item"> 
+            <el-form-item label-width="180px" v-for="(item, index) in ['兵修生命', '兵修攻击', '兵修防御', '兵修魔防']" :key="index"
+              :label="item">
               <mz-percent-input :prop="item" :form-data="formData.yx_bx_jc"></mz-percent-input>
             </el-form-item>
           </div>
@@ -787,18 +791,159 @@
               {{ sb_selected_row?.['士兵名'] }}
             </div>
           </div>
-          <div style="margin-left: 60px;" >
-            <div v-for="(item,key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;"> 
-              {{key}}：
-              {{ round(item,2) }}
-              <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key]*formData.yx_bx_jc?.['兵修'+key],2) }}（{{round(formData.yx_bx_jc?.["兵修"+key]*100)}}%）</span>
+          <div style="margin-left: 60px;">
+            <div v-for="(item, key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;">
+              {{ key }}：
+              {{ round(item, 2) }}
+              <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
+              }}（{{ round(formData.yx_bx_jc?.["兵修" + key] * 100) }}%）</span>
             </div>
           </div>
         </div>
-        
-
-
       </el-card>
+
+      <el-card class="mb_16">
+        <div style="width:1000px;display: flex;">
+          <div style="width:400px;">
+            <el-form-item label-width="140" label="是否竞技场">
+              <el-radio-group v-model="formData.sbjjc_pd">
+                <el-radio :value="true">是</el-radio>
+                <el-radio :value="false">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <br>
+            <el-form-item label-width="140" label="是否开启超绝特效">
+              <el-radio-group v-model="formData.sbcj_pd">
+                <el-radio :value="false">未开</el-radio>
+                <el-radio :value="true">开</el-radio>
+              </el-radio-group>
+            </el-form-item>
+
+            <!-- 分割线 -->
+            <el-divider />
+
+            <h3>{{ sb_selected_row?.['兵种'] }}可用科技</h3>
+
+            <template v-for="(item, index) in unit_techs" :key="index">
+              <el-checkbox v-model="formData.selected_kj[item.科技名称]" :label="item.科技名称"></el-checkbox>
+              <div class="orange">
+                {{ item.科技效果 }}
+              </div>
+              <br>
+            </template>
+
+          </div>
+
+          <div class="ml_24" style="width:400px;">
+            <h3>
+              战场其他加成
+            </h3>
+            <div>
+              说明：<span class="error">所有需要人为判断的加成，需要细细盘点不要遗漏。士兵技能请人为考虑</span>
+            </div>
+            <img class="mt_8" style="width:80px;height:auto;" :src="sb_selected_row?.图片地址" alt="">
+
+            <div>
+              满级士兵技能：<span class="orange">{{ sb_selected_row?.['满级技能'] }}</span>
+            </div>
+
+            <el-tabs model-value="面板加成" style="min-height: 300px;">
+              <el-tab-pane label="面板加成" name="面板加成">
+                <el-form-item v-for="(item, index) in ['生命', '攻击', '防御', '魔防']" :key="index" :label="item">
+                  <mz-percent-input :prop="item" :form-data="formData.sb_bztx_qtjc"></mz-percent-input>
+                </el-form-item>
+              </el-tab-pane>
+              <el-tab-pane label="克制加成" name="克制加成">
+                <el-form-item v-for="(item, index) in ['生命克制修正', '攻击克制修正', '智力克制修正', '防御克制修正', '魔防克制修正']" :key="index"
+                  :label="item">
+                  <mz-percent-input :prop="item" :form-data="formData.sb_bztx_qtjc"></mz-percent-input>
+                </el-form-item>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          士兵战场总加成
+        </template>
+        <div style="width:1000px;display: flex;font-size: 25px;">
+          <div style="width:400px;">
+            <div style="display: flex;" v-for="(item, index) in ['生命', '攻击', '防御', '魔防']" :key="index">
+              {{ item }}：<ShowUp :value="sb_zd_zjc[item]" :isPercent="true"></ShowUp>
+            </div>
+          </div>
+          <div style="width:400px;">
+            <div style="display: flex;" v-for="(item, index) in ['生命克制修正', '攻击克制修正', '智力克制修正', '防御克制修正', '魔防克制修正']"
+              :key="index">
+              {{ item }}：<ShowUp :value="sb_zd_zjc[item]" :isPercent="true"></ShowUp>
+            </div>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="mb_16">
+        <template #header>
+          士兵战场面板
+        </template>
+        <div style="width:1000px;display: flex;font-size: 25px;">
+          <div style="width:90px;">
+            <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+            <div style="color:#999;text-align: center;">
+              {{ currentSelectedJob?.['英雄名'] }}
+            </div>
+          </div>
+          <div style="width:130px;">
+            <img style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="">
+            <div style="color:#999;text-align: center;">
+              {{ sb_selected_row?.['士兵名'] }}
+            </div>
+          </div>
+
+          <el-tabs model-value="不考虑克制" style="min-height: 300px;">
+            <el-tab-pane label="不考虑克制" name="不考虑克制">
+              <div style="display: flex;font-size: 28px;line-height: 2;font-weight: bold;" v-for="(item, index) in ['生命', '攻击', '防御', '魔防']"
+                :key="index">
+                {{ item }}：
+                <ShowUp :judgeValue="sb_zd_zjc[item]" :isPercent="false">
+                  {{ round(sb_zdmb[item], 1) }} <span style="font-size: 26px;">+ {{
+                    round(sb_zdmb[item] * formData.yx_bx_jc["兵修"+item],1)
+                    }}（{{ round(formData.yx_bx_jc["兵修" + item] * 100) }}%）</span>
+                </ShowUp>
+                = {{ round(sb_zdmb[item] * (1 + Number(formData.yx_bx_jc["兵修" + item])), 1) }}
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label="考虑克制" name="考虑克制">
+              <div style="font-size: 28px;line-height: 2;">
+                <div style="font-weight: bold;">
+                  生命：{{ round(sb_zdmb_klkz["生命"], 1) }} <strong class="green"
+                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["生命克制修正"] * 100) }}%）</strong>
+                </div>
+                <div style="font-weight: bold;">
+                  物理攻击{{ round(sb_zdmb_klkz["物理攻击"], 1) }} <strong class="green"
+                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["攻击克制修正"] * 100) }}%）</strong>
+                </div>
+                <div style="font-weight: bold;">
+                  魔法攻击{{ round(sb_zdmb_klkz["魔法攻击"], 1) }} <strong class="green"
+                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["智力克制修正"] * 100) }}%）</strong>
+                </div>
+                <div style="font-weight: bold;">
+                  防御{{ round(sb_zdmb_klkz["防御"], 1) }} <strong class="green"
+                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["防御克制修正"] * 100) }}%）</strong>
+                </div>
+                <div style="font-weight: bold;">
+                  魔防{{ round(sb_zdmb_klkz["魔防"], 1) }}<strong class="green"
+                    style="font-size: 20px;">（克制加成{{ round(sb_zd_zjc["魔防克制修正"] * 100) }}%）</strong>
+                </div>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+
+        </div>
+      </el-card>
+
+
 
     </el-form>
 
@@ -888,7 +1033,7 @@ const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = ref([])
 const zbObj = ref({})
 const df3 = ref([])
-const df4 = ref({})
+const df4 = ref([])
 
 
 const getHeroData = () => {
@@ -1048,6 +1193,12 @@ const getSbKjData = () => {
   df4.value = parseCSVToObjects(sbKjFileData);
 }
 
+const unit_techs = computed(() => {
+  return df4.value?.filter((item) => {
+    return item['兵种'] === sb_selected_row.value['兵种']
+  })
+})
+
 onMounted(() => {
   getHeroData()
   getEquipData()
@@ -1162,15 +1313,13 @@ const defaultFormData = {
   sb_cs: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 }, // 初始化士兵初始值 字典
   sb_sq_jc: { "士兵生命": 0, "士兵攻击": 0, "士兵防御": 0, "士兵魔防": 0 }, // 初始化士兵神契加成 字典
   yx_bx_jc: { "兵修生命": 0, "兵修攻击": 0, "兵修防御": 0, "兵修魔防": 0 }, // 初始英雄兵修加成 字典
-  sb_cjtx: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵超绝特效加成 字典
-  sb_kj_jc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵科技加成 字典
   sb_bztx_qtjc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵兵种特效及其他加成 字典
-  sb_zd_zjc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵战斗总加成 字典
-  sb_zdmb: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵战斗面板 字典
-  sb_zdmb_klkz: { "生命": 0, "物理攻击": 0, "魔法攻击": 0, "防御": 0, "魔防": 0 },  // 初始化士兵战斗面板（考虑克制加成） 字典
   selected_sb_names: [],
   sbsq_sdsr_pd: true,
   yxbx_sdsr_pd: true,
+  sbjjc_pd: true,
+  sbcj_pd: true,
+  selected_kj: {},
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -1855,7 +2004,7 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-  if (formData.value.yxbx_sdsr_pd && formData.value.selected_hero_row!=='自定义英雄') {
+  if (formData.value.yxbx_sdsr_pd && formData.value.selected_hero_row !== '自定义英雄') {
     formData.value.yx_bx_jc["兵修生命"] = currentSelectedJob.value["兵修生命"]
     formData.value.yx_bx_jc["兵修攻击"] = currentSelectedJob.value["兵修攻击"]
     formData.value.yx_bx_jc["兵修防御"] = currentSelectedJob.value["兵修防御"]
@@ -1864,13 +2013,77 @@ watchEffect(() => {
 })
 
 const sb_bz = computed(() => {
-
   return {
-    生命: Number(formData.value.sb_cs.生命) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵生命"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
-    攻击: Number(formData.value.sb_cs.攻击) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵攻击"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
-    防御: Number(formData.value.sb_cs.防御) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵防御"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
-    魔防: Number(formData.value.sb_cs.魔防) * ((60-1)*0.1+(70-60)*0.05+1)*(1+0.8+Number(formData.value.sb_sq_jc?.["士兵魔防"])+Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
+    生命: Number(formData.value.sb_cs.生命) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵生命"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
+    攻击: Number(formData.value.sb_cs.攻击) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵攻击"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
+    防御: Number(formData.value.sb_cs.防御) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵防御"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
+    魔防: Number(formData.value.sb_cs.魔防) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵魔防"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
   }
+})
+
+const sb_cjtx = computed(() => {
+  if (formData.value.sbcj_pd) {
+    return {
+      攻击: 0,
+      防御: 0,
+      魔防: 0,
+    }
+  } else {
+    return {
+      攻击: 0.2,
+      防御: 0.2,
+      魔防: 0.3,
+    }
+  }
+})
+
+const sb_kj_jc = computed(() => {
+  const selectedKjObjList = unit_techs.value.filter(item => formData.value.selected_kj[item.科技名称])
+  return selectedKjObjList.reduce((acc, item) => {
+    Object.keys(acc).forEach(key => {
+      acc[key] += Number(item[key])
+    })
+    return acc
+  }, { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 })
+})
+
+const sb_zd_zjc = computed(() => {
+  const sb_zd_zjc = { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 }
+  if (formData.value.sbjjc_pd) {
+    sb_zd_zjc["生命"] = round(Number(formData.value.sb_bztx_qtjc["生命"]) + 0.4, 3)
+  } else {
+    sb_zd_zjc["生命"] = Number(formData.value.sb_bztx_qtjc["生命"])
+  }
+
+  sb_zd_zjc["攻击"] = sb_cjtx.value["攻击"] + sb_kj_jc.value["攻击"] + Number(formData.value.sb_bztx_qtjc["攻击"])
+  sb_zd_zjc["防御"] = sb_cjtx.value["防御"] + sb_kj_jc.value["防御"] + Number(formData.value.sb_bztx_qtjc["防御"])
+  sb_zd_zjc["魔防"] = sb_cjtx.value["魔防"] + sb_kj_jc.value["魔防"] + Number(formData.value.sb_bztx_qtjc["魔防"])
+  sb_zd_zjc["生命克制修正"] = Number(formData.value.sb_bztx_qtjc["生命克制修正"])
+  sb_zd_zjc["攻击克制修正"] = sb_kj_jc.value["攻击克制修正"] + Number(formData.value.sb_bztx_qtjc["攻击克制修正"])
+  sb_zd_zjc["智力克制修正"] = sb_kj_jc.value["智力克制修正"] + Number(formData.value.sb_bztx_qtjc["智力克制修正"])
+  sb_zd_zjc["防御克制修正"] = sb_kj_jc.value["防御克制修正"] + Number(formData.value.sb_bztx_qtjc["防御克制修正"])
+  sb_zd_zjc["魔防克制修正"] = sb_kj_jc.value["魔防克制修正"] + Number(formData.value.sb_bztx_qtjc["魔防克制修正"])
+
+  return sb_zd_zjc
+})
+
+const sb_zdmb = computed(() => {
+  const sb_zdmb = { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 }
+  Object.keys(sb_zdmb).forEach((key) => {
+    sb_zdmb[key] = sb_bz.value[key] * (1 + sb_zd_zjc.value[key])
+  })
+  return sb_zdmb
+})
+
+const sb_zdmb_klkz = computed(() => {
+  const sb_zdmb_klkz = { "生命": 0, "物理攻击": 0, "魔法攻击": 0, "防御": 0, "魔防": 0 }
+  sb_zdmb_klkz["生命"] = sb_zdmb.value["生命"] * (1 + Number(formData.value.yx_bx_jc["兵修生命"])) * (1 + sb_zd_zjc.value["生命克制修正"])
+  sb_zdmb_klkz["物理攻击"] = sb_zdmb.value["攻击"] * (1 + Number(formData.value.yx_bx_jc["兵修攻击"])) * (1 + sb_zd_zjc.value["攻击克制修正"])
+  sb_zdmb_klkz["魔法攻击"] = sb_zdmb.value["攻击"] * (1 + Number(formData.value.yx_bx_jc["兵修攻击"])) * (1 + sb_zd_zjc.value["智力克制修正"])
+  sb_zdmb_klkz["防御"] = sb_zdmb.value["防御"] * (1 + Number(formData.value.yx_bx_jc["兵修防御"])) * (1 + sb_zd_zjc.value["防御克制修正"])
+  sb_zdmb_klkz["魔防"] = sb_zdmb.value["魔防"] * (1 + Number(formData.value.yx_bx_jc["兵修魔防"])) * (1 + sb_zd_zjc.value["魔防克制修正"])
+
+  return sb_zdmb_klkz
 })
 
 </script>
@@ -1878,6 +2091,7 @@ const sb_bz = computed(() => {
 .orange {
   color: #e99700fc;
 }
+
 .green {
   color: green;
 }
