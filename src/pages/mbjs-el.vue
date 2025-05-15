@@ -922,19 +922,19 @@
                       round(sb_zd_zjc["生命克制修正"] * 100) }}%）</strong>
                   </div>
                   <div style="font-weight: bold;">
-                    物理攻击{{ round(sb_zdmb_klkz["物理攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                    物理攻击：{{ round(sb_zdmb_klkz["物理攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
                       round(sb_zd_zjc["攻击克制修正"] * 100) }}%）</strong>
                   </div>
                   <div style="font-weight: bold;">
-                    魔法攻击{{ round(sb_zdmb_klkz["魔法攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                    魔法攻击：{{ round(sb_zdmb_klkz["魔法攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
                       round(sb_zd_zjc["智力克制修正"] * 100) }}%）</strong>
                   </div>
                   <div style="font-weight: bold;">
-                    防御{{ round(sb_zdmb_klkz["防御"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
+                    防御：{{ round(sb_zdmb_klkz["防御"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
                       round(sb_zd_zjc["防御克制修正"] * 100) }}%）</strong>
                   </div>
                   <div style="font-weight: bold;">
-                    魔防{{ round(sb_zdmb_klkz["魔防"], 1) }}<strong class="green" style="font-size: 20px;">（克制加成{{
+                    魔防：{{ round(sb_zdmb_klkz["魔防"], 1) }}<strong class="green" style="font-size: 20px;">（克制加成{{
                       round(sb_zd_zjc["魔防克制修正"] * 100) }}%）</strong>
                   </div>
                 </div>
