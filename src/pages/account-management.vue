@@ -25,6 +25,9 @@
             <el-cascader
               v-model="filterForm.serverid"
               :options="serverOptions"
+              :props="{
+                emitPath: false
+              }"
               filterable
               placeholder="请选择服务器"
               clearable
@@ -80,6 +83,9 @@
           <el-cascader
               v-model="addForm.serverid"
               :options="serverOptions"
+              :props="{
+                emitPath: false
+              }"
               filterable
               placeholder="请选择服务器"
               clearable
@@ -108,6 +114,9 @@
           <el-cascader
               v-model="editForm.serverid"
               :options="serverOptions"
+              :props="{
+                emitPath: false
+              }"
               filterable
               placeholder="请选择服务器"
               clearable
