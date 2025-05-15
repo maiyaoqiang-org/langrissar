@@ -125,7 +125,7 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { getUsers, updateUser, updatePassword, createUser } from '@/api/server'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const userStore = useUserStore()
 const userList = ref([])
@@ -289,11 +289,29 @@ const handleUpdatePassword = async () => {
 
 // 切换用户状态
 const handleToggleStatus = async (user) => {
-    await updateUser({
-        id: user.id,
-        isActive: !user.isActive
-    })
-    fetchUsers()
+    try {
+        await ElMessageBox.confirm(
+            `确定要${user.isActive ? '禁用' : '启用'}该用户吗？`,
+            '提示',
+            {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }
+        )
+        
+        await updateUser({
+            id: user.id,
+            isActive: !user.isActive
+        })
+        ElMessage.success(`${user.isActive ? '禁用' : '启用'}成功`)
+        fetchUsers()
+    } catch (error) {
+        // 用户点击取消或关闭弹窗时，不做任何操作
+        if (error !== 'cancel') {
+            ElMessage.error('操作失败')
+        }
+    }
 }
 
 onMounted(() => {

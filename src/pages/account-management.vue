@@ -61,7 +61,7 @@
           <el-input v-model="addForm.username" />
         </el-form-item>
         <el-form-item label="用户ID">
-          <el-input v-model="addForm.userid" />
+          <prefix-input v-model="addForm.userid" placeholder="请输入用户ID" />
         </el-form-item>
         <el-form-item label="角色ID">
           <el-input v-model="addForm.roleid" />
@@ -83,7 +83,7 @@
           <el-input v-model="editForm.username" />
         </el-form-item>
         <el-form-item label="用户ID">
-          <el-input v-model="editForm.userid" />
+          <prefix-input v-model="editForm.userid" placeholder="请输入用户ID" />
         </el-form-item>
         <el-form-item label="角色ID">
           <el-input v-model="editForm.roleid" />
@@ -102,6 +102,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
 import { ElMessageBox, ElMessage } from 'element-plus'
