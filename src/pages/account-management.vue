@@ -12,16 +12,16 @@
     <el-card>
       <div class="header">
         <el-form :inline="true" :model="filterForm" class="filter-form">
-          <el-form-item label="用户名" style="width:240px;">
+          <el-form-item label="用户名" style="width:280px;">
             <el-input v-model="filterForm.username" placeholder="请输入用户名" clearable />
           </el-form-item>
-          <el-form-item label="用户ID" style="width:240px;">
-            <el-input v-model="filterForm.userid" placeholder="请输入用户ID" clearable />
+          <el-form-item label="用户ID" style="width:280px;">
+            <prefix-input v-model="filterForm.userid" placeholder="请输入用户ID" clearable />
           </el-form-item>
-          <el-form-item label="角色ID" style="width:240px;">
+          <el-form-item label="角色ID" style="width:280px;">
             <el-input v-model="filterForm.roleid" placeholder="请输入角色ID" clearable />
           </el-form-item>
-          <el-form-item label="服务器" style="width:240px;">
+          <el-form-item label="服务器" style="width:280px;">
             <el-cascader
               v-model="filterForm.serverid"
               :options="serverOptions"

@@ -3,6 +3,7 @@
     <span class="prefix">{{ prefix }}</span>
     <el-input 
       v-model="inputValue" 
+      v-bind="$attrs"
       :placeholder="placeholder"
       @input="handleInput"
       @change="handleChange"
@@ -41,16 +42,31 @@ const inputValue = computed({
       : props.modelValue
   },
   set: (val) => {
+    // 当输入为空时，直接emit空值
+    if (!val) {
+      emit('update:modelValue', '')
+      return
+    }
     emit('update:modelValue', props.prefix + val)
   }
 })
 
 // 事件处理
 const handleInput = (val) => {
+  // 当输入为空时，直接emit空值
+  if (!val) {
+    emit('input', '')
+    return
+  }
   emit('input', props.prefix + val)
 }
 
 const handleChange = (val) => {
+  // 当输入为空时，直接emit空值
+  if (!val) {
+    emit('change', '')
+    return
+  }
   emit('change', props.prefix + val)
 }
 
@@ -77,7 +93,7 @@ const handleFocus = (event) => {
   border: 1px solid #dcdfe6;
   border-right: none;
   border-radius: 4px 0 0 4px;
-  color: #606266;
+  color: #999;
 }
 
 .prefix-input :deep(.el-input__wrapper) {
