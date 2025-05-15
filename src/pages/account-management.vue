@@ -154,9 +154,9 @@ onMounted(()=>{
       value: zone.zone_real_id,
       label: zone.zone_name,
       children: zone.serverList.map(server => ({
-        value: server.world_real_id,
+        value: server.world_id,
         label: server.world_name,
-        world_id: server.world_id  // 保留原始world_id用于提交
+        world_real_id: server.world_real_id
       }))
     }));
   })
