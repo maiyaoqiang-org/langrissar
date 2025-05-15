@@ -53,6 +53,10 @@ api.interceptors.response.use(
   }
 );
 
+export {
+  api
+}
+
 // 用户注册
 export const register = async (userData) => {
   return await api.post('/user/register', userData);

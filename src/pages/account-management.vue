@@ -21,8 +21,14 @@
           <el-form-item label="角色ID" style="width:240px;">
             <el-input v-model="filterForm.roleid" placeholder="请输入角色ID" clearable />
           </el-form-item>
-          <el-form-item label="服务器ID" style="width:240px;">
-            <el-input v-model="filterForm.serverid" placeholder="请输入服务器ID" clearable />
+          <el-form-item label="服务器" style="width:240px;">
+            <el-cascader
+              v-model="filterForm.serverid"
+              :options="serverOptions"
+              filterable
+              placeholder="请选择服务器"
+              clearable
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="handleFilter">搜索</el-button>
@@ -36,7 +42,11 @@
         <el-table-column prop="username" label="用户名" width="180" />
         <el-table-column prop="userid" label="用户ID" width="180" />
         <el-table-column prop="roleid" label="角色ID" />
-        <el-table-column prop="serverid" label="服务器ID" />
+        <el-table-column prop="serverid" label="服务器" width="200">
+          <template #default="scope">
+            {{ getServerName(scope.row.serverid) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" />
         <el-table-column prop="updatedAt" label="更新时间" />
         <el-table-column label="操作" width="300">
@@ -55,7 +65,7 @@
     </el-card>
 
     <!-- 添加账号对话框 -->
-    <el-dialog v-model="showAddDialog" title="添加账号" width="30%">
+    <el-dialog v-model="showAddDialog" title="添加账号" width="500px">
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
         <el-form-item label="用户名">
           <el-input v-model="addForm.username" />
@@ -67,7 +77,13 @@
           <el-input v-model="addForm.roleid" />
         </el-form-item>
         <el-form-item label="服务器ID">
-          <el-input v-model="addForm.serverid" />
+          <el-cascader
+              v-model="addForm.serverid"
+              :options="serverOptions"
+              filterable
+              placeholder="请选择服务器"
+              clearable
+            />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -77,7 +93,7 @@
     </el-dialog>
 
     <!-- 编辑账号对话框 -->
-    <el-dialog v-model="showEditDialog" title="编辑账号" width="30%">
+    <el-dialog v-model="showEditDialog" title="编辑账号" width="500px">
       <el-form :model="editForm" label-width="80px">
         <el-form-item label="用户名">
           <el-input v-model="editForm.username" />
@@ -89,7 +105,13 @@
           <el-input v-model="editForm.roleid" />
         </el-form-item>
         <el-form-item label="服务器ID">
-          <el-input v-model="editForm.serverid" />
+          <el-cascader
+              v-model="editForm.serverid"
+              :options="serverOptions"
+              filterable
+              placeholder="请选择服务器"
+              clearable
+            />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -114,7 +136,25 @@ import {
   getPredayReward,
   getWeeklyReward
 } from "../api/server";
+import {getServerData} from "@/api/mz";
 
+onMounted(()=>{
+  getServerData().then((res)=>{
+    // 转换数据格式
+    serverOptions.value = res.map(zone => ({
+      value: zone.zone_real_id,
+      label: zone.zone_name,
+      children: zone.serverList.map(server => ({
+        value: server.world_real_id,
+        label: server.world_name,
+        world_id: server.world_id  // 保留原始world_id用于提交
+      }))
+    }));
+  })
+})
+
+// 添加服务器选项的响应式数据
+const serverOptions = ref([])
 const userStore = useUserStore()
 const accountList = ref([])
 const total = ref(0)
@@ -276,6 +316,19 @@ const handleClearCdkeyCache = async () => {
 onMounted(() => {
   fetchAccounts()
 })
+// 获取服务器名称的方法
+const getServerName = (serverId) => {
+  if (!serverId) return '-'
+  
+  // 遍历服务器列表查找匹配的服务器
+  for (const zone of serverOptions.value) {
+    const server = zone.children.find(s => s.value === serverId)
+    if (server) {
+      return `${zone.label} - ${server.label}`
+    }
+  }
+  return serverId // 如果找不到对应的服务器名称，返回原始ID
+}
 </script>
 
 <style scoped>
