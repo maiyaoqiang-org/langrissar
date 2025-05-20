@@ -190,3 +190,24 @@ export const updateCoze = async (id, data) => {
 export const deleteCoze = async (id) => {
   return await api.delete(`/coze/${id}`);
 };
+
+// OpenAI相关接口
+// 分页查询OpenAI配置
+export const queryOpenAI = async (data) => {
+  return await api.post('/openai/query', data);
+};
+
+// 创建OpenAI配置
+export const createOpenAI = async (data) => {
+  return await api.post('/openai', data);
+};
+
+// 更新OpenAI配置
+export const updateOpenAI = async (id, data) => {
+  return await api.put(`/openai/${id}`, data);
+};
+
+// 删除OpenAI配置
+export const deleteOpenAI = async (id) => {
+  return await api.delete(`/openai/${id}`);
+};

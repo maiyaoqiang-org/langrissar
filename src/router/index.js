@@ -41,6 +41,11 @@ export const menuRoutes = [
     component: () => import('@/pages/coze.vue'),
     meta: { title: '扣子配置', requiresAuth: true, requiresAdmin: false }
   },
+  {
+    path: '/pages/openai-management',
+    component: () => import('@/pages/openai-management.vue'),
+    meta: { title: 'AI', requiresAuth: true, requiresAdmin: false }
+  },
 ]
 const routes = [
   {
