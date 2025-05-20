@@ -29,6 +29,9 @@ api.interceptors.response.use(
     if (code === 0) {
       return data;
     } else {
+      if (response.config && response.config.resolveAll) {
+        return response.data; // 直接返回原始响应数据
+      }
       ElMessage.error(message);
       return Promise.reject(new Error(message));
     }
@@ -210,4 +213,20 @@ export const updateOpenAI = async (id, data) => {
 // 删除OpenAI配置
 export const deleteOpenAI = async (id) => {
   return await api.delete(`/openai/${id}`);
+};
+
+// 分页查询OpenAI聊天记录
+export const queryOpenAIChatRecords = async (data) => {
+  return await api.post('/openai/chat-records/query', data);
+};
+
+// 导出OpenAI聊天记录
+export const exportOpenAIChatRecords = async (data) => {
+  return await api({
+    url: '/openai/chat-records/export',
+    method: 'POST',
+    responseType: 'blob', // 必须设置为 blob 才能正确处理文件下载
+    data: data, // 将过滤条件发送给后端
+    resolveAll: true,
+  });
 };

@@ -24,6 +24,8 @@
         <template #default="{ row }">
           <el-button v-has-role="['admin']" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button v-has-role="'admin'" size="small" type="danger" @click="handleDelete(row)">删除</el-button>
+          <!-- 新增的查看记录按钮 -->
+          <el-button size="small" @click="handleViewRecords(row)">查看记录</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -82,6 +84,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryOpenAI, createOpenAI, updateOpenAI, deleteOpenAI } from '@/api/server'
 // 移除 SelectLoadMoreUser 导入，因为不再需要关联用户字段
 // import SelectLoadMoreUser from '@/components/module/SelectLoadMoreUser.vue'
+import { useRouter } from 'vue-router' // 导入 useRouter
+
+const router = useRouter() // 获取 router 实例
 
 // 查询参数
 const queryParams = reactive({
@@ -214,6 +219,15 @@ const handleSizeChange = (val) => {
 const handleCurrentChange = (val) => {
   queryParams.page = val
   loadData()
+}
+
+// 新增的查看记录方法
+const handleViewRecords = (row) => {
+  // 导航到 chat_records 页面，并传递当前行的 ID
+  router.push({
+    path: '/pages/chat-records',
+    query: { openaiId: row.id }
+  })
 }
 
 // 初始化

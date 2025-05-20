@@ -46,6 +46,11 @@ export const menuRoutes = [
     component: () => import('@/pages/openai-management.vue'),
     meta: { title: 'AI', requiresAuth: true, requiresAdmin: false }
   },
+  {
+    path: '/pages/chat-records',
+    component: () => import('@/pages/chat-records.vue'),
+    meta: { title: '调用记录', requiresAuth: true, requiresAdmin: false }
+  },
 ]
 const routes = [
   {
