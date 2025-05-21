@@ -230,3 +230,8 @@ export const exportOpenAIChatRecords = async (data) => {
     resolveAll: true,
   });
 };
+
+// 删除OpenAI聊天记录
+export const deleteOpenAIChatRecord = async (id) => {
+  return await api.delete(`/openai/chat-records/${id}`);
+};

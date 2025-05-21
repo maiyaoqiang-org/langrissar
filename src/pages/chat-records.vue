@@ -20,13 +20,7 @@
         </el-form-item>
         <!-- 新增日期选择器 -->
         <el-form-item label="选择日期">
-          <el-date-picker
-            v-model="exportDate"
-            type="date"
-            placeholder="选择要导出的日期"
-            value-format="YYYY-MM-DD"
-            clearable
-          />
+          <el-date-picker v-model="exportDate" type="date" placeholder="选择要导出的日期" value-format="YYYY-MM-DD" clearable />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">查询</el-button>
@@ -51,21 +45,19 @@
       </el-table-column>
       <el-table-column prop="errorMessage" label="错误信息" show-overflow-tooltip />
       <el-table-column prop="createdAt" label="创建时间" width="180" />
-      <!-- 如果您在后端关联了用户，可以添加用户列 -->
-      <!-- <el-table-column prop="user.username" label="用户" width="120" /> -->
+      <!-- 添加操作列 -->
+      <el-table-column label="操作" width="120">
+        <template #default="{ row }">
+          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
     <!-- 分页 -->
     <div class="pagination mt_16" flex="main:right">
-      <el-pagination
-        v-model:current-page="queryParams.page"
-        v-model:page-size="queryParams.pageSize"
-        :total="total"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination v-model:current-page="queryParams.page" v-model:page-size="queryParams.pageSize" :total="total"
+        :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next" @size-change="handleSizeChange"
+        @current-change="handleCurrentChange" />
     </div>
   </div>
 </template>
@@ -74,7 +66,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { queryOpenAIChatRecords, exportOpenAIChatRecords } from '@/api/server' // 导入查询接口和新的导出接口
+import { queryOpenAIChatRecords, exportOpenAIChatRecords, deleteOpenAIChatRecord } from '@/api/server' // 导入查询接口和新的导出接口
 // import axios from 'axios'; // 导入 axios 用于文件下载 (不再需要直接使用 axios)
 
 const route = useRoute() // 获取路由实例
@@ -191,12 +183,22 @@ const getStatusText = (status) => {
 
 // 初始化加载数据
 onMounted(() => {
-//   if (queryParams.openaiConfigId === undefined) {
-//     ElMessage.warning('未指定OpenAI配置ID，将显示所有记录。')
-//   }
+  //   if (queryParams.openaiConfigId === undefined) {
+  //     ElMessage.warning('未指定OpenAI配置ID，将显示所有记录。')
+  //   }
   loadData()
 })
 
+// 添加删除方法
+const handleDelete = async (row) => {
+  try {
+    await deleteOpenAIChatRecord(row.id)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch (error) {
+    ElMessage.error('删除失败')
+  }
+}
 </script>
 
 <style scoped lang="scss">
