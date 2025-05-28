@@ -688,7 +688,7 @@
             <template #default="{ node, data }">
               <div style="display: flex;">
                 <span>{{ data.label }}</span>
-                <img v-if="node.isLeaf" style="width:auto;height:30px;margin-left: 8px;" :src="data?.图片地址" alt="" />
+                <img v-if="node.isLeaf" style="width:auto;height:30px;margin-left: auto;" :src="data?.图片地址" alt="" />
               </div>
             </template>
           </el-cascader>
@@ -1182,8 +1182,14 @@ const getEquipData = () => {
 function transformDataToCascaderFormat(data) {
   const result = {};
 
+  const spData = []
   data.forEach(item => {
     const { 兵种, 士兵名 } = item;
+
+    if(士兵名.includes('SP')){
+      spData.push(item)
+      return
+    }
 
     if (!result[兵种]) {
       result[兵种] = {
@@ -1199,6 +1205,18 @@ function transformDataToCascaderFormat(data) {
       ...item
     });
   });
+
+  spData.forEach(item => {
+    const { 兵种, 士兵名 } = item;
+    const index = result[兵种].children.findIndex(i=> i.士兵名 === 士兵名.replace('SP', ''))
+    if(index !== -1){
+      result[兵种].children.splice(index, 0, {
+        label: 士兵名,
+        value: 士兵名,
+       ...item
+      })
+    }
+  })
 
   return Object.values(result);
 }
