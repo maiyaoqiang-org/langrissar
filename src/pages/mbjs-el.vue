@@ -20,7 +20,7 @@
               <el-form-item label="选择英雄名">
                 <el-select v-model="formData.selected_hero_row" filterable>
                   <el-option v-for="(item, index) in heroList" :value="item.英雄名" :key="index">
-                      <div style="display: flex;">
+                      <div style="display: flex;align-items: center;">
                         <span>{{ item?.英雄名 }}</span>
                         <img style="width:auto;height:30px;margin-left: auto;" :src="item?.英雄头像" alt="" />
                       </div>
@@ -32,7 +32,7 @@
                 <el-select v-model="formData.selected_job" filterable>
                   <el-option v-for="(item, index) in currentSelectedHero?.list" :value="item.职业名" :key="index"
                     :label="item.职业名">
-                    <div style="display: flex;">
+                    <div style="display: flex;align-items: center;">
                       <span>{{ item?.职业名 }}</span>
                       <img style="width:auto;height:30px;margin-left: auto;" :src="item?.occupationPic" alt="" />
                     </div>
@@ -686,7 +686,7 @@
           <el-cascader filterable v-model="formData.selected_sb_names" :options="df3CascaderOptions"
             placeholder="请选择士兵">
             <template #default="{ node, data }">
-              <div style="display: flex;">
+              <div style="display: flex;align-items: center;">
                 <span>{{ data.label }}</span>
                 <img v-if="node.isLeaf" style="width:auto;height:30px;margin-left: auto;" :src="data?.图片地址" alt="" />
               </div>
@@ -1049,10 +1049,10 @@ import zdyZY from '@/static/image/自定义职业图标.png'
 
 
 const prefix = "langrissar-calculator-mbjs-el-"
-const heroList = ref([])
-const zbObj = ref({})
-const df3 = ref([])
-const df4 = ref([])
+const heroList = useRefCache(`${prefix}heroList`, [])
+const zbObj = useRefCache(`${prefix}zbObj`, {})
+const df3 = useRefCache(`${prefix}df3`, [])
+const df4 = useRefCache(`${prefix}df4`, [])
 
 
 const getHeroData = () => {
