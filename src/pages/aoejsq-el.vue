@@ -63,38 +63,7 @@
           </el-form-item>
         </el-card>
         <el-card style="min-width: 400px;" class="mr_16 mb_16">
-          <el-tabs model-value="守方士兵">
-            <el-tab-pane label="守方士兵" name="守方士兵">
-              <view>
-                <el-form-item label="守方士兵防御">
-                  <mz-input prop="sf_sbfy" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item label="守方士兵魔防">
-                  <mz-input prop="sf_sbmf" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item
-                    label-width="280px"
-                    v-if="formData.yx_yxdb_kzpd"
-                    label="士兵与 攻方英雄 交战时双防克制系数加成">
-                  <mz-percent-input prop="sf_sbdyx_sfkzxs" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item label="守方士兵通用减伤">
-                  <mz-percent-input prop="sf_sb_tyjs" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item label="守方士兵技能减伤">
-                  <mz-percent-input prop="sf_sb_jnjs" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item label="守方士兵远程减伤">
-                  <mz-percent-input prop="sf_sb_ycjs" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item label="守方士兵其他减伤">
-                  <mz-percent-input prop="sf_sb_qtjs" :form-data="formData"/>
-                </el-form-item>
-                <el-form-item label="守方士兵减暴伤">
-                  <mz-percent-input prop="sf_sb_jbs" :form-data="formData"/>
-                </el-form-item>
-              </view>
-            </el-tab-pane>
+          <el-tabs model-value="守方英雄">
             <el-tab-pane label="守方英雄" name="守方英雄">
               <view>
                 <el-form-item label="守方英雄防御">
@@ -123,6 +92,37 @@
                 </el-form-item>
                 <el-form-item label="守方英雄减暴伤">
                   <mz-percent-input prop="sf_yx_jbs" :form-data="formData"/>
+                </el-form-item>
+              </view>
+            </el-tab-pane>
+            <el-tab-pane label="守方士兵" name="守方士兵">
+              <view>
+                <el-form-item label="守方士兵防御">
+                  <mz-input prop="sf_sbfy" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item label="守方士兵魔防">
+                  <mz-input prop="sf_sbmf" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item
+                    label-width="280px"
+                    v-if="formData.yx_yxdb_kzpd"
+                    label="士兵与 攻方英雄 交战时双防克制系数加成">
+                  <mz-percent-input prop="sf_sbdyx_sfkzxs" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item label="守方士兵通用减伤">
+                  <mz-percent-input prop="sf_sb_tyjs" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item label="守方士兵技能减伤">
+                  <mz-percent-input prop="sf_sb_jnjs" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item label="守方士兵远程减伤">
+                  <mz-percent-input prop="sf_sb_ycjs" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item label="守方士兵其他减伤">
+                  <mz-percent-input prop="sf_sb_qtjs" :form-data="formData"/>
+                </el-form-item>
+                <el-form-item label="守方士兵减暴伤">
+                  <mz-percent-input prop="sf_sb_jbs" :form-data="formData"/>
                 </el-form-item>
               </view>
             </el-tab-pane>
