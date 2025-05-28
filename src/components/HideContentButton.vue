@@ -53,7 +53,7 @@ onUnmounted(() => {
 <style scoped>
 .hide-content-button {
   position: fixed;
-  bottom: 20px;
+  bottom: 100px;
   right: 20px;
   z-index: 9999;
   cursor: pointer;

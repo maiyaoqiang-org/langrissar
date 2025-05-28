@@ -19,15 +19,24 @@
             <div flex-box="0">
               <el-form-item label="选择英雄名">
                 <el-select v-model="formData.selected_hero_row" filterable>
-                  <el-option v-for="(item, index) in heroList" :value="item.英雄名" :key="index"
-                    :label="item.英雄名"></el-option>
+                  <el-option v-for="(item, index) in heroList" :value="item.英雄名" :key="index">
+                      <div style="display: flex;">
+                        <span>{{ item?.英雄名 }}</span>
+                        <img style="width:auto;height:30px;margin-left: auto;" :src="item?.英雄头像" alt="" />
+                      </div>
+                  </el-option>
                 </el-select>
               </el-form-item>
               <br>
               <el-form-item label="选择职业">
                 <el-select v-model="formData.selected_job" filterable>
                   <el-option v-for="(item, index) in currentSelectedHero?.list" :value="item.职业名" :key="index"
-                    :label="item.职业名"></el-option>
+                    :label="item.职业名">
+                    <div style="display: flex;">
+                      <span>{{ item?.职业名 }}</span>
+                      <img style="width:auto;height:30px;margin-left: auto;" :src="item?.occupationPic" alt="" />
+                    </div>
+                  </el-option>
                 </el-select>
               </el-form-item>
 
@@ -55,7 +64,7 @@
             </div>
 
           </div>
-          <div>
+          <div v-show="formData.showHero">
             <el-form-item label=" ">
               <el-checkbox v-model="formData.bz_input_can_edit" label="是否自定义白字"></el-checkbox>
             </el-form-item>
@@ -133,7 +142,7 @@
         </el-table>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showHero" class="mb_16">
         <template #header>
           英雄绿字区
         </template>
@@ -341,7 +350,7 @@
 
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showHero" class="mb_16">
         <template #header>英雄绿字加成统计表</template>
         <el-table class="mb_16" :data="lzTotalTableData">
           <el-table-column v-for="(item, index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
@@ -374,7 +383,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showHero" class="mb_16">
         <template #header>
           英雄战场面板模拟
         </template>
@@ -415,7 +424,7 @@
 
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showHero" class="mb_16">
         <el-form-item label="是否竞技场">
           <el-radio-group v-model="formData.jjc_pd">
             <el-radio :value="true">是</el-radio>
@@ -541,7 +550,7 @@
 
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showHero" class="mb_16">
         <el-collapse>
           <el-collapse-item title="是否存在 攻转防 防转攻" name="1">
             <div flex style="gap:8px;">
@@ -597,7 +606,7 @@
         </el-collapse>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showHero" class="mb_16">
         <template #header>
           英雄的战场面板
         </template>
@@ -669,7 +678,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <template #header>
           士兵初始值区
         </template>
@@ -718,7 +727,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <template #header>
           士兵神契加成区
 
@@ -741,7 +750,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <template #header>
           英雄兵修区
         </template>
@@ -774,7 +783,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <template #header>
           士兵白字区
         </template>
@@ -802,7 +811,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <div style="width:1000px;display: flex;">
           <div style="width:400px;">
             <el-form-item label-width="140" label="是否竞技场">
@@ -864,7 +873,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <template #header>
           士兵战场总加成
         </template>
@@ -883,7 +892,7 @@
         </div>
       </el-card>
 
-      <el-card class="mb_16">
+      <el-card v-show="formData.showSoldier" class="mb_16">
         <template #header>
           士兵战场面板
         </template>
@@ -990,6 +999,13 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+
+
+    <el-card style="position:fixed;z-index: 9999;right:20px;bottom:50px; --el-card-padding:8px 20px;">
+      <el-checkbox v-model="formData.showHero" label="英雄" size="large" />
+      <el-checkbox v-model="formData.showSoldier" label="士兵" size="large" />
+    </el-card>
+
   </div>
 </template>
 
@@ -1101,6 +1117,7 @@ const getHeroData = () => {
       heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
         return {
           "英雄名": key,
+          "英雄头像": list[0]?.英雄头像,
           list: list,
         }
       })
@@ -1319,6 +1336,8 @@ const fz_list = [
 
 
 const defaultFormData = {
+  showHero: true,
+  showSoldier: true,
   // 选中的英雄
   selected_hero_row: "自定义英雄",
   // 选中的职业
