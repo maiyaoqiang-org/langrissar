@@ -155,7 +155,14 @@
                   <el-form-item :label="'请选择' + key">
                     <el-select v-model="formData[formKey]" filterable>
                       <el-option v-for="(zbItem, zbIndex) in zbObj[key]" :key="zbIndex" :label="zbItem.装备名称"
-                        :value="zbItem.装备名称"></el-option>
+                        :value="zbItem.装备名称">
+                        <div flex="cross:center">
+                          <div>
+                            {{ zbItem.装备名称 }}
+                          </div>
+                          <img style="width:auto;height:30px;margin-left: auto;" :src="zbItem.picAddr" alt=""></img>
+                        </div>
+                      </el-option>
                     </el-select>
                     <div>
                       <img style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="">
