@@ -1,12 +1,17 @@
 <template>
   <div class="mbjs-el" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
-    <el-affix>
-      <div class="mb_16" flex="main:right">
-        <el-button @click="saveHeroCache">缓存英雄数据</el-button>
+
+    <div class="mb_16" flex="cross:center main:justify">
+      <div>
+        <el-checkbox v-model="configData.showHero" border  label="英雄" />
+        <el-checkbox v-model="configData.showSoldier" border  label="士兵" />
+      </div>
+      <div>
+        <el-button @click="saveHeroCache">缓存数据</el-button>
         <el-button type="primary" class="ml_8" @click="loadHeroCache">使用缓存</el-button>
       </div>
-    </el-affix>
+    </div>
 
     <el-form style="min-width: 600px;" label-width="120px" class="base-el-form" label-position="right" :inline="true"
       :model="formData">
@@ -64,7 +69,7 @@
             </div>
 
           </div>
-          <div v-show="formData.showHero">
+          <div v-show="configData.showHero">
             <el-form-item label=" ">
               <el-checkbox v-model="formData.bz_input_can_edit" label="是否自定义白字"></el-checkbox>
             </el-form-item>
@@ -142,7 +147,7 @@
         </el-table>
       </el-card>
 
-      <el-card v-show="formData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" class="mb_16">
         <template #header>
           英雄绿字区
         </template>
@@ -357,7 +362,7 @@
 
       </el-card>
 
-      <el-card v-show="formData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" class="mb_16">
         <template #header>英雄绿字加成统计表</template>
         <el-table class="mb_16" :data="lzTotalTableData">
           <el-table-column v-for="(item, index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
@@ -390,7 +395,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" class="mb_16">
         <template #header>
           英雄战场面板模拟
         </template>
@@ -431,7 +436,7 @@
 
       </el-card>
 
-      <el-card v-show="formData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" class="mb_16">
         <el-form-item label="是否竞技场">
           <el-radio-group v-model="formData.jjc_pd">
             <el-radio :value="true">是</el-radio>
@@ -557,7 +562,7 @@
 
       </el-card>
 
-      <el-card v-show="formData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" class="mb_16">
         <el-collapse>
           <el-collapse-item title="是否存在 攻转防 防转攻" name="1">
             <div flex style="gap:8px;">
@@ -613,7 +618,7 @@
         </el-collapse>
       </el-card>
 
-      <el-card v-show="formData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" class="mb_16">
         <template #header>
           英雄的战场面板
         </template>
@@ -685,7 +690,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <template #header>
           士兵初始值区
         </template>
@@ -734,7 +739,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <template #header>
           士兵神契加成区
 
@@ -757,7 +762,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <template #header>
           英雄兵修区
         </template>
@@ -790,7 +795,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <template #header>
           士兵白字区
         </template>
@@ -818,7 +823,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <div style="width:1000px;display: flex;">
           <div style="width:400px;">
             <el-form-item label-width="140" label="是否竞技场">
@@ -880,7 +885,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <template #header>
           士兵战场总加成
         </template>
@@ -899,7 +904,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="formData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" class="mb_16">
         <template #header>
           士兵战场面板
         </template>
@@ -969,7 +974,7 @@
 </pre>
 
     <!-- 添加回到顶部按钮 -->
-    <el-backtop :right="40" :bottom="40" />
+    <el-backtop style="width:32px;height:32px;" target=".el-main" :right="20" :bottom="50" />
 
     <!-- 添加缓存名称输入弹窗 -->
     <el-dialog v-model="saveDialogVisible" title="保存英雄数据" width="30%">
@@ -1008,10 +1013,6 @@
     </el-dialog>
 
 
-    <el-card style="position:fixed;z-index: 9999;right:20px;bottom:50px; --el-card-padding:8px 20px;">
-      <el-checkbox v-model="formData.showHero" label="英雄" size="large" />
-      <el-checkbox v-model="formData.showSoldier" label="士兵" size="large" />
-    </el-card>
 
   </div>
 </template>
@@ -1060,7 +1061,10 @@ const heroList = useRefCache(`${prefix}heroList`, [])
 const zbObj = useRefCache(`${prefix}zbObj`, {})
 const df3 = useRefCache(`${prefix}df3`, [])
 const df4 = useRefCache(`${prefix}df4`, [])
-
+const configData = useRefCache(`${prefix}configData`, {
+  showHero: true,
+  showSoldier: true,
+})
 
 const getHeroData = () => {
   // 为了处理合并跟墨佬的命名一致
@@ -1361,8 +1365,6 @@ const fz_list = [
 
 
 const defaultFormData = {
-  showHero: true,
-  showSoldier: true,
   // 选中的英雄
   selected_hero_row: "自定义英雄",
   // 选中的职业
@@ -1416,7 +1418,15 @@ const defaultFormData = {
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
-  formData.value = JSON.parse(JSON.stringify(defaultFormData))
+  // 二次确认
+  ElMessageBox.confirm("是否确认重置",{
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+  .then(() => {
+    formData.value = JSON.parse(JSON.stringify(defaultFormData))
+  })
 }
 
 // 输入框二次转换数据
