@@ -8,7 +8,8 @@
       <el-button type="primary" @click="handleAutoCdkeyReward">自动领取CDKey奖励</el-button>
       <el-button type="primary" @click="handleAutoVIPWeeklyReward">自动领取VIP每周奖励</el-button>
       <el-button type="primary" @click="handleAutoVIPMonthlyReward">自动领取VIP每月奖励</el-button>
-      <el-button type="primary" @click="handleClearCdkeyCache">清除所有CDKey缓存</el-button>
+      <el-button type="primary" @click="handleAutoVIPSignReward">自动领取VIP签到奖励</el-button>
+      <el-button type="danger" @click="handleClearCdkeyCache">清除所有CDKey缓存</el-button>
     </div>
 
     <el-card>
@@ -163,7 +164,8 @@ import {
   getPredayReward,
   getWeeklyReward,
   autoVIPWeeklyReward,
-  autoVIPMonthlyReward
+  autoVIPMonthlyReward,
+  autoVIPSignReward
 } from "../api/server";
 import {getServerData} from "@/api/mz";
 
@@ -343,7 +345,6 @@ const handleAutoVIPWeeklyReward = async () => {
   // 将 \n 替换为 <br> 标签
   const formattedRes = res.replace(/\n/g, '<br>'); 
   ElNotification({
-    title: '自动领取VIP每周奖励',
     message: formattedRes,
     type: 'success',
     dangerouslyUseHTMLString: true // 允许使用 HTML 内容
@@ -355,7 +356,17 @@ const handleAutoVIPMonthlyReward = async () => {
   // 将 \n 替换为 <br> 标签
   const formattedRes = res.replace(/\n/g, '<br>'); 
   ElNotification({
-    title: '自动领取VIP每月奖励',
+    message: formattedRes,
+    type: 'success',
+    dangerouslyUseHTMLString: true // 允许使用 HTML 内容
+  });
+};
+
+const handleAutoVIPSignReward = async () => {
+  const res = await autoVIPSignReward();
+  // 将 \n 替换为 <br> 标签
+  const formattedRes = res.replace(/\n/g, '<br>'); 
+  ElNotification({
     message: formattedRes,
     type: 'success',
     dangerouslyUseHTMLString: true // 允许使用 HTML 内容
