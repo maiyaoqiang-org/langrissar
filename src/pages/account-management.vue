@@ -19,7 +19,7 @@
             <el-input v-model="filterForm.username" placeholder="请输入用户名" clearable />
           </el-form-item>
           <el-form-item label="用户ID" style="width:280px;">
-            <prefix-input v-model="filterForm.userid" placeholder="请输入用户ID" clearable />
+            <el-input v-model="filterForm.userid" placeholder="请输入用户ID" clearable />
           </el-form-item>
           <el-form-item label="角色ID" style="width:280px;">
             <el-input v-model="filterForm.roleid" placeholder="请输入角色ID" clearable />
@@ -81,7 +81,7 @@
           <el-input v-model="addForm.username" />
         </el-form-item>
         <el-form-item label="用户ID">
-          <prefix-input v-model="addForm.userid" placeholder="请输入用户ID" />
+          <el-input v-model="addForm.userid" placeholder="请输入用户ID" />
         </el-form-item>
         <el-form-item label="角色ID">
           <el-input v-model="addForm.roleid" />
@@ -118,7 +118,7 @@
           <el-input v-model="editForm.username" />
         </el-form-item>
         <el-form-item label="用户ID">
-          <prefix-input v-model="editForm.userid" placeholder="请输入用户ID" />
+          <el-input v-model="editForm.userid" placeholder="请输入用户ID" />
         </el-form-item>
         <el-form-item label="角色ID">
           <el-input v-model="editForm.roleid" />
