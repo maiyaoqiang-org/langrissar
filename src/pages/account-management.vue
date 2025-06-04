@@ -6,6 +6,8 @@
       <el-button type="primary" @click="handleGetMonthlyReward">领取每月8号福利</el-button>
       <el-button type="primary" @click="handleGetCdkeyReward">领取CDKey奖励</el-button>
       <el-button type="primary" @click="handleAutoCdkeyReward">自动领取CDKey奖励</el-button>
+      <el-button type="primary" @click="handleAutoVIPWeeklyReward">自动领取VIP每周奖励</el-button>
+      <el-button type="primary" @click="handleAutoVIPMonthlyReward">自动领取VIP每月奖励</el-button>
       <el-button type="primary" @click="handleClearCdkeyCache">清除所有CDKey缓存</el-button>
     </div>
 
@@ -20,6 +22,9 @@
           </el-form-item>
           <el-form-item label="角色ID" style="width:280px;">
             <el-input v-model="filterForm.roleid" placeholder="请输入角色ID" clearable />
+          </el-form-item>
+          <el-form-item label="账号" style="width:280px;">
+            <el-input v-model="filterForm.account" placeholder="请输入账号" clearable />
           </el-form-item>
           <el-form-item label="服务器" style="width:280px;">
             <el-cascader
@@ -50,6 +55,7 @@
             {{ getServerName(scope.row.serverid) }}
           </template>
         </el-table-column>
+        <el-table-column prop="account" label="账号" />
         <el-table-column prop="createdAt" label="创建时间" />
         <el-table-column prop="updatedAt" label="更新时间" />
         <el-table-column label="操作" width="300">
@@ -91,6 +97,12 @@
               clearable
             />
         </el-form-item>
+        <el-form-item label="账号">
+          <el-input v-model="addForm.account" />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="addForm.password" type="password" show-password />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showAddDialog = false">取消</el-button>
@@ -122,6 +134,12 @@
               clearable
             />
         </el-form-item>
+        <el-form-item label="账号">
+          <el-input v-model="editForm.account" />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="editForm.password" type="password" show-password />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showEditDialog = false">取消</el-button>
@@ -136,14 +154,16 @@ import { ref, onMounted } from 'vue'
 import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox, ElMessage,ElNotification } from 'element-plus'
 import {
   autoCdkeyReward,
   clearCdkeyCache,
   getCdkeyReward,
   getMonthlyReward,
   getPredayReward,
-  getWeeklyReward
+  getWeeklyReward,
+  autoVIPWeeklyReward,
+  autoVIPMonthlyReward
 } from "../api/server";
 import {getServerData} from "@/api/mz";
 
@@ -174,6 +194,7 @@ const filterForm = ref({
   userid: '',
   roleid: '',
   serverid: '',
+  account: '',
   page: 1,
   pageSize: 10
 })
@@ -182,7 +203,9 @@ const addForm = ref({
   username: '',
   userid: '',
   roleid: '',
-  serverid: ''
+  serverid: '',
+  account: '',
+  password: ''
 })
 
 const addFormRules = {
@@ -194,7 +217,9 @@ const editForm = ref({
   username: '',
   userid: '',
   roleid: '',
-  serverid: ''
+  serverid: '',
+  account: '',
+  password: ''
 })
 
 // 获取账号列表
@@ -223,6 +248,7 @@ const resetFilter = () => {
 // 添加账号
 const addFormRef = ref(null)
 
+// 添加账号
 const handleAddAccount = async () => {
   if (!addFormRef.value) return
   await addFormRef.value.validate()
@@ -236,7 +262,9 @@ const handleAddAccount = async () => {
     username: '',
     userid: '',
     roleid: '',
-    serverid: ''
+    serverid: '',
+    account: '',
+    password: ''
   }
 }
 
@@ -247,7 +275,9 @@ const handleEdit = (account) => {
     username: account.username,
     userid: account.userid,
     roleid: account.roleid,
-    serverid: account.serverid
+    serverid: account.serverid,
+    account: account.account || '',
+    // password: account.password || ''
   }
   showEditDialog.value = true
 }
@@ -306,6 +336,30 @@ const handleGetCdkeyReward = async () => {
 const handleAutoCdkeyReward = async () => {
   await autoCdkeyReward();
   ElMessage.success('自动CDKey奖励领取成功');
+};
+
+const handleAutoVIPWeeklyReward = async () => {
+  const res = await autoVIPWeeklyReward();
+  // 将 \n 替换为 <br> 标签
+  const formattedRes = res.replace(/\n/g, '<br>'); 
+  ElNotification({
+    title: '自动领取VIP每周奖励',
+    message: formattedRes,
+    type: 'success',
+    dangerouslyUseHTMLString: true // 允许使用 HTML 内容
+  });
+};
+
+const handleAutoVIPMonthlyReward = async () => {
+  const res = await autoVIPMonthlyReward();
+  // 将 \n 替换为 <br> 标签
+  const formattedRes = res.replace(/\n/g, '<br>'); 
+  ElNotification({
+    title: '自动领取VIP每月奖励',
+    message: formattedRes,
+    type: 'success',
+    dangerouslyUseHTMLString: true // 允许使用 HTML 内容
+  });
 };
 
 const handleClearCdkeyCache = async () => {

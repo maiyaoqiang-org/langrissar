@@ -167,6 +167,16 @@ export const autoCdkeyReward = async () => {
     return await api.get('/account/auto-cdkey-reward');
 };
 
+// 自动获取CDKey奖励
+export const autoVIPWeeklyReward = async () => {
+  return await api.get('/account/auto-vip-weekly-reward');
+};
+
+// 自动获取CDKey奖励
+export const autoVIPMonthlyReward = async () => {
+  return await api.get('/account/auto-vip-monthly-reward');
+};
+
 // 清除CDKey缓存
 export const clearCdkeyCache = async () => {
     return await api.get('/account/clear-cdkey-cache');
