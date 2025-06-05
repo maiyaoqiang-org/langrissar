@@ -44,7 +44,7 @@
             <el-button @click="resetFilter">重置</el-button>
           </el-form-item>
         </el-form>
-        <el-button type="primary" @click="showAddDialog = true">添加账号</el-button>
+        <el-button type="primary" @click="handleAdd">添加账号</el-button>
       </div>
 
       <el-table :data="accountList" border style="width: 100%">
@@ -74,77 +74,44 @@
 
     </el-card>
 
-    <!-- 添加账号对话框 -->
-    <el-dialog v-model="showAddDialog" title="添加账号" width="500px">
-      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
-        <el-form-item label="用户名">
-          <el-input v-model="addForm.username" />
-        </el-form-item>
-        <el-form-item label="用户ID">
-          <el-input v-model="addForm.userid" placeholder="请输入用户ID" />
-        </el-form-item>
-        <el-form-item label="角色ID">
-          <el-input v-model="addForm.roleid" />
-        </el-form-item>
-        <el-form-item label="服务器ID">
-          <el-cascader
-              v-model="addForm.serverid"
-              :options="serverOptions"
-              :props="{
-                emitPath: false
-              }"
-              filterable
-              placeholder="请选择服务器"
-              clearable
-            />
-        </el-form-item>
-        <el-form-item label="账号">
-          <el-input v-model="addForm.account" />
-        </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="addForm.password" type="password" show-password />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showAddDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleAddAccount">确定</el-button>
+    <!-- 合并后的账号对话框 -->
+    <el-dialog v-model="showAccountDialog" width="500px">
+      <template #title>
+        <div flex="cross:center main:justify">
+          <span>{{ dialogType==='add'?'添加账号':'编辑账号' }}</span>
+          <el-button type="primary" @click="handleImport">一键导入账号信息</el-button>
+        </div>
       </template>
-    </el-dialog>
-
-    <!-- 编辑账号对话框 -->
-    <el-dialog v-model="showEditDialog" title="编辑账号" width="500px">
-      <el-form :model="editForm" label-width="80px">
+      <el-form :model="formData" ref="formRef" label-width="80px">
         <el-form-item label="用户名">
-          <el-input v-model="editForm.username" />
+          <el-input v-model="formData.username" />
         </el-form-item>
         <el-form-item label="用户ID">
-          <el-input v-model="editForm.userid" placeholder="请输入用户ID" />
+          <el-input v-model="formData.userid" placeholder="请输入用户ID" />
         </el-form-item>
         <el-form-item label="角色ID">
-          <el-input v-model="editForm.roleid" />
+          <el-input v-model="formData.roleid" />
         </el-form-item>
         <el-form-item label="服务器ID">
           <el-cascader
-              v-model="editForm.serverid"
+              v-model="formData.serverid"
               :options="serverOptions"
-              :props="{
-                emitPath: false
-              }"
+              :props="{ emitPath: false }"
               filterable
               placeholder="请选择服务器"
               clearable
             />
         </el-form-item>
         <el-form-item label="账号">
-          <el-input v-model="editForm.account" />
+          <el-input v-model="formData.account" />
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="editForm.password" type="password" show-password />
+          <el-input v-model="formData.password" type="password" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showEditDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleUpdateAccount">确定</el-button>
+        <el-button @click="showAccountDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleAccountSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -165,7 +132,8 @@ import {
   getWeeklyReward,
   autoVIPWeeklyReward,
   autoVIPMonthlyReward,
-  autoVIPSignReward
+  autoVIPSignReward,
+  getRoleInfo
 } from "../api/server";
 import {getServerData} from "@/api/mz";
 
@@ -186,11 +154,8 @@ onMounted(()=>{
 
 // 添加服务器选项的响应式数据
 const serverOptions = ref([])
-const userStore = useUserStore()
 const accountList = ref([])
 const total = ref(0)
-const showAddDialog = ref(false)
-const showEditDialog = ref(false)
 const filterForm = ref({
   username: '',
   userid: '',
@@ -199,29 +164,6 @@ const filterForm = ref({
   account: '',
   page: 1,
   pageSize: 10
-})
-
-const addForm = ref({
-  username: '',
-  userid: '',
-  roleid: '',
-  serverid: '',
-  account: '',
-  password: ''
-})
-
-const addFormRules = {
-
-}
-
-const editForm = ref({
-  id: '',
-  username: '',
-  userid: '',
-  roleid: '',
-  serverid: '',
-  account: '',
-  password: ''
 })
 
 // 获取账号列表
@@ -248,47 +190,21 @@ const resetFilter = () => {
 }
 
 // 添加账号
-const addFormRef = ref(null)
+const formRef = ref(null)
 
 // 添加账号
 const handleAddAccount = async () => {
-  if (!addFormRef.value) return
-  await addFormRef.value.validate()
-
-  const userData = addForm.value
+  const userData = formData.value
   await createAccount(userData)
-  showAddDialog.value = false
   ElMessage.success('添加成功');
   fetchAccounts()
-  addForm.value = {
-    username: '',
-    userid: '',
-    roleid: '',
-    serverid: '',
-    account: '',
-    password: ''
-  }
 }
 
-// 编辑账号
-const handleEdit = (account) => {
-  editForm.value = {
-    id: account.id,
-    username: account.username,
-    userid: account.userid,
-    roleid: account.roleid,
-    serverid: account.serverid,
-    account: account.account || '',
-    // password: account.password || ''
-  }
-  showEditDialog.value = true
-}
 
 // 更新账号
 const handleUpdateAccount = async () => {
-  await updateAccount(editForm.value)
+  await updateAccount(formData.value)
   ElMessage.success('更新成功');
-  showEditDialog.value = false
   fetchAccounts()
 }
 
@@ -343,7 +259,7 @@ const handleAutoCdkeyReward = async () => {
 const handleAutoVIPWeeklyReward = async () => {
   const res = await autoVIPWeeklyReward();
   // 将 \n 替换为 <br> 标签
-  const formattedRes = res.replace(/\n/g, '<br>'); 
+  const formattedRes = res.replace(/\n/g, '<br>');
   ElNotification({
     message: formattedRes,
     type: 'success',
@@ -354,7 +270,7 @@ const handleAutoVIPWeeklyReward = async () => {
 const handleAutoVIPMonthlyReward = async () => {
   const res = await autoVIPMonthlyReward();
   // 将 \n 替换为 <br> 标签
-  const formattedRes = res.replace(/\n/g, '<br>'); 
+  const formattedRes = res.replace(/\n/g, '<br>');
   ElNotification({
     message: formattedRes,
     type: 'success',
@@ -365,7 +281,7 @@ const handleAutoVIPMonthlyReward = async () => {
 const handleAutoVIPSignReward = async () => {
   const res = await autoVIPSignReward();
   // 将 \n 替换为 <br> 标签
-  const formattedRes = res.replace(/\n/g, '<br>'); 
+  const formattedRes = res.replace(/\n/g, '<br>');
   ElNotification({
     message: formattedRes,
     type: 'success',
@@ -393,7 +309,7 @@ onMounted(() => {
 // 获取服务器名称的方法
 const getServerName = (serverId) => {
   if (!serverId) return '-'
-  
+
   // 遍历服务器列表查找匹配的服务器
   for (const zone of serverOptions.value) {
     const server = zone.children.find(s => s.value === serverId)
@@ -403,6 +319,88 @@ const getServerName = (serverId) => {
   }
   return serverId // 如果找不到对应的服务器名称，返回原始ID
 }
+const showAccountDialog = ref(false)
+const dialogTitle = ref('')
+const dialogType = ref('add')
+const formData = ref({
+  username: '',
+  userid: '',
+  roleid: '',
+  serverid: '',
+  account: '',
+  password: ''
+})
+
+const handleAdd = () => {
+  dialogTitle.value = '添加账号'
+  dialogType.value = 'add'
+  formData.value = {
+    username: '',
+    userid: '',
+    roleid: '',
+    serverid: '',
+    account: '',
+    password: ''
+  }
+  showAccountDialog.value = true
+}
+
+const handleEdit = (row) => {
+  dialogTitle.value = '编辑账号'
+  dialogType.value = 'edit'
+  formData.value = {
+    id: row.id,
+    username: row.username,
+    userid: row.userid,
+    roleid: row.roleid,
+    serverid: row.serverid,
+    account: '',
+    password: ''
+  }
+  showAccountDialog.value = true
+}
+
+const handleAccountSubmit = async () => {
+  if (!formRef.value) return
+  await formRef.value.validate()
+  if (dialogType.value === 'add') {
+    await handleAddAccount()
+  } else {
+    await handleUpdateAccount()
+  }
+  showAccountDialog.value = false
+}
+
+const handleImport = async () => {
+  const { value: roleid } = await ElMessageBox.prompt('请输入要导入的角色id', '一键导入账号信息', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    inputPlaceholder: '请输入角色id'
+  });
+
+  if (roleid) {
+    try {
+      const res = await getRoleInfo({
+        roleid: roleid,
+      })
+      if(res&&res.length>0){
+        const roleInfo = res[0]
+        Object.assign(formData.value, {
+          username: roleInfo.role_name,
+          userid: roleInfo.uid,
+          roleid: roleInfo.role_id,
+          serverid: roleInfo.server_id,
+        })
+      }
+
+    } catch (error) {
+      ElMessage.error('导入失败: ' + error.message);
+    }
+  }
+};
+
+
+
 </script>
 
 <style scoped>

@@ -41,7 +41,7 @@ api.interceptors.response.use(
       // 清除用户状态
       const userStore = useUserStore();
       userStore.clearUser();
-      
+
       // 确保router对象已初始化
       if (router && router.currentRoute.value.path !== '/pages/login') {
         router.push({
@@ -98,7 +98,7 @@ export const updatePassword = async (data) => {
 
 // 获取用户列表
 export const getUsers = async (data) => {
-  return await api.post('/user/query',data);
+  return await api.post('/user/query', data);
 };
 
 // 添加新用户
@@ -138,33 +138,33 @@ export const deleteAccount = async (id) => {
 
 // 获取每日福利
 export const getPredayReward = async () => {
-    return await api.get('/account/get-preday-reward');
+  return await api.get('/account/get-preday-reward');
 };
 
 // 获取每周福利
 export const getWeeklyReward = async () => {
-    return await api.get('/account/get-weekly-reward');
+  return await api.get('/account/get-weekly-reward');
 };
 
 // 获取每月福利
 export const getMonthlyReward = async () => {
-    return await api.get('/account/get-monthly-reward');
+  return await api.get('/account/get-monthly-reward');
 };
 
 // 获取CDKey奖励
 export const getCdkeyReward = async (cdkey) => {
-    return await api({
-        url: `/account/get-cdkey-reward`,
-        method: 'get',
-        params: {
-            cdkey
-        },
-    });
+  return await api({
+    url: `/account/get-cdkey-reward`,
+    method: 'get',
+    params: {
+      cdkey
+    },
+  });
 };
 
 // 自动获取CDKey奖励
 export const autoCdkeyReward = async () => {
-    return await api.get('/account/auto-cdkey-reward');
+  return await api.get('/account/auto-cdkey-reward');
 };
 
 export const autoVIPWeeklyReward = async () => {
@@ -181,9 +181,19 @@ export const autoVIPSignReward = async () => {
 
 // 清除CDKey缓存
 export const clearCdkeyCache = async () => {
-    return await api.get('/account/clear-cdkey-cache');
+  return await api.get('/account/clear-cdkey-cache');
 };
 
+
+export const getRoleInfo = async (params) => {
+  return await api({
+    url: `/account/get-role-info`,
+    method: 'get',
+    params: {
+      roleid: params.roleid
+    }
+  });
+};
 
 // Coze相关接口
 // 分页查询Coze配置
