@@ -28,16 +28,9 @@
             <el-input v-model="filterForm.account" placeholder="请输入账号" clearable />
           </el-form-item>
           <el-form-item label="服务器" style="width:280px;">
-            <el-cascader
-              v-model="filterForm.serverid"
-              :options="serverOptions"
-              :props="{
-                emitPath: false
-              }"
-              filterable
-              placeholder="请选择服务器"
-              clearable
-            />
+            <el-cascader v-model="filterForm.serverid" :options="serverOptions" :props="{
+              emitPath: false
+            }" filterable placeholder="请选择服务器" clearable />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="handleFilter">搜索</el-button>
@@ -76,9 +69,9 @@
 
     <!-- 合并后的账号对话框 -->
     <el-dialog v-model="showAccountDialog" width="500px">
-      <template #title>
+      <template #header>
         <div flex="cross:center main:justify">
-          <span>{{ dialogType==='add'?'添加账号':'编辑账号' }}</span>
+          <span>{{ dialogType === 'add' ? '添加账号' : '编辑账号' }}</span>
           <el-button type="primary" @click="handleImport">一键导入账号信息</el-button>
         </div>
       </template>
@@ -93,14 +86,8 @@
           <el-input v-model="formData.roleid" />
         </el-form-item>
         <el-form-item label="服务器ID">
-          <el-cascader
-              v-model="formData.serverid"
-              :options="serverOptions"
-              :props="{ emitPath: false }"
-              filterable
-              placeholder="请选择服务器"
-              clearable
-            />
+          <el-cascader v-model="formData.serverid" :options="serverOptions" :props="{ emitPath: false }" filterable
+            placeholder="请选择服务器" clearable />
         </el-form-item>
         <el-form-item label="账号">
           <el-input v-model="formData.account" />
@@ -122,7 +109,7 @@ import { ref, onMounted } from 'vue'
 import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
-import { ElMessageBox, ElMessage,ElNotification } from 'element-plus'
+import { ElMessageBox, ElMessage, ElNotification } from 'element-plus'
 import {
   autoCdkeyReward,
   clearCdkeyCache,
@@ -135,10 +122,10 @@ import {
   autoVIPSignReward,
   getRoleInfo
 } from "../api/server";
-import {getServerData} from "@/api/mz";
+import { getServerData } from "@/api/mz";
 
-onMounted(()=>{
-  getServerData().then((res)=>{
+onMounted(() => {
+  getServerData().then((res) => {
     // 转换数据格式
     serverOptions.value = res.map(zone => ({
       value: zone.zone_real_id,
@@ -371,32 +358,36 @@ const handleAccountSubmit = async () => {
   showAccountDialog.value = false
 }
 
-const handleImport = async () => {
-  const { value: roleid } = await ElMessageBox.prompt('请输入要导入的角色id', '一键导入账号信息', {
+const handleImport = () => {
+  ElMessageBox.prompt('请输入要导入的角色id', '一键导入账号信息', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     inputPlaceholder: '请输入角色id'
-  });
+  })
+    .then(async ({ value: roleid }) => {
+      if (roleid) {
+        try {
+          const res = await getRoleInfo({
+            roleid: roleid,
+          })
+          if (res && res.length > 0) {
+            const roleInfo = res[0]
+            Object.assign(formData.value, {
+              username: roleInfo.role_name,
+              userid: roleInfo.uid,
+              roleid: roleInfo.role_id,
+              serverid: roleInfo.server_id,
+            })
+          }
 
-  if (roleid) {
-    try {
-      const res = await getRoleInfo({
-        roleid: roleid,
-      })
-      if(res&&res.length>0){
-        const roleInfo = res[0]
-        Object.assign(formData.value, {
-          username: roleInfo.role_name,
-          userid: roleInfo.uid,
-          roleid: roleInfo.role_id,
-          serverid: roleInfo.server_id,
-        })
+        } catch (error) {
+          ElMessage.error('导入失败: ' + error.message);
+        }
       }
-
-    } catch (error) {
-      ElMessage.error('导入失败: ' + error.message);
-    }
-  }
+    })
+    .catch(() => {
+      console.log("取消")
+    })
 };
 
 
