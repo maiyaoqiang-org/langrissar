@@ -69,7 +69,7 @@
       <el-table-column prop="errorMessage" label="错误信息" show-overflow-tooltip />
       <el-table-column prop="createdAt" label="创建时间" width="180" />
       <!-- 添加操作列 -->
-      <el-table-column label="操作" width="120">
+      <el-table-column label="操作" width="120" fixed="right">
         <template #default="{ row }">
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
         </template>
