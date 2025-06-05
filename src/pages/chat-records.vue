@@ -34,21 +34,21 @@
     <el-table :data="tableData" border style="width: 100%">
       <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="openaiConfig.model" label="模型" width="120" />
-      <el-table-column prop="requestContent" label="请求内容" width="240">
+      <el-table-column prop="requestContent" label="请求内容" width="300">
         <template #default="{ row }">
           <el-tooltip :content="row.requestContent" placement="top-start" effect="dark">
-            <div class="multi-line-ellipsis">
+            <el-link :underline="false" class="multi-line-ellipsis" @click="copyToClipboard(row.requestContent)">
               {{ row.requestContent }}
-            </div>
+            </el-link>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="responseContent" label="响应内容" width="300">
+      <el-table-column prop="responseContent" label="响应内容" width="400">
         <template #default="{ row }">
           <el-tooltip :content="row.responseContent" placement="top-start" effect="dark">
-            <div class="multi-line-ellipsis">
+            <el-link :underline="false" class="multi-line-ellipsis" @click="copyToClipboard(row.responseContent)">
               {{ row.responseContent }}
-            </div>
+            </el-link>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -210,7 +210,15 @@ const getStatusText = (status) => {
   }
 }
 
-
+const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      ElMessage.success('复制成功')
+    })
+    .catch(() => {
+      ElMessage.error('复制失败')
+    })
+}
 // 初始化加载数据
 onMounted(() => {
   //   if (queryParams.openaiConfigId === undefined) {
@@ -251,8 +259,9 @@ const handleDelete = async (row) => {
 
   .multi-line-ellipsis {
     display: -webkit-box;
-    $line-clamp: 4;
+    $line-clamp: 5;
     -webkit-line-clamp: $line-clamp;
+    line-clamp: $line-clamp;
     /* 控制最多显示 2 行 */
     -webkit-box-orient: vertical;
     overflow: hidden;
