@@ -37,6 +37,11 @@
       <el-table-column prop="requestContent" label="请求内容" width="300">
         <template #default="{ row }">
           <el-tooltip :show-after="300" :content="row.requestContent" placement="top-start" effect="dark">
+            <template #content>
+              <div style="max-width: 500px; white-space: normal;">
+                {{ row.requestContent }}
+              </div>
+            </template>
             <el-link :underline="false" class="multi-line-ellipsis" @click="copyToClipboard(row.requestContent)">
               {{ row.requestContent }}
             </el-link>
@@ -46,6 +51,11 @@
       <el-table-column prop="responseContent" label="响应内容" width="400">
         <template #default="{ row }">
           <el-tooltip :show-after="300" :content="row.responseContent" placement="top-start" effect="dark">
+            <template #content>
+              <div style="max-width: 500px; white-space: normal;">
+                {{ row.responseContent }}
+              </div>
+            </template>
             <el-link :underline="false" class="multi-line-ellipsis" @click="copyToClipboard(row.responseContent)">
               {{ row.responseContent }}
             </el-link>
