@@ -44,7 +44,7 @@ export const menuRoutes = [
   {
     path: '/pages/openai-management',
     component: () => import('@/pages/openai-management.vue'),
-    meta: { title: 'AI', requiresAuth: true, requiresAdmin: false }
+    meta: { title: 'CozeAI配置', requiresAuth: true, requiresAdmin: false }
   },
   {
     path: '/pages/chat-records',

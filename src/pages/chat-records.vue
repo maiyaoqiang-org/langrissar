@@ -34,8 +34,31 @@
     <el-table :data="tableData" border style="width: 100%">
       <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="openaiConfig.model" label="模型" width="120" />
-      <el-table-column prop="requestContent" label="请求内容" show-overflow-tooltip />
-      <el-table-column prop="responseContent" label="响应内容" show-overflow-tooltip />
+      <el-table-column prop="requestContent" label="请求内容" width="240">
+        <template #default="{ row }">
+          <el-tooltip :content="row.requestContent" placement="top-start" effect="dark">
+            <div class="multi-line-ellipsis">
+              {{ row.requestContent }}
+            </div>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="responseContent" label="响应内容" width="300">
+        <template #default="{ row }">
+          <el-tooltip :content="row.responseContent" placement="top-start" effect="dark">
+            <div class="multi-line-ellipsis">
+              {{ row.responseContent }}
+            </div>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="_tags" label="标识" width="120">
+        <template #default="{ row }">
+          <span v-for="(tag, index) in row._tags" :key="index">
+            <el-tag :type="tag.type" size="mini">{{ tag.text }}</el-tag>
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
           <el-tag :type="getStatusTagType(row.status)">
@@ -93,6 +116,13 @@ const total = ref(0)
 const loadData = async () => {
   try {
     const res = await queryOpenAIChatRecords(queryParams)
+    res.items.forEach((item) => {
+      const tags = []
+      if (item.responseContent && item.responseContent.includes('已帮您通知人工解答')) {
+        tags.push({ type: 'danger', text: '特别关注' })
+      }
+      item._tags = tags
+    })
     tableData.value = res.items
     total.value = res.total
   } catch (error) {
@@ -217,6 +247,20 @@ const handleDelete = async (row) => {
     .el-form-item {
       margin-bottom: 0; // 调整过滤条件表单项的间距
     }
+  }
+
+  .multi-line-ellipsis {
+    display: -webkit-box;
+    $line-clamp: 4;
+    -webkit-line-clamp: $line-clamp;
+    /* 控制最多显示 2 行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    $line-height: 1.5em;
+    line-height: $line-height;
+    max-height: $line-height * $line-clamp;
+    /* 2 行 * 1.5em */
   }
 }
 </style>
