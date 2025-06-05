@@ -36,7 +36,7 @@
       <el-table-column prop="openaiConfig.model" label="模型" width="120" />
       <el-table-column prop="requestContent" label="请求内容" width="300">
         <template #default="{ row }">
-          <el-tooltip :content="row.requestContent" placement="top-start" effect="dark">
+          <el-tooltip :show-after="300" :content="row.requestContent" placement="top-start" effect="dark">
             <el-link :underline="false" class="multi-line-ellipsis" @click="copyToClipboard(row.requestContent)">
               {{ row.requestContent }}
             </el-link>
@@ -45,7 +45,7 @@
       </el-table-column>
       <el-table-column prop="responseContent" label="响应内容" width="400">
         <template #default="{ row }">
-          <el-tooltip :content="row.responseContent" placement="top-start" effect="dark">
+          <el-tooltip :show-after="300" :content="row.responseContent" placement="top-start" effect="dark">
             <el-link :underline="false" class="multi-line-ellipsis" @click="copyToClipboard(row.responseContent)">
               {{ row.responseContent }}
             </el-link>
@@ -55,13 +55,13 @@
       <el-table-column prop="_tags" label="标识" width="120">
         <template #default="{ row }">
           <span v-for="(tag, index) in row._tags" :key="index">
-            <el-tag :type="tag.type" size="mini">{{ tag.text }}</el-tag>
+            <el-tag :type="tag.type" size="small">{{ tag.text }}</el-tag>
           </span>
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
-          <el-tag :type="getStatusTagType(row.status)">
+          <el-tag :type="getStatusTagType(row.status)" size="small">
             {{ getStatusText(row.status) }}
           </el-tag>
         </template>
