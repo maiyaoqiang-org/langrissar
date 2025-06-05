@@ -129,8 +129,13 @@ const loadData = async () => {
     res.items.forEach((item) => {
       const tags = []
       if (item.responseContent && item.responseContent.includes('已帮您通知人工解答')) {
-        tags.push({ type: 'danger', text: '特别关注' })
+        tags.push({ type: 'danger', text: '人工解答' })
       }
+
+      if(item.requestContent&&item.requestContent.includes('提交墨源')){
+        tags.push({ type: 'primary', text: '提交墨源' })
+      }
+
       item._tags = tags
     })
     tableData.value = res.items
