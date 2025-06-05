@@ -4,7 +4,7 @@
 
     <!-- 过滤条件 -->
     <div class="filter-bar mb_16">
-      <el-form :inline="true" :model="queryParams" class="demo-form-inline">
+      <el-form :inline="true" :model="queryParams" class="search-form">
         <el-form-item label="请求内容">
           <el-input v-model="queryParams.requestContent" placeholder="请输入请求内容关键词" clearable />
         </el-form-item>
@@ -12,7 +12,7 @@
           <el-input v-model="queryParams.responseContent" placeholder="请输入响应内容关键词" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select style="width:120px;" v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
             <el-option label="Pending" value="pending" />
             <el-option label="Success" value="success" />
             <el-option label="Failed" value="failed" />

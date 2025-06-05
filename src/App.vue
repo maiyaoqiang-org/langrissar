@@ -5,10 +5,7 @@
         <h2>梦战工具</h2>
       </div>
       <el-menu class="el-menu-vertical" mode="vertical" :router="true" :default-active="$route.path">
-        <el-menu-item 
-          v-for="route in filteredMenuRoutes" 
-          :key="route.path" 
-          :index="route.path">
+        <el-menu-item v-for="route in filteredMenuRoutes" :key="route.path" :index="route.path">
           {{ route.meta.title }}
         </el-menu-item>
       </el-menu>
@@ -276,6 +273,21 @@ img {
     .el-card {
       width: 640px;
     }
+  }
+}
+
+.search-form.el-form--inline {
+  .el-input {
+    --el-inpput-width: 200px;
+    width: var(--el-inpput-width);
+  }
+
+  .el-select {
+    --el-select-width: 200px;
+  }
+
+  .el-date-editor.el-input {
+    --el-date-editor-width: 200px;
   }
 }
 </style>
