@@ -50,3 +50,21 @@ jobs:
             docker run -d --restart unless-stopped -p 3100:80 --name langrissar-jsq \
               -e VITE_APP_API_URL=${VITE_APP_API_URL:-/api} \
               crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest
+
+      - name: Send Feishu Notification
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            MESSAGE="部署成功: langrissar-jsq 已成功部署到生产环境"
+          else
+            MESSAGE="部署失败: langrissar-jsq 部署过程中出现错误"
+          fi
+          curl -X POST \
+          https://open.feishu.cn/open-apis/bot/v2/hook/77f093f4-a3a6-41cc-8f38-167cdcb49b8c \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "msg_type": "text",
+            "content": {
+              "text": "'"$MESSAGE"'"
+            }
+          }'
