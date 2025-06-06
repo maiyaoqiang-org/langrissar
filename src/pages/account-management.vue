@@ -113,6 +113,7 @@ import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus'
+import _ from 'lodash'
 import {
   autoCdkeyReward,
   clearCdkeyCache,
@@ -312,28 +313,21 @@ const getServerName = (serverId) => {
 const showAccountDialog = ref(false)
 const dialogTitle = ref('')
 const dialogType = ref('add')
-const formData = ref({
+const defaultForm = {
   username: '',
   userid: '',
   roleid: '',
   serverid: '',
   account: '',
   password: '',
-  userInfo: '',
-})
+  userInfo: {},
+}
+const formData = ref(_.cloneDeep(defaultForm))
 
 const handleAdd = () => {
   dialogTitle.value = '添加账号'
   dialogType.value = 'add'
-  formData.value = {
-    username: '',
-    userid: '',
-    roleid: '',
-    serverid: '',
-    account: '',
-    password: '',
-    userInfo: '',
-  }
+  formData.value = _.cloneDeep(defaultForm)
   showAccountDialog.value = true
 }
 
@@ -341,14 +335,13 @@ const handleEdit = (row) => {
   dialogTitle.value = '编辑账号'
   dialogType.value = 'edit'
   formData.value = {
+    ..._.cloneDeep(defaultForm),
     id: row.id,
     username: row.username,
     userid: row.userid,
     roleid: row.roleid,
     serverid: row.serverid,
     userInfo: row.userInfo,
-    account: '',
-    password: ''
   }
   showAccountDialog.value = true
 }
