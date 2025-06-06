@@ -75,7 +75,7 @@
           <el-button type="primary" @click="handleImport">一键导入账号信息</el-button>
         </div>
       </template>
-      <el-form :model="formData" ref="formRef" label-width="80px">
+      <el-form :model="formData" ref="formRef" label-width="120px">
         <el-form-item label="用户名">
           <el-input v-model="formData.username" />
         </el-form-item>
@@ -96,7 +96,8 @@
           <el-input v-model="formData.password" type="password" show-password />
         </el-form-item> -->
         <el-form-item label="大会员用户信息">
-          <el-input type="textarea" :rows="10" :max-length="0" v-model="formData.userInfo" />
+          <JsonInput v-model="formData.userInfo" height="400px"></JsonInput> 
+          <!-- <el-input type="textarea" :rows="10" :max-length="0" v-model="formData.userInfo" /> -->
         </el-form-item>
       </el-form>
       <template #footer>
@@ -108,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
@@ -127,6 +128,7 @@ import {
   getRoleInfo
 } from "../api/server";
 import { getServerData } from "@/api/mz";
+import JsonInput from '@/components/JsonInput.vue'
 
 onMounted(() => {
   getServerData().then((res) => {
