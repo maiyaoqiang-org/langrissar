@@ -24,9 +24,9 @@
           <el-form-item label="角色ID" style="width:280px;">
             <el-input v-model="filterForm.roleid" placeholder="请输入角色ID" clearable />
           </el-form-item>
-          <el-form-item label="账号" style="width:280px;">
+          <!-- <el-form-item label="账号" style="width:280px;">
             <el-input v-model="filterForm.account" placeholder="请输入账号" clearable />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="服务器" style="width:280px;">
             <el-cascader v-model="filterForm.serverid" :options="serverOptions" :props="{
               emitPath: false
@@ -49,7 +49,7 @@
             {{ getServerName(scope.row.serverid) }}
           </template>
         </el-table-column>
-        <el-table-column prop="account" label="账号" />
+        <!-- <el-table-column prop="account" label="账号" /> -->
         <el-table-column prop="createdAt" label="创建时间" />
         <el-table-column prop="updatedAt" label="更新时间" />
         <el-table-column label="操作" width="300">
@@ -68,7 +68,7 @@
     </el-card>
 
     <!-- 合并后的账号对话框 -->
-    <el-dialog v-model="showAccountDialog" width="500px">
+    <el-dialog v-model="showAccountDialog" width="800px">
       <template #header>
         <div flex="cross:center main:justify">
           <span>{{ dialogType === 'add' ? '添加账号' : '编辑账号' }}</span>
@@ -89,11 +89,14 @@
           <el-cascader v-model="formData.serverid" :options="serverOptions" :props="{ emitPath: false }" filterable
             placeholder="请选择服务器" clearable />
         </el-form-item>
-        <el-form-item label="账号">
+        <!-- <el-form-item label="账号">
           <el-input v-model="formData.account" />
         </el-form-item>
         <el-form-item label="密码">
           <el-input v-model="formData.password" type="password" show-password />
+        </el-form-item> -->
+        <el-form-item label="大会员用户信息">
+          <el-input type="textarea" :rows="10" :max-length="0" v-model="formData.userInfo" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -315,7 +318,8 @@ const formData = ref({
   roleid: '',
   serverid: '',
   account: '',
-  password: ''
+  password: '',
+  userInfo: '',
 })
 
 const handleAdd = () => {
@@ -327,7 +331,8 @@ const handleAdd = () => {
     roleid: '',
     serverid: '',
     account: '',
-    password: ''
+    password: '',
+    userInfo: '',
   }
   showAccountDialog.value = true
 }
@@ -341,6 +346,7 @@ const handleEdit = (row) => {
     userid: row.userid,
     roleid: row.roleid,
     serverid: row.serverid,
+    userInfo: row.userInfo,
     account: '',
     password: ''
   }
@@ -350,6 +356,7 @@ const handleEdit = (row) => {
 const handleAccountSubmit = async () => {
   if (!formRef.value) return
   await formRef.value.validate()
+
   if (dialogType.value === 'add') {
     await handleAddAccount()
   } else {
