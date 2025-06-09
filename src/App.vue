@@ -5,9 +5,7 @@
         <h2>梦战工具</h2>
       </div>
       <el-menu class="el-menu-vertical" mode="vertical" :router="true" :default-active="$route.path">
-        <el-menu-item v-for="route in filteredMenuRoutes" :key="route.path" :index="route.path">
-          {{ route.meta.title }}
-        </el-menu-item>
+        <RecursiveMenu :routes="filteredMenuRoutes" />
       </el-menu>
     </el-aside>
     <el-container>
@@ -54,6 +52,8 @@ import { menuRoutes } from '@/router'
 import { computed, ref } from 'vue'
 import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue'
 import HideContentButton from './components/HideContentButton.vue';
+
+import RecursiveMenu from '@/components/RecursiveMenu.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -120,21 +120,25 @@ body {
 }
 
 .el-aside {
-  background-color: #001529;
-  color: white;
+  --el-menu-bg-color:#001529;
+  --el-menu-text-color:#fff;
+  --el-menu-active-color:#409eff;
+  --el-menu-hover-bg-color:#40a0ffbe;
+  // background-color: #001529;
+  // color: white;
 
-  .el-menu {
-    background-color: #001529;
+  // .el-menu {
+  //   background-color: #001529;
 
-    .el-menu-item {
-      color: #fff;
+  //   .el-menu-item {
+  //     color: #fff;
 
-      &:hover,
-      &.is-active {
-        background-color: #1890ff;
-      }
-    }
-  }
+  //     &:hover,
+  //     &.is-active {
+  //       background-color: #1890ff;
+  //     }
+  //   }
+  // }
 }
 
 .el-header {
