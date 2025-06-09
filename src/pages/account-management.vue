@@ -49,7 +49,12 @@
             {{ getServerName(scope.row.serverid) }}
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="account" label="账号" /> -->
+        
+        <el-table-column prop="zlVipId" label="关联紫龙会员账号" width="200">
+          <template #default="scope">
+            {{ scope.row.zlVip?.name }}
+          </template>
+        </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" />
         <el-table-column prop="updatedAt" label="更新时间" />
         <el-table-column label="操作" width="300">
@@ -95,9 +100,15 @@
         <el-form-item label="密码">
           <el-input v-model="formData.password" type="password" show-password />
         </el-form-item> -->
-        <el-form-item label="大会员用户信息">
-          <JsonInput v-model="formData.userInfo" height="400px"></JsonInput> 
-          <!-- <el-input type="textarea" :rows="10" :max-length="0" v-model="formData.userInfo" /> -->
+        <el-form-item label="关联紫龙账号">
+          <el-select v-model="formData.zlVipId" placeholder="请选择关联紫龙账号" clearable>
+            <el-option
+              v-for="item in zlVipOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -125,7 +136,8 @@ import {
   autoVIPWeeklyReward,
   autoVIPMonthlyReward,
   autoVIPSignReward,
-  getRoleInfo
+  getRoleInfo,
+  queryZlVips
 } from "../api/server";
 import { getServerData } from "@/api/mz";
 import JsonInput from '@/components/JsonInput.vue'
@@ -296,8 +308,16 @@ const handleClearCdkeyCache = async () => {
     // 用户取消删除
   }
 };
+const zlVipOptions = ref([])
+
+const fetchZlVips = async () => {
+  const res = await queryZlVips({ page: 1, pageSize: 1000 })
+  zlVipOptions.value = res.items
+}
+
 onMounted(() => {
   fetchAccounts()
+  fetchZlVips()
 })
 // 获取服务器名称的方法
 const getServerName = (serverId) => {
@@ -322,7 +342,7 @@ const defaultForm = {
   serverid: '',
   account: '',
   password: '',
-  userInfo: {},
+  zlVipId: null, // 修改为关联ID
 }
 const formData = ref(_.cloneDeep(defaultForm))
 
@@ -343,7 +363,7 @@ const handleEdit = (row) => {
     userid: row.userid,
     roleid: row.roleid,
     serverid: row.serverid,
-    userInfo: row.userInfo,
+    zlVipId: row.zlVip?.id // 修改为关联ID
   }
   showAccountDialog.value = true
 }

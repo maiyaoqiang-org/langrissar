@@ -257,3 +257,20 @@ export const exportOpenAIChatRecords = async (data) => {
 export const deleteOpenAIChatRecord = async (id) => {
   return await api.delete(`/openai/chat-records/${id}`);
 };
+
+// zlvip相关接口
+export const createZlVip = async (data) => {
+  return await api.post('/account/zlvip', data);
+};
+
+export const updateZlVip = async (id, data) => {
+  return await api.put(`/account/zlvip/${id}`, data);
+};
+
+export const deleteZlVip = async (id) => {
+  return await api.delete(`/account/zlvip/${id}`);
+};
+
+export const queryZlVips = async (data) => {
+  return await api.post('/account/zlvip/query', data);
+};

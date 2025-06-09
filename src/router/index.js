@@ -37,6 +37,11 @@ export const menuRoutes = [
     meta: { title: '领奖账号管理', requiresAuth: true, requiresAdmin: true }
   },
   {
+    path: '/pages/zlvip-management',
+    component: () => import('@/pages/zlvip-management.vue'),
+    meta: { title: '紫龙大会员', requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/pages/coze',
     component: () => import('@/pages/coze.vue'),
     meta: { title: '扣子配置', requiresAuth: true, requiresAdmin: false }
