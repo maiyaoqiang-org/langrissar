@@ -24,13 +24,8 @@
           <el-form-item label="角色ID" style="width:280px;">
             <el-input v-model="filterForm.roleid" placeholder="请输入角色ID" clearable />
           </el-form-item>
-          <!-- <el-form-item label="账号" style="width:280px;">
-            <el-input v-model="filterForm.account" placeholder="请输入账号" clearable />
-          </el-form-item> -->
           <el-form-item label="服务器" style="width:280px;">
-            <el-cascader v-model="filterForm.serverid" :options="serverOptions" :props="{
-              emitPath: false
-            }" filterable placeholder="请选择服务器" clearable />
+            <el-input v-model="filterForm.serverid" placeholder="请输入服务器ID" clearable />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="handleFilter">搜索</el-button>
@@ -44,12 +39,9 @@
         <el-table-column prop="username" label="用户名" width="180" />
         <el-table-column prop="userid" label="用户ID" width="180" />
         <el-table-column prop="roleid" label="角色ID" />
-        <el-table-column prop="serverid" label="服务器" width="200">
-          <template #default="scope">
-            {{ getServerName(scope.row.serverid) }}
-          </template>
-        </el-table-column>
-        
+        <el-table-column prop="serverid" label="服务器ID" width="200" />
+        <el-table-column prop="appKey" label="游戏key" width="200" />
+
         <el-table-column prop="zlVipId" label="关联紫龙会员账号" width="200">
           <template #default="scope">
             {{ scope.row.zlVip?.name }}
@@ -77,38 +69,37 @@
       <template #header>
         <div flex="cross:center main:justify">
           <span>{{ dialogType === 'add' ? '添加账号' : '编辑账号' }}</span>
-          <el-button type="primary" @click="handleImport">一键导入账号信息</el-button>
+          <el-button type="primary" @click="handleImport">一键导入账号信息(仅梦战)</el-button>
         </div>
       </template>
-      <el-form :model="formData" ref="formRef" label-width="120px">
+      <el-form :model="formData" ref="formRef" label-width="140px">
+        <el-form-item label="关联紫龙账号">
+          <el-select v-model="formData.zlVipId" placeholder="请选择关联紫龙账号" clearable>
+            <el-option v-for="item in zlVipOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="紫龙游戏">
+          <div flex="cross:center" style="width:100%;">
+            <el-select flex-box="1" v-model="formData.appKey" placeholder="请选择紫龙游戏" clearable>
+              <el-option v-for="item in HomeGameList" :key="item.appKey" :label="item.name" :value="item.appKey" />
+            </el-select>
+            <el-select flex-box="0" style="width:180px;margin-left: 8px;;" @change="handleSelectRole" value-key="roleId" placeholder="选择角色填充">
+              <el-option v-for="(item, index) in roleList" :key="index" :label="item.roleName"
+                :value="item"></el-option>
+            </el-select>
+          </div>
+        </el-form-item>
         <el-form-item label="用户名">
           <el-input v-model="formData.username" />
-        </el-form-item>
-        <el-form-item label="用户ID">
-          <el-input v-model="formData.userid" placeholder="请输入用户ID" />
         </el-form-item>
         <el-form-item label="角色ID">
           <el-input v-model="formData.roleid" />
         </el-form-item>
         <el-form-item label="服务器ID">
-          <el-cascader v-model="formData.serverid" :options="serverOptions" :props="{ emitPath: false }" filterable
-            placeholder="请选择服务器" clearable />
+          <el-input v-model="formData.serverid" />
         </el-form-item>
-        <!-- <el-form-item label="账号">
-          <el-input v-model="formData.account" />
-        </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="formData.password" type="password" show-password />
-        </el-form-item> -->
-        <el-form-item label="关联紫龙账号">
-          <el-select v-model="formData.zlVipId" placeholder="请选择关联紫龙账号" clearable>
-            <el-option
-              v-for="item in zlVipOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
-          </el-select>
+        <el-form-item label="用户ID">
+          <el-input v-model="formData.userid" placeholder="仅梦战需要，可通过顶部按钮导入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -120,11 +111,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
+import { HomeGameList } from '@/common/constant'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus'
+import { QuestionFilled } from '@element-plus/icons-vue'
 import _ from 'lodash'
 import {
   autoCdkeyReward,
@@ -137,7 +130,9 @@ import {
   autoVIPMonthlyReward,
   autoVIPSignReward,
   getRoleInfo,
-  queryZlVips
+  queryZlVips,
+  getVipHomeGameList,
+  queryRoleList
 } from "../api/server";
 import { getServerData } from "@/api/mz";
 import JsonInput from '@/components/JsonInput.vue'
@@ -342,9 +337,24 @@ const defaultForm = {
   serverid: '',
   account: '',
   password: '',
+  appKey: '',
   zlVipId: null, // 修改为关联ID
 }
 const formData = ref(_.cloneDeep(defaultForm))
+
+const roleList = ref([])
+watch(() => [formData.value.zlVipId, formData.value.appKey], async ([zlVipId, appKey]) => {
+  if (zlVipId && appKey) {
+    const res = await queryRoleList({ id: zlVipId, appKey })
+    roleList.value = res
+  }
+})
+
+const handleSelectRole = (role) => {
+  formData.value.roleid = role.roleId;
+  formData.value.serverid = role.serverId;
+  formData.value.username = role.roleName;
+}
 
 const handleAdd = () => {
   dialogTitle.value = '添加账号'

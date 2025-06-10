@@ -274,3 +274,19 @@ export const deleteZlVip = async (id) => {
 export const queryZlVips = async (data) => {
   return await api.post('/account/zlvip/query', data);
 };
+
+export const getVipHomeGameList = async (data) => {
+  return await api({
+    url:'/account/getVipHomeGameList',
+    method:'get',
+    params:data,
+  });
+};
+
+export const queryRoleList = async (data) => {
+  return await api({
+    url:'/account/queryRoleList',
+    method:'get',
+    params:data,
+  });
+};
