@@ -83,9 +83,20 @@
             <el-select flex-box="1" v-model="formData.appKey" placeholder="请选择紫龙游戏" clearable>
               <el-option v-for="item in HomeGameList" :key="item.appKey" :label="item.name" :value="item.appKey" />
             </el-select>
-            <el-select flex-box="0" style="width:180px;margin-left: 8px;;" @change="handleSelectRole" value-key="roleId" placeholder="选择角色填充">
+            <el-select flex-box="0" style="width:300px;margin-left: 8px;;" @change="handleSelectRole" value-key="roleId" placeholder="选择角色一键填充">
               <el-option v-for="(item, index) in roleList" :key="index" :label="item.roleName"
-                :value="item"></el-option>
+                :value="item">
+                <template #default>
+                  <div flex="cross:center main:justify">
+                    <div>
+                      {{ item.roleName }}
+                    </div>
+                    <div style="color:#999;">
+                      {{ item.serverName }}
+                    </div>
+                  </div>
+                </template>
+              </el-option>
             </el-select>
           </div>
         </el-form-item>
@@ -347,6 +358,8 @@ watch(() => [formData.value.zlVipId, formData.value.appKey], async ([zlVipId, ap
   if (zlVipId && appKey) {
     const res = await queryRoleList({ id: zlVipId, appKey })
     roleList.value = res
+  }else{
+    roleList.value = []
   }
 })
 
@@ -373,7 +386,8 @@ const handleEdit = (row) => {
     userid: row.userid,
     roleid: row.roleid,
     serverid: row.serverid,
-    zlVipId: row.zlVip?.id // 修改为关联ID
+    zlVipId: row.zlVip?.id,
+    appKey: row.appKey,
   }
   showAccountDialog.value = true
 }
