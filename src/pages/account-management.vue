@@ -40,7 +40,11 @@
         <el-table-column prop="userid" label="用户ID" width="180" />
         <el-table-column prop="roleid" label="角色ID" />
         <el-table-column prop="serverid" label="服务器ID" width="200" />
-        <el-table-column prop="appKey" label="游戏key" width="200" />
+        <el-table-column prop="appKey" label="游戏key" width="200" >
+          <template #default="scope">
+            {{ scope.row.appKey ? HomeGameList.find(item => item.appKey === scope.row.appKey)?.name : '-' }}
+          </template>
+        </el-table-column>
 
         <el-table-column prop="zlVipId" label="关联紫龙会员账号" width="200">
           <template #default="scope">
