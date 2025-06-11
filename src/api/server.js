@@ -290,3 +290,8 @@ export const queryRoleList = async (data) => {
     params:data,
   });
 };
+
+// 获取紫龙游戏列表（HomeGameList）
+export const getHomeGameList = async () => {
+  return await api.get('/account/home-game-list');
+};

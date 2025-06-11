@@ -42,7 +42,7 @@
         <el-table-column prop="serverid" label="服务器ID" width="200" />
         <el-table-column prop="appKey" label="游戏key" width="200" >
           <template #default="scope">
-            {{ scope.row.appKey ? HomeGameList.find(item => item.appKey === scope.row.appKey)?.name : '-' }}
+            {{ scope.row.appKey ? homeGameList.find(item => item.appKey === scope.row.appKey)?.name : '-' }}
           </template>
         </el-table-column>
 
@@ -85,7 +85,7 @@
         <el-form-item label="紫龙游戏">
           <div flex="cross:center" style="width:100%;">
             <el-select flex-box="1" v-model="formData.appKey" placeholder="请选择紫龙游戏" clearable>
-              <el-option v-for="item in HomeGameList" :key="item.appKey" :label="item.name" :value="item.appKey" />
+              <el-option v-for="item in homeGameList" :key="item.appKey" :label="item.name" :value="item.appKey" />
             </el-select>
             <el-select flex-box="0" style="width:300px;margin-left: 8px;;" @change="handleSelectRole" value-key="roleId" placeholder="选择角色一键填充">
               <el-option v-for="(item, index) in roleList" :key="index" :label="item.roleName"
@@ -129,7 +129,7 @@
 import { ref, onMounted, nextTick, watch } from 'vue'
 import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
-import { HomeGameList } from '@/common/constant'
+import { getHomeGameList } from '@/api/server'
 import { getAccounts, updateAccount, createAccount, deleteAccount } from '@/api/server'
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
@@ -325,9 +325,14 @@ const fetchZlVips = async () => {
   zlVipOptions.value = res.items
 }
 
+const homeGameList = ref([])
 onMounted(() => {
   fetchAccounts()
   fetchZlVips()
+  // 获取游戏列表
+  getHomeGameList().then(res => {
+    homeGameList.value = res
+  })
 })
 // 获取服务器名称的方法
 const getServerName = (serverId) => {
