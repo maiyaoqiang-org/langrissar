@@ -871,7 +871,11 @@ export const filterDataList = {
         {
           "name": "死或生",
           "src": "https://patchwiki.biligame.com/images/langrisser/thumb/3/38/ntsrpj7e937qvg8uxz25lwhgu6hmgaw.png/112px-%E5%9B%BE%E6%A0%87_%E6%AD%BB%E6%88%96%E7%94%9F.png"
-        }
+        },
+        {
+          "name": "妖精的尾巴",
+          "src": "https://wiki.biligame.com/langrisser/special:redirect/file/图标_妖精的尾巴.png"
+        },
       ],
     }
   }
