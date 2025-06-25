@@ -76,6 +76,11 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="duration" label="耗时(秒)" width="100">
+        <template #default="{ row }">
+          {{ row.duration?row.duration/1000:"-" }}
+        </template>
+      </el-table-column>
       <el-table-column prop="errorMessage" label="错误信息" show-overflow-tooltip />
       <el-table-column prop="createdAt" label="创建时间" width="180" />
       <!-- 添加操作列 -->
