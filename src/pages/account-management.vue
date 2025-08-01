@@ -53,10 +53,20 @@
         </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" />
         <el-table-column prop="updatedAt" label="更新时间" />
-        <el-table-column label="操作" width="300">
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="scope">
+            <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
+              {{ scope.row.status === 1 ? '启用' : '禁用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="360">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button size="small" :type="scope.row.status === 1 ? 'warning' : 'success'" @click="handleToggleStatus(scope.row)">
+              {{ scope.row.status === 1 ? '禁用' : '启用' }}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -147,7 +157,8 @@ import {
   getRoleInfo,
   queryZlVips,
   getVipHomeGameList,
-  queryRoleList
+  queryRoleList,
+  setAccountStatus
 } from "../api/server";
 import { getServerData } from "@/api/mz";
 import JsonInput from '@/components/JsonInput.vue'
@@ -447,6 +458,12 @@ const handleImport = () => {
 
 
 
+const handleToggleStatus = async (row) => {
+  const targetStatus = row.status === 1 ? 0 : 1;
+  await setAccountStatus(row.id, targetStatus);
+  ElMessage.success(targetStatus === 1 ? '账号已启用' : '账号已禁用');
+  fetchAccounts();
+}
 </script>
 
 <style scoped>

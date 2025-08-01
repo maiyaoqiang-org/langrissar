@@ -184,6 +184,10 @@ export const clearCdkeyCache = async () => {
   return await api.get('/account/clear-cdkey-cache');
 };
 
+export const setAccountStatus = async (id, status) => {
+  return await api.put(`/account/${id}/status`, { status });
+};
+
 
 export const getRoleInfo = async (params) => {
   return await api({
