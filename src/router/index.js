@@ -92,7 +92,19 @@ export const menuRoutes = [
       },
     ]
   },
-  
+  {
+        path: '/tools',
+        meta: {
+          title: '工具', requiresAuth: true, requiresAdmin: false,
+        },
+        children: [
+          {
+            path: '/pages/leancloud-hero-add',
+            component: () => import('@/pages/leancloud-hero-add.vue'),
+            meta: { title: 'leancloud英雄添加工具', requiresAuth: true, requiresAdmin: false }
+          }
+        ]
+      },
 ]
 const routes = [
   {
