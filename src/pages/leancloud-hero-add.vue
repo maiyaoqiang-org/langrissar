@@ -1,6 +1,6 @@
 <template>
     <div style="max-width:600px;margin:40px auto;">
-        <h2>BP英雄管理工具</h2>
+        <h2>Leancloud 英雄添加工具</h2>
         <el-form :model="form" :rules="rules" ref="formRef" label-width="0">
             <el-form-item>
                 <el-button type="success" @click="copyAndJump">去获取英雄</el-button>

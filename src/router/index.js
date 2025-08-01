@@ -101,7 +101,7 @@ export const menuRoutes = [
           {
             path: '/pages/leancloud-hero-add',
             component: () => import('@/pages/leancloud-hero-add.vue'),
-            meta: { title: 'leancloud英雄添加工具', requiresAuth: true, requiresAdmin: false }
+            meta: { title: 'BP英雄管理工具', requiresAuth: true, requiresAdmin: false }
           }
         ]
       },
