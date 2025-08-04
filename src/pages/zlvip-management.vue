@@ -40,13 +40,30 @@
         <el-form-item label="名称">
           <el-input v-model="formData.name" />
         </el-form-item>
-        <el-form-item label="用户信息">
+        <el-form-item>
+          <template #label>
+            <div style="display:flex;align-items: center;">
+              <div>
+                用户信息
+              </div>
+              <el-icon style="cursor:pointer;margin-left:4px;vertical-align:middle;" @click="dialogVisible = true">
+                <QuestionFilled />
+              </el-icon>
+            </div>
+          </template>
           <JsonInput v-model="formData.userInfo" height="400px"></JsonInput>
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showDialog = false">取消</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="dialogVisible" title="如何获取zlvip账号的用户信息" width="500">
+      <pre style="background:#f5f5f5;padding:12px;border-radius:4px;">{{ code }}</pre>
+      <el-button type="primary" @click="jumpToLogin">复制代码并去登录</el-button>
+      <template #footer>
+        <el-button @click="dialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
   </div>
@@ -58,6 +75,7 @@ import { createZlVip, updateZlVip, deleteZlVip, queryZlVips } from '@/api/server
 import { ElMessageBox, ElMessage } from 'element-plus'
 import _ from 'lodash'
 import JsonInput from '@/components/JsonInput.vue'
+import { QuestionFilled } from '@element-plus/icons-vue'
 
 const zlvipList = ref([])
 const total = ref(0)
@@ -144,5 +162,33 @@ const resetFilter = () => {
     pageSize: 10
   }
   fetchZlVips()
+}
+
+const dialogVisible = ref(false)
+const code = `const userInfo = {
+  "accountid":localStorage.getItem("zlVipAccountId"),
+  "userlist":JSON.parse(localStorage.getItem("zlVipUserList"))
+}
+function copyText(text) {
+  const input = document.createElement('textarea');
+  input.value = text;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  document.body.removeChild(input);
+  alert('复制成功')
+}
+copyText(JSON.stringify(userInfo,null,2))
+`
+
+const jumpToLogin = async () => {
+  try {
+    await navigator.clipboard.writeText(code)
+    ElMessage.success('代码已复制到剪贴板')
+  } catch (e) {
+    ElMessage.error('复制失败: ' + (e.message || e))
+  }
+  window.open('https://vip.zlongame.com/', '_blank');
+  dialogVisible.value = false
 }
 </script>
