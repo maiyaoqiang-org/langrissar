@@ -11,9 +11,9 @@
         v-model="searchCdkey"
         placeholder="请输入CDKEY搜索"
         style="width: 300px; margin-right: 10px"
-        @keyup.enter="searchByCdkey"
+        @keyup.enter="fetchData"
       />
-      <el-button type="primary" @click="searchByCdkey">搜索</el-button>
+      <el-button type="primary" @click="fetchData">搜索</el-button>
       <el-button @click="resetSearch">重置</el-button>
     </div>
 
@@ -80,7 +80,6 @@ import {
   createUsedCdkey,
   updateUsedCdkey,
   deleteUsedCdkey,
-  searchUsedCdkeysByCdkey
 } from '@/api/server.js'
 
 // 数据
@@ -100,13 +99,13 @@ const formData = ref({
 })
 const submitLoading = ref(false)
 
-// 获取所有记录
+// 获取所有记录（带分页）
 const fetchData = async () => {
   loading.value = true
   try {
-    const data = await getUsedCdkeys()
-    tableData.value = data
-    total.value = data.length
+    const response = await getUsedCdkeys(currentPage.value, pageSize.value, searchCdkey.value)
+    tableData.value = response.data
+    total.value = response.total
   } catch (error) {
     ElMessage.error('获取数据失败')
     console.error(error)
@@ -115,29 +114,11 @@ const fetchData = async () => {
   }
 }
 
-// 根据CDKEY搜索
-const searchByCdkey = async () => {
-  if (!searchCdkey.value.trim()) {
-    fetchData()
-    return
-  }
-  
-  loading.value = true
-  try {
-    const data = await searchUsedCdkeysByCdkey(searchCdkey.value)
-    tableData.value = data
-    total.value = data.length
-  } catch (error) {
-    ElMessage.error('搜索失败')
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
-}
 
 // 重置搜索
 const resetSearch = () => {
   searchCdkey.value = ''
+  currentPage.value = 1
   fetchData()
 }
 
@@ -162,6 +143,10 @@ const handleDelete = async (row) => {
     
     await deleteUsedCdkey(row.id)
     ElMessage.success('删除成功')
+    // 删除后重新获取数据，处理最后一页只剩一条记录的情况
+    if (tableData.value.length === 1 && currentPage.value > 1) {
+      currentPage.value--
+    }
     fetchData()
   } catch (error) {
     if (error !== 'cancel') {
@@ -189,6 +174,13 @@ const handleSubmit = async () => {
     }
     
     showAddDialog.value = false
+    // 创建/更新后跳转到最后一页或当前页
+    if (!isEdit.value) {
+      // 新增时计算新数据应该在哪一页
+      const newTotal = total.value + 1
+      const newPage = Math.ceil(newTotal / pageSize.value)
+      currentPage.value = newPage
+    }
     fetchData()
   } catch (error) {
     ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
@@ -198,9 +190,16 @@ const handleSubmit = async () => {
   }
 }
 
-// 分页
+// 分页变化处理
 const handlePageChange = (page) => {
   currentPage.value = page
+  fetchData()
+}
+
+// 每页条数变化处理
+const handleSizeChange = (size) => {
+  pageSize.value = size
+  currentPage.value = 1
   fetchData()
 }
 

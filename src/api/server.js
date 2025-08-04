@@ -302,10 +302,22 @@ export const getHomeGameList = async () => {
 
 
 // used-cdkey相关接口
-// 获取所有使用记录
-export const getUsedCdkeys = async () => {
-  return await api.get('/used-cdkeys');
-};
+// 在used-cdkey相关API部分添加分页参数
+
+// 获取所有使用记录（带分页）
+export const getUsedCdkeys = (page = 1, limit = 10, cdkey = null) => {
+  const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    
+    if (cdkey) {
+      params.append('cdkey', cdkey);
+    }
+    
+    return api.get(`/used-cdkeys?${params}`);
+}
+
 
 // 创建新的使用记录
 export const createUsedCdkey = async (cdkey) => {
@@ -317,12 +329,6 @@ export const getUsedCdkeyById = async (id) => {
   return await api.get(`/used-cdkeys/${id}`);
 };
 
-// 根据CDKEY搜索记录
-export const searchUsedCdkeysByCdkey = async (cdkey) => {
-  return await api.get('/used-cdkeys/search/by-cdkey', {
-    params: { cdkey }
-  });
-};
 
 // 更新记录
 export const updateUsedCdkey = async (id, cdkey) => {
