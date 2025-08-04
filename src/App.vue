@@ -58,14 +58,60 @@ import RecursiveMenu from '@/components/RecursiveMenu.vue'
 const userStore = useUserStore()
 const router = useRouter()
 
-// 过滤菜单路由
-const filteredMenuRoutes = computed(() => {
-  return menuRoutes.filter(route => {
-    if (route.meta.requiresAuth && !userStore.user) {
+// 递归检查路由及其子路由的权限
+const hasVisibleChildren = (route, user) => {
+  if (!route.children || route.children.length === 0) {
+    return true
+  }
+  
+  return route.children.some(child => {
+    // 检查子路由权限
+    if (child.meta?.requiresAuth && !userStore.isAuthenticated) {
       return false
     }
-    return route.meta.requiresAdmin ? userStore.user.role === 'admin' : true
+    if (child.meta?.requiresAdmin && user?.role !== 'admin') {
+      return false
+    }
+    return true
   })
+}
+
+// 递归过滤菜单路由
+const filterRoutes = (routes, user) => {
+  return routes.filter(route => {
+    // 检查当前路由的认证要求
+    if (route.meta?.requiresAuth && !userStore.isAuthenticated) {
+      return false
+    }
+    
+    // 检查当前路由的管理员要求
+    if (route.meta?.requiresAdmin && user?.role !== 'admin') {
+      return false
+    }
+
+    // 如果有子路由，递归过滤子路由
+    if (route.children && route.children.length > 0) {
+      const filteredChildren = filterRoutes(route.children, user)
+      
+      // 如果有可见的子路由，保留父路由
+      if (filteredChildren.length > 0) {
+        route.children = filteredChildren
+        return true
+      }
+      
+      // 如果没有子路由但父路由本身需要显示，也保留
+      if (hasVisibleChildren(route, user)) {
+        return true
+      }
+    }
+
+    return true
+  })
+}
+
+// 使用递归过滤的菜单路由
+const filteredMenuRoutes = computed(() => {
+  return filterRoutes([...menuRoutes], userStore.user)
 })
 
 // 处理下拉菜单命令

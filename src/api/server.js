@@ -299,3 +299,42 @@ export const queryRoleList = async (data) => {
 export const getHomeGameList = async () => {
   return await api.get('/account/home-game-list');
 };
+
+
+// used-cdkey相关接口
+// 获取所有使用记录
+export const getUsedCdkeys = async () => {
+  return await api.get('/used-cdkeys');
+};
+
+// 创建新的使用记录
+export const createUsedCdkey = async (cdkey) => {
+  return await api.post('/used-cdkeys', { cdkey });
+};
+
+// 根据ID获取单条记录
+export const getUsedCdkeyById = async (id) => {
+  return await api.get(`/used-cdkeys/${id}`);
+};
+
+// 根据CDKEY搜索记录
+export const searchUsedCdkeysByCdkey = async (cdkey) => {
+  return await api.get('/used-cdkeys/search/by-cdkey', {
+    params: { cdkey }
+  });
+};
+
+// 更新记录
+export const updateUsedCdkey = async (id, cdkey) => {
+  return await api.put(`/used-cdkeys/${id}`, { cdkey });
+};
+
+// 删除记录
+export const deleteUsedCdkey = async (id) => {
+  return await api.delete(`/used-cdkeys/${id}`);
+};
+
+// 检查CDKEY是否已使用
+export const checkCdkeyUsed = async (cdkey) => {
+  return await api.get(`/used-cdkeys/check/${cdkey}`);
+};

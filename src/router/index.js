@@ -67,6 +67,11 @@ export const menuRoutes = [
         component: () => import('@/pages/zlvip-management.vue'),
         meta: { title: '紫龙大会员', requiresAuth: true, requiresAdmin: true }
       },
+      {
+        path: '/pages/used-cdkey',
+        component: () => import('@/pages/used-cdkey.vue'),
+        meta: { title: 'cdkey使用记录', requiresAuth: true, requiresAdmin: true }
+      },
     ]
   },
   {
@@ -88,7 +93,7 @@ export const menuRoutes = [
       {
         path: '/pages/chat-records',
         component: () => import('@/pages/chat-records.vue'),
-        meta: { title: '调用记录', requiresAuth: true, requiresAdmin: false }
+        meta: { title: '调用记录', requiresAuth: true, requiresAdmin: true }
       },
     ]
   },
