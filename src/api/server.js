@@ -162,6 +162,17 @@ export const getCdkeyReward = async (cdkey) => {
   });
 };
 
+export const getCdkeyRewardForAccount = async (cdkey, accountId) => {
+  return await api({
+    url: `/account/get-cdkey-reward-for-account`,
+    method: 'get',
+    params: {
+      cdkey,
+      accountId
+    },
+  });
+};
+
 // 自动获取CDKey奖励
 export const autoCdkeyReward = async () => {
   return await api.get('/account/auto-cdkey-reward');

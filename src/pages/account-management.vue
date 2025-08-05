@@ -60,12 +60,16 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="360">
+        <!-- 修改操作列部分 -->
+        <el-table-column label="操作" width="460">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
             <el-button size="small" :type="scope.row.status === 1 ? 'warning' : 'success'" @click="handleToggleStatus(scope.row)">
               {{ scope.row.status === 1 ? '禁用' : '启用' }}
+            </el-button>
+            <el-button size="small" type="primary" @click="handleGetCdkeyRewardForAccount(scope.row)">
+              领取CDKey
             </el-button>
           </template>
         </el-table-column>
@@ -158,7 +162,8 @@ import {
   queryZlVips,
   getVipHomeGameList,
   queryRoleList,
-  setAccountStatus
+  setAccountStatus,
+  getCdkeyRewardForAccount
 } from "../api/server";
 import { getServerData } from "@/api/mz";
 import JsonInput from '@/components/JsonInput.vue'
@@ -464,6 +469,28 @@ const handleToggleStatus = async (row) => {
   ElMessage.success(targetStatus === 1 ? '账号已启用' : '账号已禁用');
   fetchAccounts();
 }
+
+const handleGetCdkeyRewardForAccount = async (account) => {
+  const { value: cdkey } = await ElMessageBox.prompt('请输入CDKey', `为账号 ${account.username} 领取CDKey奖励`, {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  });
+  if (cdkey) {
+    try {
+      const res = await getCdkeyRewardForAccount(cdkey, account.id);
+      if(res.isValid){
+        ElMessage.success(`CDKey奖励领取成功 - 账号: ${account.username}`);
+      }
+      else{
+        ElMessage.warning(`CDKey无效或已领取过 - 账号: ${account.username}`);
+      }
+    } catch (error) {
+      console.log(error)
+      ElMessage.error(`领取失败: ${error.message}`);
+    }
+  }
+};
+
 </script>
 
 <style scoped>
