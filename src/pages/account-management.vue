@@ -60,11 +60,12 @@
             </el-tag>
           </template>
         </el-table-column>
-        <!-- 修改操作列部分 -->
-        <el-table-column label="操作" width="460">
+        <!-- 修改操作列部分 固定在右侧 -->
+        <el-table-column fixed="right" label="操作" width="200">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+            <br>
             <el-button size="small" :type="scope.row.status === 1 ? 'warning' : 'success'" @click="handleToggleStatus(scope.row)">
               {{ scope.row.status === 1 ? '禁用' : '启用' }}
             </el-button>
@@ -471,10 +472,13 @@ const handleToggleStatus = async (row) => {
 }
 
 const handleGetCdkeyRewardForAccount = async (account) => {
-  const { value: cdkey } = await ElMessageBox.prompt('请输入CDKey', `为账号 ${account.username} 领取CDKey奖励`, {
+  const res = await ElMessageBox.prompt('请输入CDKey', `为账号 ${account.username} 领取CDKey奖励`, {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-  });
+  }).catch(()=>{
+    console.log("取消")
+  })
+  const cdkey = res?.value
   if (cdkey) {
     try {
       const res = await getCdkeyRewardForAccount(cdkey, account.id);
