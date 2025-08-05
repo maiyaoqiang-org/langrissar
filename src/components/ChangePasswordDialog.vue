@@ -51,6 +51,8 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { changePassword } from '@/api/server'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 
 const visible = ref(false)
@@ -98,7 +100,12 @@ const handleSubmit = async () => {
     visible.value = false
     const userStore = useUserStore()
     userStore.logout()
-    window.location.href = '/pages/login'
+    router.replace({
+      path: '/pages/login',
+      query: {
+        redirect: router.currentRoute.value.path
+      }
+    })
     emit('success')
   } catch (error) {
     if (error.response?.data?.message) {
