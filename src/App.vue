@@ -63,7 +63,7 @@ const hasVisibleChildren = (route, user) => {
   if (!route.children || route.children.length === 0) {
     return true
   }
-  
+
   return route.children.some(child => {
     // 检查子路由权限
     if (child.meta?.requiresAuth && !userStore.isAuthenticated) {
@@ -83,7 +83,7 @@ const filterRoutes = (routes, user) => {
     if (route.meta?.requiresAuth && !userStore.isAuthenticated) {
       return false
     }
-    
+
     // 检查当前路由的管理员要求
     if (route.meta?.requiresAdmin && user?.role !== 'admin') {
       return false
@@ -92,13 +92,13 @@ const filterRoutes = (routes, user) => {
     // 如果有子路由，递归过滤子路由
     if (route.children && route.children.length > 0) {
       const filteredChildren = filterRoutes(route.children, user)
-      
+
       // 如果有可见的子路由，保留父路由
       if (filteredChildren.length > 0) {
         route.children = filteredChildren
         return true
       }
-      
+
       // 如果没有子路由但父路由本身需要显示，也保留
       if (hasVisibleChildren(route, user)) {
         return true
@@ -161,8 +161,17 @@ body {
 }
 
 .el-menu-vertical {
-  border-right: none;
-  height: calc(100vh - 60px);
+  border-right: none !important;
+  height: calc(100vh - 60px) !important;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #409eff;
+    border-radius: 8px;
+  }
 }
 
 .el-aside {
