@@ -167,7 +167,13 @@ const resetFilter = () => {
 const dialogVisible = ref(false)
 const code = `const userInfo = {
   "accountid":localStorage.getItem("zlVipAccountId"),
-  "userlist":JSON.parse(localStorage.getItem("zlVipUserList"))
+  "userlist":JSON.parse(localStorage.getItem("zlVipUserList")).map((item)=>{
+      return {
+          ...item,
+          appkey:Number(item.appkey),
+          userid:Number(item.userid)
+      }
+  })
 }
 function copyText(text) {
   const input = document.createElement('textarea');
