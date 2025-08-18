@@ -2204,6 +2204,15 @@ const sb_zdmb_klkz = computed(() => {
 }
 
 .mbjs-el {
+  .el-card{
+    overflow-x: auto;
+  }
+  .el-card__body{
+    >div{
+      overflow-x: auto;
+    }
+  }
+
   .el-table .el-table__row.total-row {
     background-color: rgb(254, 240.3, 240.3);
   }
