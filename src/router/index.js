@@ -28,7 +28,7 @@ export const menuRoutes = [
       {
         path: '/pages/bp-simulate',
         component: () => import('@/pages/bp-simulate.vue'),
-        meta: { title: 'BP模拟器', requiresAuth: false }
+        meta: { title: 'BP模拟器', requiresAuth: true }
       },
     ]
   },
@@ -143,7 +143,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const isAuthenticated = userStore.isAuthenticated
-  
+
   // 如果是登录页面，直接放行
   if (to.path === '/pages/login') {
     next()
