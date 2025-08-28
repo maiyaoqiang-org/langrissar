@@ -78,15 +78,18 @@ const hasVisibleChildren = (route, user) => {
 
 // 递归过滤菜单路由
 const filterRoutes = (routes, user) => {
-  return routes.filter(route => {
+  return routes.map(route => {
+    // 创建新的路由对象，避免修改原始路由
+    const newRoute = { ...route }
+    
     // 检查当前路由的认证要求
     if (route.meta?.requiresAuth && !userStore.isAuthenticated) {
-      return false
+      return null
     }
 
     // 检查当前路由的管理员要求
     if (route.meta?.requiresAdmin && user?.role !== 'admin') {
-      return false
+      return null
     }
 
     // 如果有子路由，递归过滤子路由
@@ -95,18 +98,18 @@ const filterRoutes = (routes, user) => {
 
       // 如果有可见的子路由，保留父路由
       if (filteredChildren.length > 0) {
-        route.children = filteredChildren
-        return true
+        newRoute.children = filteredChildren
+        return newRoute
       }
 
       // 如果没有子路由但父路由本身需要显示，也保留
       if (hasVisibleChildren(route, user)) {
-        return true
+        return newRoute
       }
     }
 
-    return true
-  })
+    return newRoute
+  }).filter(Boolean) // 过滤掉null值
 }
 
 // 使用递归过滤的菜单路由
