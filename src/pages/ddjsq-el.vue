@@ -1,13 +1,13 @@
 <template>
-  <view class="ddjsq" style="padding:24px;">
+  <div class="ddjsq" style="padding:24px;">
     <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
     <el-form label-width="160px" class="base-el-form" label-position="left" :inline="true"
              :model="formData">
-      <view class="mb_16" flex="box:mean" style="flex-wrap: wrap;">
+      <div class="mb_16" flex="box:mean" style="flex-wrap: wrap;">
         <el-card style="min-width: 400px;" class="mr_16 mb_16">
           <el-tabs model-value="攻方士兵">
             <el-tab-pane label="攻方士兵" name="攻方士兵">
-              <view>
+              <div>
                 <el-form-item label="士兵伤害类型">
                   <el-radio-group v-model="formData.sbsh_lx">
                     <el-radio v-for="(item,index) in AttackType" :key="index" :value="item.value">{{
@@ -19,7 +19,7 @@
                 <el-form-item label="攻方士兵攻击" prop="gf_sbgj">
                   <mz-input prop="gf_sbgj" :form-data="formData"></mz-input>
                 </el-form-item>
-                <view flex>
+                <div flex>
                   <el-form-item>
                     <el-checkbox v-model="formData.sb_bdb_kzpd"
                                  @change="(val)=>(!val)&&(formData.gf_sbdsb_gzkzxs=formData.sf_sbdsb_sfkzxs=0)"
@@ -28,8 +28,8 @@
                   <el-form-item v-if="formData.sb_bdb_kzpd" label-width="200px" label="士兵对士兵攻智克制系数加成">
                     <mz-percent-input prop="gf_sbdsb_gzkzxs" :form-data="formData"></mz-percent-input>
                   </el-form-item>
-                </view>
-                <view flex>
+                </div>
+                <div flex>
                   <el-form-item>
                     <el-checkbox v-model="formData.sb_bdyx_kzpd"
                                  @change="(val)=>(!val)&&(formData.gf_sbdyx_gzkzxs=formData.sf_yxdsb_sfkzxs=0)"
@@ -38,7 +38,7 @@
                   <el-form-item v-if="formData.sb_bdyx_kzpd" label-width="200px" label="士兵对英雄攻智克制系数加成">
                     <mz-percent-input prop="gf_sbdyx_gzkzxs" :form-data="formData"></mz-percent-input>
                   </el-form-item>
-                </view>
+                </div>
                 <el-form-item label="士兵无视双防系数">
                   <mz-percent-input prop="gf_sb_wsfy" :form-data="formData"></mz-percent-input>
                 </el-form-item>
@@ -60,10 +60,10 @@
                 <el-form-item label="攻方士兵暴伤加成">
                   <mz-percent-input prop="gf_sb_bs" :form-data="formData"></mz-percent-input>
                 </el-form-item>
-              </view>
+              </div>
             </el-tab-pane>
             <el-tab-pane label="攻方英雄" name="攻方英雄">
-              <view>
+              <div>
                 <el-form-item label="英雄伤害类型">
                   <el-radio-group v-model="formData.yxsh_lx">
                     <el-radio v-for="(item,index) in AttackType" :key="index" :value="item.value">{{
@@ -78,7 +78,7 @@
                 <el-form-item v-if="formData.yxsh_lx === AttackType.magic.value" label="攻方英雄智力">
                   <mz-input prop="gf_yxzl" :form-data="formData"></mz-input>
                 </el-form-item>
-                <view flex>
+                <div flex>
                   <el-form-item>
                     <el-checkbox v-model="formData.yx_yxdb_kzpd"
                                  @change="(val)=>(!val)&&(formData.gf_yxdsb_gzkzxs=formData.sf_sbdyx_sfkzxs=0)"
@@ -87,8 +87,8 @@
                   <el-form-item v-if="formData.yx_yxdb_kzpd" label-width="200px" label="英雄对士兵攻智克制系数加成">
                     <mz-percent-input prop="gf_yxdsb_gzkzxs" :form-data="formData"></mz-percent-input>
                   </el-form-item>
-                </view>
-                <view flex>
+                </div>
+                <div flex>
                   <el-form-item>
                     <el-checkbox v-model="formData.yx_yxdyx_kzpd"
                                  @change="(val)=>(!val)&&(formData.gf_yxdyx_gzkzxs=formData.sf_yxdyx_sfkzxs=0)"
@@ -97,7 +97,7 @@
                   <el-form-item v-if="formData.yx_yxdyx_kzpd" label-width="200px" label="英雄对英雄攻智克制系数加成">
                     <mz-percent-input prop="gf_yxdyx_gzkzxs" :form-data="formData"></mz-percent-input>
                   </el-form-item>
-                </view>
+                </div>
                 <el-form-item label="无视双防系数">
                   <mz-percent-input prop="gf_yx_wsfy" :form-data="formData"></mz-percent-input>
                 </el-form-item>
@@ -119,22 +119,22 @@
                 <el-form-item label="攻方英雄暴伤加成">
                   <mz-percent-input prop="gf_yx_bs" :form-data="formData"></mz-percent-input>
                 </el-form-item>
-                <view flex>
+                <div flex>
                   <el-form-item style="width:240px;">
                     <el-checkbox v-model="formData.gf_yx_gjdspd" label="攻方英雄攻击段数是否为20段"/>
                   </el-form-item>
                   <el-form-item v-if="!formData.gf_yx_gjdspd" label="攻方英雄攻击段数">
                     <mz-input prop="gf_yx_gjds" :form-data="formData"/>
                   </el-form-item>
-                </view>
-              </view>
+                </div>
+              </div>
             </el-tab-pane>
           </el-tabs>
         </el-card>
         <el-card style="min-width: 400px;" class="mb_16">
           <el-tabs model-value="守方士兵">
             <el-tab-pane label="守方士兵" name="守方士兵">
-              <view>
+              <div>
                 <el-form-item label="守方士兵防御">
                   <mz-input prop="sf_sbfy" :form-data="formData"></mz-input>
                 </el-form-item>
@@ -172,10 +172,10 @@
                 <el-form-item label="守方士兵减暴伤">
                   <mz-percent-input prop="sf_sb_jbs" :form-data="formData"></mz-percent-input>
                 </el-form-item>
-              </view>
+              </div>
             </el-tab-pane>
             <el-tab-pane label="守方英雄" name="守方英雄">
-              <view>
+              <div>
                 <el-form-item label="守方英雄防御">
                   <mz-input prop="sf_yxfy" :form-data="formData"></mz-input>
                 </el-form-item>
@@ -210,19 +210,19 @@
                 <el-form-item label="守方英雄减暴伤">
                   <mz-percent-input prop="sf_yx_jbs" :form-data="formData"></mz-percent-input>
                 </el-form-item>
-              </view>
+              </div>
             </el-tab-pane>
           </el-tabs>
-          <view>
+          <div>
             <el-form-item style="width:300px;" label="守方地形">
               <el-select v-model="formData.sf_dxxz">
                 <el-option v-for="item in TerrainTypeShowList" :key="item.value" :label="item.text"
                            :value="item.value"/>
               </el-select>
             </el-form-item>
-          </view>
+          </div>
         </el-card>
-      </view>
+      </div>
 
       <el-dialog width="80vw" v-model="sqDialog">
         <el-table :data="sq_table">
@@ -251,7 +251,7 @@
         </el-table>
       </el-dialog>
 
-      <view class="mb_16">
+      <div class="mb_16">
         <el-button @click="sqDialog=true" type="primary">
           （点击打开查看）神契晨曦之祝特效参考
         </el-button>
@@ -261,51 +261,51 @@
         <el-button @click="zykzDialog=true" type="primary">
           （点击打开查看）职业克制系数参考
         </el-button>
-      </view>
+      </div>
 
       <el-card class="mb_16">
-        <view class="average-box">
-          <view>
+        <div class="average-box">
+          <div>
             兵打兵单段伤害为：
             <text class="primary value">{{ round(bdb_dd_sh, 2) }}</text>
-          </view>
-          <view>
+          </div>
+          <div>
             兵打英雄单段伤害为：
             <text class="success value">{{ round(bdyx_dd_sh, 2) }}</text>
-          </view>
-        </view>
-        <view class="average-box">
-          <view>
+          </div>
+        </div>
+        <div class="average-box">
+          <div>
             兵打兵暴击单段伤害为：
             <text class="warning value">{{ round(bdb_ddbj_sh, 2) }}</text>
-          </view>
-          <view>
+          </div>
+          <div>
             兵打英雄暴击单段伤害为：
             <text class="warning value">{{ round(bdyx_ddbj_sh, 2) }}</text>
-          </view>
-        </view>
+          </div>
+        </div>
 
-        <base-divider></base-divider>
-        <view class="average-box">
-          <view>
+        <el-divider></el-divider>
+        <div class="average-box">
+          <div>
             英雄打兵单段伤害为：
             <text class="primary value">{{ round(yxdb_dd_sh, 2) }}</text>
-          </view>
-          <view>
+          </div>
+          <div>
             英雄打英雄单段伤害为：
             <text class="success value">{{ round(yxdyx_dd_sh, 2) }}</text>
-          </view>
-        </view>
-        <view class="average-box">
-          <view>
+          </div>
+        </div>
+        <div class="average-box">
+          <div>
             英雄打兵暴击单段伤害为：
             <text class="warning value">{{ round(yxdb_ddbj_sh, 2) }}</text>
-          </view>
-          <view>
+          </div>
+          <div>
             英雄打英雄暴击单段伤害为：
             <text class="warning value">{{ round(yxdyx_ddbj_sh, 2) }}</text>
-          </view>
-        </view>
+          </div>
+        </div>
       </el-card>
 
       <el-card class="mb_16">
@@ -338,16 +338,16 @@
       </el-collapse>
 
 
-      <view class="mb_16" style="font-size: 24px;color:#dd524d;">
+      <div class="mb_16" style="font-size: 24px;color:#dd524d;">
         以下即将进行段数分配战斗模拟
-      </view>
+      </div>
 
       <el-card class="mb_16">
         <el-form-item>
           <el-checkbox v-model="formData.sdsr_pd"
                        label="关联读取以上单段伤害计算结果 (想手动输入单段伤害 就取消勾选)"/>
         </el-form-item>
-        <view v-if="!formData.sdsr_pd">
+        <div v-if="!formData.sdsr_pd">
           <el-form-item label-width="160px" label="士兵打士兵的单段伤害">
             <mz-input prop="soldier_to_soldier_damage" :form-data="formData"></mz-input>
           </el-form-item>
@@ -361,8 +361,9 @@
           <el-form-item label-width="160px" label="英雄打英雄的单段伤害">
             <mz-input prop="hero_to_hero_damage" :form-data="formData"></mz-input>
           </el-form-item>
-        </view>
-        <view>
+        </div>
+        <el-divider></el-divider>
+        <div>
           <el-form-item>
             <el-checkbox
                 @change="(val)=>val&&(formData.attacker_soldier_count='10')"
@@ -374,13 +375,14 @@
             <mz-input :disabled="formData.attacker_full_health" prop="attacker_soldier_count"
                       :form-data="formData"></mz-input>
           </el-form-item>
-        </view>
+        </div>
+        <el-divider></el-divider>
         <el-form-item
             label-width="200px"
             label="每只守方士兵的最大血量">
           <mz-input prop="defender_soldier_max_hp_per_unit" :form-data="formData"></mz-input>
         </el-form-item>
-        <view>
+        <div>
           <el-form-item>
             <el-checkbox
                 v-model="formData.defender_full_health"
@@ -390,15 +392,17 @@
             <mz-input :disabled="formData.defender_full_health" prop="defender_soldier_hp"
                       :form-data="formData"></mz-input>
           </el-form-item>
-        </view>
+        </div>
+        <el-divider></el-divider>
         <el-form-item label="守方英雄当前血量">
           <mz-input prop="defender_hero_hp" :form-data="formData"></mz-input>
         </el-form-item>
+        <br>
         <el-form-item label="护盾值">
           <mz-input prop="hudun_hp" :form-data="formData"></mz-input>
         </el-form-item>
-
-        <view>
+        <el-divider></el-divider>
+        <div>
           <el-form-item style="width:260px;">
             <el-checkbox
                 @change="(val)=>!val&&(formData.attacker_soldier_dsds='0')"
@@ -414,10 +418,10 @@
                 :min="0"
                 :max="calculateVariables._attacker_soldier_max_segments"/>
           </el-form-item>
-        </view>
-        <!--        <view>
+        </div>
+        <!--        <div>
                   士兵出手的段数最大参考值：{{ calculateVariables.attacker_soldier_max_segments }}
-                </view>-->
+                </div>-->
         <el-form-item label-width="500px" label="请选择士兵优先英雄出手的段数（根据英雄出手速度判断）"></el-form-item>
         <br>
         <el-form-item style="width:500px;">
@@ -429,13 +433,13 @@
               :max="calculateVariables.attacker_soldier_max_segments||0"/>
         </el-form-item>
 
-        <view>
+        <div>
           <el-form-item style="width:260px;">
             <el-checkbox
                 v-model="formData.dhds_pd"
                 label="默认无动画影响的段数丢失，如有请勾选填写动画丢失段数"/>
           </el-form-item>
-          <view v-if="formData.dhds_pd">
+          <div v-if="formData.dhds_pd">
             <el-form-item
                 label-width="200px"
                 label="士兵打士兵的动画丢失段数">
@@ -457,30 +461,30 @@
                 label="英雄打英雄的动画丢失段数">
               <el-input-number v-model="formData.yxdb_dhds" :min="0"/>
             </el-form-item>
-          </view>
-        </view>
+          </div>
+        </div>
       </el-card>
 
 
       <el-card>
-        <view
-            v-for="(item,index) in calculateResult"
+        <div
+            v-for="(item,index) in Object.values(calculateResult)"
             :key="index"
             class="average-box" style="flex-wrap: wrap;">
-          <view style="width:50%;flex:1 1 50%;" v-for="(o,v) in item" :key="v">
+          <div style="width:50%;flex:1 1 50%;" v-for="(o,v) in item" :key="v">
             <template v-if="o.label">
               {{ o.label }}:
               <text :class="[o.valueClass,'value']">{{ o.value }}</text>
             </template>
-          </view>
-          <base-divider></base-divider>
-        </view>
+          </div>
+          <el-divider v-if="index!==(Object.values(calculateResult).length-1)" style="flex:unset;"></el-divider>
+        </div>
       </el-card>
 
     </el-form>
 
 
-    <base-divider></base-divider>
+    <el-divider></el-divider>
     <pre style="user-select: text;">
       使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。搬运来源：https://moyuanmzddjsq.streamlit.app/
 
@@ -526,7 +530,7 @@
 
 
     </pre>
-  </view>
+  </div>
 </template>
 
 <script setup>
