@@ -770,6 +770,10 @@
           <el-form-item label="">
             <el-checkbox v-model="formData.yxbx_sdsr_pd" label="默认关联读取以上英雄模拟结果 (想手动输入 就取消勾选)"></el-checkbox>
           </el-form-item>
+          <br>
+          <el-form-item label="">
+            <el-checkbox v-model="formData.yxbx_sffmxh_pd" label="「薪火」附魔"></el-checkbox>
+          </el-form-item>
           <div v-if="formData.yxbx_sdsr_pd && formData.selected_hero_row !== '自定义英雄'"
             style="width:1000px;display: flex;">
             <div style="width:90px;margin-top: 24px;">
@@ -780,14 +784,16 @@
             </div>
             <div style="margin-left: 60px;">
               <h3 v-for="(item, index) in ['兵修生命', '兵修攻击', '兵修防御', '兵修魔防']" :key="index">
-                {{ item }}：<strong class="green">{{ round(formData.yx_bx_jc?.[item] * 100) }}%</strong>
+                {{ item }}：<strong class="green">{{ round(formData.yx_bx_jc_yx?.[item] * 100) }}%</strong>
+                <strong v-if="formData.yxbx_sffmxh_pd" class="green">+{{ round(0.05 * 100) }}%</strong>
               </h3>
             </div>
           </div>
           <div v-else style="width:1000px;">
             <el-form-item label-width="180px" v-for="(item, index) in ['兵修生命', '兵修攻击', '兵修防御', '兵修魔防']" :key="index"
               :label="item">
-              <mz-percent-input :prop="item" :form-data="formData.yx_bx_jc"></mz-percent-input>
+              <mz-percent-input style="width:150px;" :prop="item" :form-data="formData.yx_bx_jc_yx"></mz-percent-input>
+              <strong v-if="formData.yxbx_sffmxh_pd" class="green">+{{ round(0.05 * 100) }}%</strong>
             </el-form-item>
           </div>
 
@@ -807,7 +813,7 @@
             </div>
           </div>
           <div style="width:130px;">
-            <img style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="">
+            <img style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="">
             <div style="color:#999;text-align: center;">
               {{ sb_selected_row?.['士兵名'] }}
             </div>
@@ -1407,6 +1413,9 @@ const defaultFormData = {
   zwtxjc: {},
   sb_cs: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0 }, // 初始化士兵初始值 字典
   sb_sq_jc: { "士兵生命": 0, "士兵攻击": 0, "士兵防御": 0, "士兵魔防": 0 }, // 初始化士兵神契加成 字典
+  yx_bx_jc_yx: { "兵修生命": 0, "兵修攻击": 0, "兵修防御": 0, "兵修魔防": 0},// 仅计算当前英雄加成
+  // 是否附魔薪火 用于累加到yx_bx_jc
+  yxbx_sffmxh_pd: false,
   yx_bx_jc: { "兵修生命": 0, "兵修攻击": 0, "兵修防御": 0, "兵修魔防": 0 }, // 初始英雄兵修加成 字典
   sb_bztx_qtjc: { "生命": 0, "攻击": 0, "防御": 0, "魔防": 0, "生命克制修正": 0, "攻击克制修正": 0, "智力克制修正": 0, "防御克制修正": 0, "魔防克制修正": 0 },  // 初始化士兵兵种特效及其他加成 字典
   selected_sb_names: [],
@@ -2106,12 +2115,28 @@ watchEffect(() => {
   }
 })
 
+watchEffect(()=>{
+  const yx_bx_jc = {
+    "兵修生命": formData.value.yx_bx_jc_yx["兵修生命"],
+    "兵修攻击": formData.value.yx_bx_jc_yx["兵修攻击"],
+    "兵修防御": formData.value.yx_bx_jc_yx["兵修防御"],
+    "兵修魔防": formData.value.yx_bx_jc_yx["兵修魔防"],
+  }
+  if(formData.value.yxbx_sffmxh_pd){
+    yx_bx_jc["兵修生命"] += 0.05
+    yx_bx_jc["兵修攻击"] += 0.05
+    yx_bx_jc["兵修防御"] += 0.05
+    yx_bx_jc["兵修魔防"] += 0.05
+  }
+  Object.assign(formData.value.yx_bx_jc, yx_bx_jc)
+})
+
 watchEffect(() => {
   if (formData.value.yxbx_sdsr_pd && formData.value.selected_hero_row !== '自定义英雄') {
-    formData.value.yx_bx_jc["兵修生命"] = currentSelectedJob.value["兵修生命"]
-    formData.value.yx_bx_jc["兵修攻击"] = currentSelectedJob.value["兵修攻击"]
-    formData.value.yx_bx_jc["兵修防御"] = currentSelectedJob.value["兵修防御"]
-    formData.value.yx_bx_jc["兵修魔防"] = currentSelectedJob.value["兵修魔防"]
+    formData.value.yx_bx_jc_yx["兵修生命"] = currentSelectedJob.value["兵修生命"]
+    formData.value.yx_bx_jc_yx["兵修攻击"] = currentSelectedJob.value["兵修攻击"]
+    formData.value.yx_bx_jc_yx["兵修防御"] = currentSelectedJob.value["兵修防御"]
+    formData.value.yx_bx_jc_yx["兵修魔防"] = currentSelectedJob.value["兵修魔防"]
   }
 })
 

@@ -364,12 +364,20 @@
         </div>
         <el-divider></el-divider>
         <div>
-          <el-form-item>
-            <el-checkbox
-                @change="(val)=>val&&(formData.attacker_soldier_count='10')"
-                v-model="formData.attacker_full_health"
-                label="攻方士兵是否满血"/>
-          </el-form-item>
+          <div style="display: inline-block;">
+            <el-form-item>
+              <el-checkbox
+                  v-model="formData.attacker_full_health"
+                  label="攻方士兵是否满血"/>
+            </el-form-item>
+            <el-form-item>
+              <el-checkbox
+                  v-model="formData.gf_sffmxh_pd"
+                  label="「薪火」附魔"/>
+            </el-form-item>
+          </div>
+          <br>
+
           <el-form-item
               label="攻方士兵当前数量">
             <mz-input :disabled="formData.attacker_full_health" prop="attacker_soldier_count"
@@ -383,11 +391,19 @@
           <mz-input prop="defender_soldier_max_hp_per_unit" :form-data="formData"></mz-input>
         </el-form-item>
         <div>
-          <el-form-item>
-            <el-checkbox
-                v-model="formData.defender_full_health"
-                label="守方士兵是否满血"/>
-          </el-form-item>
+          <div style="display: inline-block;">
+            <el-form-item>
+              <el-checkbox
+                  v-model="formData.defender_full_health"
+                  label="守方士兵是否满血"/>
+            </el-form-item>
+            <el-form-item>
+              <el-checkbox
+                  v-model="formData.sf_sffmxh_pd"
+                  label="「薪火」附魔"/>
+            </el-form-item>
+          </div>
+          <br>
           <el-form-item label="守方士兵当前总血量">
             <mz-input :disabled="formData.defender_full_health" prop="defender_soldier_hp"
                       :form-data="formData"></mz-input>
@@ -578,6 +594,8 @@ const defaultFormData = {
   bdyx_sfbj: false,
   yxdb_sfbj: false,
   yxdyx_sfbj: false,
+  gf_sffmxh_pd: false,
+  sf_sffmxh_pd: false,
 }
 const formData = useRefCache("langrissar-calculator-ddjsq-el-formData", JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -839,11 +857,13 @@ watchEffect(() => {
   }
 })
 watchEffect(() => {
+  // 是否满血
   const isHealth = formData.value?.defender_full_health
+  // 每只士兵满血生命
   const defender_soldier_max_hp_per_unit = round(calculateFormula(formData.value.defender_soldier_max_hp_per_unit))
   // 满血
   if (isHealth) {
-    const defender_soldier_count = "10"
+    const defender_soldier_count = formData.value.sf_sffmxh_pd?"12":"10"
     formData.value.defender_soldier_count = defender_soldier_count
     formData.value.defender_soldier_hp = defender_soldier_count * defender_soldier_max_hp_per_unit
   } else {
@@ -1487,6 +1507,14 @@ const chakan_gfczjs_table = computed(() => {
   ]
 
 })
+
+
+watchEffect(()=>{
+  if(formData.value.attacker_full_health){
+    formData.value.attacker_soldier_count = formData.value.gf_sffmxh_pd?"12":"10"
+  }
+})
+
 
 const shuoming = ref([
   {
