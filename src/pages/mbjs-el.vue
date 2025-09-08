@@ -2131,6 +2131,15 @@ watchEffect(()=>{
   Object.assign(formData.value.yx_bx_jc, yx_bx_jc)
 })
 
+watch(()=>[formData.value.gm_fm_1,formData.value.gm_fm_2],()=>{
+  if(
+      gmFm1Selected.value?.value==='薪火'
+      && gmFm1Selected.value?.value==='薪火'
+  ){
+    formData.value.yxbx_sffmxh_pd = true
+  }
+})
+
 watchEffect(() => {
   if (formData.value.yxbx_sdsr_pd && formData.value.selected_hero_row !== '自定义英雄') {
     formData.value.yx_bx_jc_yx["兵修生命"] = currentSelectedJob.value["兵修生命"]
