@@ -920,7 +920,7 @@ const calculateResult = computed(() => {
   bdyx_dhds = round(bdyx_dhds) || 0
   yxdb_dhds = round(yxdb_dhds) || 0
   yxdyx_dhds = round(yxdyx_dhds) || 0
-  defender_soldier_max_hp_per_unit = Number(defender_soldier_max_hp_per_unit) || 0
+  defender_soldier_max_hp_per_unit = Number(defender_soldier_max_hp_per_unit) || 1
 
   let remaining_soldier_segments = attacker_soldier_max_segments - soldier_to_soldier_priority_segments;
   let hero_segments = gf_yx_gjds;
