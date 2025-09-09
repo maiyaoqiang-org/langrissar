@@ -408,6 +408,11 @@
             <mz-input :disabled="formData.defender_full_health" prop="defender_soldier_hp"
                       :form-data="formData"></mz-input>
           </el-form-item>
+          <br>
+          <el-form-item label="守方士兵当前数量">
+            <mz-input :disabled="true" prop="defender_soldier_count"
+                      :form-data="formData"></mz-input>
+          </el-form-item>
         </div>
         <el-divider></el-divider>
         <el-form-item label="守方英雄当前血量">
