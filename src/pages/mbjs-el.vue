@@ -361,6 +361,63 @@
         </el-tabs>
 
       </el-card>
+      <el-card v-show="configData.showSoldier&&!configData.showHero" class="mb_16">
+        <template #header>
+          士兵加成设置
+        </template>
+
+        <el-tabs model-value="神契" style="min-height: 300px;">
+          <el-tab-pane label="神契" name="神契">
+            <div flex>
+              <div style="width:400px;">
+                <div class="error mb_16" style="font-size: 20px;">
+                  请提前在「神契设置区」设置好神契
+                </div>
+                <el-form-item style="width:100%;" label="请选择神契">
+                  <el-select v-model="formData.selected_sq" filterable clearable>
+                    <el-option value="未携带" label="未携带"></el-option>
+                    <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
+                               :label="item">
+                      <div flex="cross:center">
+                        <img v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
+                             :src="sq_slsb_dict[item].image" alt="">
+                        <div>
+                          {{ item }}
+                        </div>
+                      </div>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label=" ">
+                  <img v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
+                       :src="sq_slsb_dict[formData.selected_sq]?.image" alt="">
+                </el-form-item>
+              </div>
+              <div class="green-list" style="max-width:400px;">
+                <div class="item" v-for="key in sqGudingList" :key="key">
+                  <div class="label" style="width:100px;">
+                    {{ key }}
+                  </div>
+                  <div class="value">
+                    +{{ sq_zjc[key] }}
+                  </div>
+                </div>
+                <div class="item" v-for="key in sqPercentList" :key="key">
+                  <div class="label" style="width:100px;">
+                    {{ key }}
+                  </div>
+                  <div class="value">
+                    +{{ round(sq_zjc[key] * 100, 3) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </el-tab-pane>
+        </el-tabs>
+
+      </el-card>
 
       <el-card v-show="configData.showHero" class="mb_16">
         <template #header>英雄绿字加成统计表</template>
