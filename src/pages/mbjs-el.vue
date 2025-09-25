@@ -364,7 +364,7 @@
                   <el-form-item label-width="200px" v-for="(item, key) in sjjc_yx_max" :key="key" :label="key+'(最大值'+item+')'">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
-                                     v-model="formData.sjjc[key]" :max="item&&item!==0?item:Infinity"></mz-number-input>
+                                     v-model="formData.sjjc[key]" :max="(item||item===0)?item:Infinity"></mz-number-input>
                   </el-form-item>
                 </div>
 
