@@ -1635,12 +1635,6 @@ const reset_sjjc = () => {
     ...sjjc_sb_max,
   }
 }
-watchEffect(() => {
-  if (!formData.value.sjjc_input_can_edit) {
-    // reset_sjjc()
-    setSJJCToZero()
-  }
-})
 const setSJJCToZero = ()=>{
   formData.value.sjjc = {
     ...sjjc_yx_max,
@@ -1650,6 +1644,13 @@ const setSJJCToZero = ()=>{
     formData.value.sjjc[key] = 0
   })
 }
+watchEffect(() => {
+  if (!formData.value.sjjc_input_can_edit) {
+    // reset_sjjc()
+    setSJJCToZero()
+  }
+})
+
 
 const reset_zw = () => {
   const fieldsToConvert = mianbanList;
