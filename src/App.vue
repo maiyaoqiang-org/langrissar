@@ -31,7 +31,7 @@
           </div>
         </div>
       </el-header>
-      <el-main>
+      <el-main id="page-container">
         <router-view></router-view>
         <HideContentButton />
       </el-main>
