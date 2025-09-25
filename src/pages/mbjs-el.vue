@@ -345,6 +345,35 @@
 
 
           </el-tab-pane>
+          <el-tab-pane label="圣镜" name="圣镜">
+            <div flex="cross:top">
+              <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
+                <el-radio-group v-model="formData.sjjc_input_can_edit">
+                  <el-radio :value="false" label="默认满" />
+                  <br>
+                  <el-radio :value="true" label="自定义" />
+                </el-radio-group>
+              </el-form-item>
+              <div>
+                <div v-if="configData.showHero">
+                  <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
+                    <mz-number-input style="width:100px;"
+                                     :disabled="!formData.sjjc_input_can_edit"
+                                     v-model="formData.sjjc[key]" :max="item || Infinity"></mz-number-input>
+                  </el-form-item>
+                </div>
+
+                <div v-if="configData.showSoldier">
+                  <el-form-item v-for="(item, key) in sjjc_sb_max" :key="key" :label="key">
+                    <mz-number-input style="width:100px;"
+                                     :disabled="!formData.sjjc_input_can_edit"
+                                     :is-percent="true"
+                                     v-model="formData.sjjc[key]" :max="item*100 || Infinity"></mz-number-input>
+                  </el-form-item>
+                </div>
+              </div>
+            </div>
+          </el-tab-pane>
           <el-tab-pane label="绿字总加成" name="绿字总加成">
             <div class="green-list" style="max-width:400px;">
               <div class="item" v-for="(item, key) in lz" :key="key">
@@ -414,6 +443,35 @@
             </div>
 
 
+          </el-tab-pane>
+          <el-tab-pane label="圣镜" name="圣镜">
+            <div flex="cross:top">
+              <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
+                <el-radio-group v-model="formData.sjjc_input_can_edit">
+                  <el-radio :value="false" label="默认满" />
+                  <br>
+                  <el-radio :value="true" label="自定义" />
+                </el-radio-group>
+              </el-form-item>
+              <div>
+                <div v-if="configData.showHero">
+                  <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
+                    <mz-number-input style="width:100px;"
+                                     :disabled="!formData.sjjc_input_can_edit"
+                                     v-model="formData.sjjc[key]" :max="item || Infinity"></mz-number-input>
+                  </el-form-item>
+                </div>
+
+                <div v-if="configData.showSoldier">
+                  <el-form-item v-for="(item, key) in sjjc_sb_max" :key="key" :label="key">
+                    <mz-number-input style="width:100px;"
+                                     :disabled="!formData.sjjc_input_can_edit"
+                                     :is-percent="true"
+                                     v-model="formData.sjjc[key]" :max="item*100 || Infinity"></mz-number-input>
+                  </el-form-item>
+                </div>
+              </div>
+            </div>
           </el-tab-pane>
         </el-tabs>
 
@@ -1426,7 +1484,10 @@ const fz_list = [
   }
 ]
 
-
+const sjjc_yx_max = { "生命": 200, "攻击": 20, "智力": 20, "防御": 12, "魔防": 12,
+  // "技巧": 0
+}
+const sjjc_sb_max = { "士兵生命":0.04,"士兵攻击":0.04,"士兵防御":0.04,"士兵魔防":0.04 }
 const defaultFormData = {
   // 选中的英雄
   selected_hero_row: "自定义英雄",
@@ -1481,6 +1542,11 @@ const defaultFormData = {
   sbjjc_pd: true,
   sbcj_pd: true,
   selected_kj: {},
+  sjjc_input_can_edit: false,
+  sjjc: _.cloneDeep({
+    ...sjjc_yx_max,
+    ...sjjc_sb_max,
+  })
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -1545,6 +1611,18 @@ const reset_zyjt = () => {
 watchEffect(() => {
   if (!formData.value.zyjt_input_can_edit) {
     reset_zyjt()
+  }
+})
+
+const reset_sjjc = () => {
+  formData.value.sjjc = {
+    ...sjjc_yx_max,
+    ...sjjc_sb_max,
+  }
+}
+watchEffect(() => {
+  if (!formData.value.sjjc_input_can_edit) {
+    reset_sjjc()
   }
 })
 
@@ -1751,18 +1829,19 @@ const allDataObj = computed(() => {
     fm_gdz: fm_data.value.fm_gdz,
     zyjt: formData.value.zyjt,
     zw: formData.value.zw,
-    sq_zjc: sq_zjc.value
+    sq_zjc: sq_zjc.value,
+    sjjc: formData.value.sjjc
   }
 })
 
 const lz = computed(() => {
-  const { zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc } = allDataObj.value
+  const { zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc, sjjc } = allDataObj.value
   const res = {
-    生命: round(zb_jc["生命"] + bz["生命"] * fm_bfb["生命"] + fm_gdz["生命"] + zyjt["生命"] + zw["生命"] + sq_zjc["生命"], 1),
-    攻击: round(zb_jc["攻击"] + bz["攻击"] * fm_bfb["攻击"] + fm_gdz["攻击"] + zyjt["攻击"] + zw["攻击"] + sq_zjc["攻击"], 1),
-    智力: round(zb_jc["智力"] + bz["智力"] * fm_bfb["智力"] + fm_gdz["智力"] + zyjt["智力"] + zw["智力"] + sq_zjc["智力"], 1),
-    防御: round(zb_jc["防御"] + bz["防御"] * fm_bfb["防御"] + fm_gdz["防御"] + zyjt["防御"] + zw["防御"] + sq_zjc["防御"], 1),
-    魔防: round(zb_jc["魔防"] + bz["魔防"] * fm_bfb["魔防"] + fm_gdz["魔防"] + zyjt["魔防"] + zw["魔防"] + sq_zjc["魔防"], 1),
+    生命: round(zb_jc["生命"] + bz["生命"] * fm_bfb["生命"] + fm_gdz["生命"] + zyjt["生命"] + zw["生命"] + sq_zjc["生命"] + sjjc["生命"], 1),
+    攻击: round(zb_jc["攻击"] + bz["攻击"] * fm_bfb["攻击"] + fm_gdz["攻击"] + zyjt["攻击"] + zw["攻击"] + sq_zjc["攻击"] + sjjc["攻击"], 1),
+    智力: round(zb_jc["智力"] + bz["智力"] * fm_bfb["智力"] + fm_gdz["智力"] + zyjt["智力"] + zw["智力"] + sq_zjc["智力"] + sjjc["智力"], 1),
+    防御: round(zb_jc["防御"] + bz["防御"] * fm_bfb["防御"] + fm_gdz["防御"] + zyjt["防御"] + zw["防御"] + sq_zjc["防御"] + sjjc["防御"], 1),
+    魔防: round(zb_jc["魔防"] + bz["魔防"] * fm_bfb["魔防"] + fm_gdz["魔防"] + zyjt["魔防"] + zw["魔防"] + sq_zjc["魔防"] + sjjc["魔防"], 1),
     技巧: round(zb_jc["技巧"] + zyjt["技巧"] + zw["技巧"] + sq_zjc["技巧"], 1)
   }
   return res
@@ -1806,11 +1885,15 @@ const lzTotalTableColumns = [
     label: "神契",
     prop: 'sq_zjc'
   },
+  {
+    label: "圣镜",
+    prop: 'sjjc'
+  },
 ]
 const lzTotalTableData = computed(() => {
   return mianbanList.reduce((res, mb_key) => {
-    const keyList = ['bz', 'zb_jc', 'fm_bfb', 'fm_bfb', 'fm_gdz', 'zyjt', 'zw', 'sq_zjc']
-    const { zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc } = keyList.reduce((res, key) => {
+    const keyList = ['bz', 'zb_jc', 'fm_bfb', 'fm_bfb', 'fm_gdz', 'zyjt', 'zw', 'sq_zjc', 'sjjc']
+    const { zb_jc, bz, fm_bfb, fm_gdz, zyjt, zw, sq_zjc, sjjc } = keyList.reduce((res, key) => {
       res[key] = allDataObj.value[key][mb_key]
       return res
     }, {})
@@ -1825,6 +1908,7 @@ const lzTotalTableData = computed(() => {
       zyjt,
       zw,
       sq_zjc,
+      sjjc,
     })
 
     return res;
@@ -2208,10 +2292,10 @@ watchEffect(() => {
 
 const sb_bz = computed(() => {
   return {
-    生命: Number(formData.value.sb_cs.生命) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵生命"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
-    攻击: Number(formData.value.sb_cs.攻击) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵攻击"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
-    防御: Number(formData.value.sb_cs.防御) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵防御"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
-    魔防: Number(formData.value.sb_cs.魔防) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵魔防"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
+    生命: Number(formData.value.sb_cs.生命) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵生命"]) + Number(formData.value.sjjc?.["士兵生命"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
+    攻击: Number(formData.value.sb_cs.攻击) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵攻击"]) + Number(formData.value.sjjc?.["士兵攻击"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 55,
+    防御: Number(formData.value.sb_cs.防御) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵防御"]) + Number(formData.value.sjjc?.["士兵防御"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
+    魔防: Number(formData.value.sb_cs.魔防) * ((60 - 1) * 0.1 + (70 - 60) * 0.05 + 1) * (1 + 0.8 + Number(formData.value.sb_sq_jc?.["士兵魔防"]) + Number(formData.value.sjjc?.["士兵魔防"]) + Number(sb_selected_row.value?.["全属性百分比加成"])) + 33,
   }
 })
 
