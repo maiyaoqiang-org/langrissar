@@ -497,40 +497,33 @@
             </template>
           </el-table-column>
         </el-table>
-        <FloatingPanel
-          :floatSort="1"
-          :watchTrigger="[configData.showHero,configData.showSoldier]"
-          floating-width="400px"
-          floating-height="100px"
-          scrollContainer="#page-container">
-          <div flex>
-            <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
-              :src="currentSelectedJob?.['英雄头像']" alt="">
-            <div style="margin-left:32px;">
-              <div v-for="key in mianbanList" :key="key" style="font-weight: bold;font-size: 24px;">
-                {{ key }}：
-                {{ formData.bz[key] }}
-                <span class="green" style="font-size: 24px;"> + {{ lz[key] }}</span>
+        <div flex>
+          <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
+            :src="currentSelectedJob?.['英雄头像']" alt="">
+          <div style="margin-left:32px;">
+            <div v-for="key in mianbanList" :key="key" style="font-weight: bold;font-size: 24px;">
+              {{ key }}：
+              {{ formData.bz[key] }}
+              <span class="green" style="font-size: 24px;"> + {{ lz[key] }}</span>
+            </div>
+          </div>
+          <!-- <div class="green-list" style="max-width:400px;">
+            <div class="item" style="width:300px;margin-bottom: 0;font-weight: bold;" v-for="key in mianbanList" :key="key">
+              <div class="label" style="width:100px;">
+                {{ key }}
+              </div>
+              <div class="value" flex style="gap:8px;">
+                <div style="color:#333;">
+                  {{ formData.bz[key] }}
+                </div>
+                <div>+</div>
+                <div>
+                  {{ lz[key] }}
+                </div>
               </div>
             </div>
-            <!-- <div class="green-list" style="max-width:400px;">
-              <div class="item" style="width:300px;margin-bottom: 0;font-weight: bold;" v-for="key in mianbanList" :key="key">
-                <div class="label" style="width:100px;">
-                  {{ key }}
-                </div>
-                <div class="value" flex style="gap:8px;">
-                  <div style="color:#333;">
-                    {{ formData.bz[key] }}
-                  </div>
-                  <div>+</div>
-                  <div>
-                    {{ lz[key] }}
-                  </div>
-                </div>
-              </div>
-            </div> -->
-          </div>
-        </FloatingPanel>
+          </div> -->
+        </div>
         
       </el-card>
 
@@ -944,35 +937,28 @@
         <template #header>
           士兵白字区
         </template>
-        <FloatingPanel
-          :floatSort="2"
-          :watchTrigger="[configData.showHero,configData.showSoldier]"
-          floating-width="400px"
-          floating-height="90px"
-          scrollContainer="#page-container">
-          <div style="width:1000px;display: flex;">
-            <div style="width:90px;">
-              <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
-              <div style="color:#999;text-align: center;">
-                {{ currentSelectedJob?.['英雄名'] }}
-              </div>
-            </div>
-            <div style="width:130px;">
-              <img style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="">
-              <div style="color:#999;text-align: center;">
-                {{ sb_selected_row?.['士兵名'] }}
-              </div>
-            </div>
-            <div style="margin-left: 60px;">
-              <div v-for="(item, key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;">
-                {{ key }}：
-                {{ round(item, 2) }}
-                <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
-                }}（{{ round(formData.yx_bx_jc?.["兵修" + key] * 100) }}%）</span>
-              </div>
+        <div style="width:1000px;display: flex;">
+          <div style="width:90px;">
+            <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+            <div style="color:#999;text-align: center;">
+              {{ currentSelectedJob?.['英雄名'] }}
             </div>
           </div>
-        </FloatingPanel>
+          <div style="width:130px;">
+            <img style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="">
+            <div style="color:#999;text-align: center;">
+              {{ sb_selected_row?.['士兵名'] }}
+            </div>
+          </div>
+          <div style="margin-left: 60px;">
+            <div v-for="(item, key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;">
+              {{ key }}：
+              {{ round(item, 2) }}
+              <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
+              }}（{{ round(formData.yx_bx_jc?.["兵修" + key] * 100) }}%）</span>
+            </div>
+          </div>
+        </div>
         
       </el-card>
 
@@ -1207,7 +1193,6 @@ import zdyLogo from '@/static/image/自定义英雄头像.png'
 import zdyZY from '@/static/image/自定义职业图标.png'
 // import sbFileData from '../static/data/梦战士兵数据.csv?raw'
 // import sbKjFileData from '../static/data/梦战士兵科技数据.csv?raw'
-import FloatingPanel from '../components/FloatingPanel.vue';
 
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = useRefCache(`${prefix}heroList`, [])

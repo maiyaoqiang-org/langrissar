@@ -1,3 +1,14 @@
+<!-- 
+<FloatingPanel
+          :floatSort="1"
+          :watchTrigger="[configData.showHero,configData.showSoldier]"
+          floating-width="400px"
+          floating-height="100px"
+          scrollContainer="#page-container">
+          里面内容1111
+  </FloatingPanel>
+-->
+
 <template>
   <div class="floating-panel-container">
     <!-- 原始内容插槽，用于正常渲染 -->
