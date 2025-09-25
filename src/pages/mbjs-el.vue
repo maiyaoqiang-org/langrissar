@@ -27,7 +27,7 @@
                   <el-option v-for="(item, index) in heroList" :value="item.英雄名" :key="index">
                       <div style="display: flex;align-items: center;">
                         <span>{{ item?.英雄名 }}</span>
-                        <img style="width:auto;height:30px;margin-left: auto;" :src="item?.英雄头像" alt="" />
+                        <el-image lazy style="width: auto; height: 30px;margin-left: auto;" :src="item?.英雄头像" />
                       </div>
                   </el-option>
                 </el-select>
@@ -39,7 +39,7 @@
                     :label="item.职业名">
                     <div style="display: flex;align-items: center;">
                       <span>{{ item?.职业名 }}</span>
-                      <img style="width:auto;height:30px;margin-left: auto;" :src="item?.occupationPic" alt="" />
+                      <el-image lazy style="width:auto;height:30px;margin-left: auto;" :src="item?.occupationPic" alt="" />
                     </div>
                   </el-option>
                 </el-select>
@@ -48,15 +48,15 @@
               <template v-if="currentSelectedJob">
                 <div flex>
                   <div flex="dir:top cross:center">
-                    <img style="width:120px;height:120px;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+                    <el-image lazy style="width:120px;height:120px;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
                     <div>
                       {{ currentSelectedJob?.['英雄名'] }}
                     </div>
                   </div>
 
                   <div class="ml_16" flex="dir:top cross:center">
-                    <img style="width:40px;height:40px;display:block;" :src="currentSelectedJob?.['occupationPic']"
-                      alt="">
+                    <el-image lazy style="width:40px;height:40px;display:block;" :src="currentSelectedJob?.['occupationPic']"
+                      alt="" />
                     <div>
                       {{ currentSelectedJob?.['occupation'] }}
                     </div>
@@ -106,7 +106,7 @@
             <el-select style="min-width:300px;" v-model="sq_filter_data" filterable multiple clearable>
               <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index" :label="item">
                 <div flex="cross:center">
-                  <img class="mr_16" style="width:30px;height:30px;" :src="sq_slsb_dict[item].image" alt="">
+                  <el-image lazy class="mr_16" style="width:30px;height:30px;" :src="sq_slsb_dict[item].image" />
                   <div>
                     {{ item }}
                   </div>
@@ -129,8 +129,8 @@
               </template>
               <template v-else>
                 <div v-if="item.prop === '名称'" flex="cross:center">
-                  <img v-if="sq_slsb_dict[scope.row[item.prop]]?.image" style="width:30px;height:30px;" class="mr_8"
-                    :src="sq_slsb_dict[scope.row[item.prop]]?.image" alt="">
+                  <el-image lazy v-if="sq_slsb_dict[scope.row[item.prop]]?.image" style="width:30px;height:30px;" class="mr_8"
+                    :src="sq_slsb_dict[scope.row[item.prop]]?.image" alt="" />
                   <div>
                     {{ scope.row[item.prop] }}
                   </div>
@@ -165,12 +165,12 @@
                           <div>
                             {{ zbItem.装备名称 }}
                           </div>
-                          <img style="width:auto;height:30px;margin-left: auto;" :src="zbItem.picAddr" alt=""></img>
+                          <el-image lazy style="width:auto;height:30px;margin-left: auto;" :src="zbItem.picAddr" alt="" />
                         </div>
                       </el-option>
                     </el-select>
                     <div>
-                      <img style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="">
+                      <el-image lazy style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="" />
                       <div style="color:#31333f99;">
                         {{ wqSelectedObj[key]?.equipName }}
                       </div>
@@ -207,7 +207,7 @@
                 <el-select class="mb_8" v-model="formData.gm_fm_1" filterable>
                   <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
                     <div flex="cross:center">
-                      <img v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="">
+                      <el-image lazy v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="" />
                       <div>
                         {{ item.label }}
                       </div>
@@ -216,8 +216,8 @@
                 </el-select>
                 <div flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm1Selected?.image">
-                    <img v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
-                      :src="gmFm1Selected?.image" alt="">
+                    <el-image lazy v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
+                      :src="gmFm1Selected?.image" />
                   </template>
                 </div>
               </el-form-item>
@@ -225,7 +225,7 @@
                 <el-select class="mb_8" v-model="formData.gm_fm_2" filterable>
                   <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
                     <div flex="cross:center">
-                      <img v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="">
+                      <el-image lazy v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="" />
                       <div>
                         {{ item.label }}
                       </div>
@@ -234,8 +234,8 @@
                 </el-select>
                 <div flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm2Selected?.image">
-                    <img v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
-                      :src="gmFm2Selected?.image" alt="">
+                    <el-image lazy v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
+                      :src="gmFm2Selected?.image" alt="" />
                   </template>
                 </div>
               </el-form-item>
@@ -309,8 +309,8 @@
                     <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
                       :label="item">
                       <div flex="cross:center">
-                        <img v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
-                          :src="sq_slsb_dict[item].image" alt="">
+                        <el-image lazy v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
+                          :src="sq_slsb_dict[item].image" alt="" />
                         <div>
                           {{ item }}
                         </div>
@@ -319,8 +319,8 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label=" ">
-                  <img v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
-                    :src="sq_slsb_dict[formData.selected_sq]?.image" alt="">
+                  <el-image lazy v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
+                    :src="sq_slsb_dict[formData.selected_sq]?.image" alt="" />
                 </el-form-item>
               </div>
               <div class="green-list" style="max-width:400px;">
@@ -413,8 +413,8 @@
                     <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
                                :label="item">
                       <div flex="cross:center">
-                        <img v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
-                             :src="sq_slsb_dict[item].image" alt="">
+                        <el-image lazy v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
+                             :src="sq_slsb_dict[item].image" alt="" />
                         <div>
                           {{ item }}
                         </div>
@@ -423,8 +423,8 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label=" ">
-                  <img v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
-                       :src="sq_slsb_dict[formData.selected_sq]?.image" alt="">
+                  <el-image lazy v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
+                       :src="sq_slsb_dict[formData.selected_sq]?.image" alt="" />
                 </el-form-item>
               </div>
               <div class="green-list" style="max-width:400px;">
@@ -498,8 +498,8 @@
           </el-table-column>
         </el-table>
         <div flex>
-          <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
-            :src="currentSelectedJob?.['英雄头像']" alt="">
+          <el-image lazy v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
+            :src="currentSelectedJob?.['英雄头像']" alt="" />
           <div style="margin-left:32px;">
             <div v-for="key in mianbanList" :key="key" style="font-weight: bold;font-size: 24px;">
               {{ key }}：
@@ -636,7 +636,7 @@
                     <div style="margin-right:32px;">
                       <div v-for="(wq, key) in wqSelectedObj" :key="key" class="mb_16">
                         <div flex="cross:center" class="mb_8">
-                          <img v-if="wq?.picAddr" :src="wq.picAddr"
+                          <el-image lazy v-if="wq?.picAddr" :src="wq.picAddr"
                             style="width: 40px;height:auto; margin-right: 8px;" />
                           <div style="font-weight: bold;">{{ key }}：{{ wq?.装备名称 }}</div>
                         </div>
@@ -769,8 +769,8 @@
                     :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
                 </div>
               </div>
-              <img v-if="currentSelectedJob" class="mr_16" style="width:120px;height:120px;display:block;"
-                :src="currentSelectedJob?.['英雄头像']" alt="">
+              <el-image lazy v-if="currentSelectedJob" class="mr_16" style="width:120px;height:120px;display:block;"
+                :src="currentSelectedJob?.['英雄头像']" alt="" />
             </div>
             <div>
               <div flex>
@@ -832,13 +832,13 @@
             <template #default="{ node, data }">
               <div style="display: flex;align-items: center;">
                 <span>{{ data.label }}</span>
-                <img v-if="node.isLeaf" style="width:auto;height:30px;margin-left: auto;" :src="data?.图片地址" alt="" />
+                <el-image lazy v-if="node.isLeaf" style="width:auto;height:30px;margin-left: auto;" :src="data?.图片地址" alt="" />
               </div>
             </template>
           </el-cascader>
           <div style="display: flex;">
             <div class="mt_16" style="width:150px;display: flex;align-items: center;flex-direction: column;">
-              <img style="width:100%;height:auto;" :src="sb_selected_row?.['图片地址']" alt="">
+              <el-image lazy style="width:100%;height:auto;" :src="sb_selected_row?.['图片地址']" alt="" />
               <div style="color:#999;">
                 {{ sb_selected_row?.["士兵名"] }}
               </div>
@@ -909,7 +909,7 @@
           <div v-if="formData.yxbx_sdsr_pd && formData.selected_hero_row !== '自定义英雄'"
             style="width:1000px;display: flex;">
             <div style="width:90px;margin-top: 24px;">
-              <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+              <el-image lazy style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
               <div style="color:#999;text-align: center;">
                 {{ currentSelectedJob?.['英雄名'] }}
               </div>
@@ -939,13 +939,13 @@
         </template>
         <div style="width:1000px;display: flex;">
           <div style="width:90px;">
-            <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+            <el-image lazy style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
             <div style="color:#999;text-align: center;">
               {{ currentSelectedJob?.['英雄名'] }}
             </div>
           </div>
           <div style="width:130px;">
-            <img style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="">
+            <el-image lazy style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="" />
             <div style="color:#999;text-align: center;">
               {{ sb_selected_row?.['士兵名'] }}
             </div>
@@ -1001,7 +1001,7 @@
             <div>
               说明：<span class="error">所有需要人为判断的加成，需要细细盘点不要遗漏。士兵技能请人为考虑</span>
             </div>
-            <img class="mt_8" style="width:80px;height:auto;" :src="sb_selected_row?.图片地址" alt="">
+            <el-image lazy class="mt_8" style="width:80px;height:auto;" :src="sb_selected_row?.图片地址" alt="" />
 
             <div>
               满级士兵技能：<span class="orange">{{ sb_selected_row?.['满级技能'] }}</span>
@@ -1049,13 +1049,13 @@
         </template>
         <div style="width:1000px;display: flex;">
           <div style="width:90px;">
-            <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+            <el-image lazy style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
             <div style="color:#999;text-align: center;">
               {{ currentSelectedJob?.['英雄名'] }}
             </div>
           </div>
           <div class="ml_8" style="width:130px;">
-            <img style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="">
+            <el-image lazy style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="" />
             <div style="color:#999;text-align: center;">
               {{ sb_selected_row?.['士兵名'] }}
             </div>
@@ -1136,7 +1136,7 @@
         <el-table-column property="name" label="缓存名称">
           <template #default="scope">
             <div flex="cross:center">
-              <img v-if="scope.row.data?.selected_hero_row" style="width:30px;height:30px;margin-right:8px;"
+              <el-image lazy v-if="scope.row.data?.selected_hero_row" style="width:30px;height:30px;margin-right:8px;"
                 :src="getHeroAvatar(scope.row.data)" />
               <span>{{ scope.row.name }}</span>
             </div>
