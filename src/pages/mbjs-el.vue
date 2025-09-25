@@ -451,13 +451,18 @@
           </el-tab-pane>
           <el-tab-pane label="圣镜" name="圣镜">
             <div flex="cross:top">
-              <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
-                <el-radio-group v-model="formData.sjjc_input_can_edit">
-                  <el-radio :value="false" label="默认满" />
-                  <br>
-                  <el-radio :value="true" label="自定义" />
-                </el-radio-group>
-              </el-form-item>
+              <div>
+                <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
+                  <el-radio-group v-model="formData.sjjc_input_can_edit">
+                    <el-radio :value="false" label="默认满" />
+                    <br>
+                    <el-radio :value="true" label="自定义" />
+                  </el-radio-group>
+                </el-form-item>
+                <el-button style="display: block;" v-if="formData.sjjc_input_can_edit" type="primary" @click="setSJJCToZero">
+                  设置成0
+                </el-button>
+              </div>
               <div>
                 <div v-if="configData.showHero">
                   <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
