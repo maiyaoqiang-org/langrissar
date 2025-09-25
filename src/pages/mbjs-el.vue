@@ -350,7 +350,7 @@
               <div>
                 <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
                   <el-radio-group v-model="formData.sjjc_input_can_edit">
-                    <el-radio :value="false" label="默认满" />
+                    <el-radio :value="false" label="默认0" />
                     <br>
                     <el-radio :value="true" label="自定义" />
                   </el-radio-group>
@@ -361,15 +361,15 @@
               </div>
               <div>
                 <div v-if="configData.showHero">
-                  <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
+                  <el-form-item label-width="200px" v-for="(item, key) in sjjc_yx_max" :key="key" :label="key+'(最大值'+item+')'">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
-                                     v-model="formData.sjjc[key]" :max="item || Infinity"></mz-number-input>
+                                     v-model="formData.sjjc[key]" :max="item&&item!==0?item:Infinity"></mz-number-input>
                   </el-form-item>
                 </div>
 
                 <div v-if="configData.showSoldier">
-                  <el-form-item v-for="(item, key) in sjjc_sb_max" :key="key" :label="key">
+                  <el-form-item label-width="200px" v-for="(item, key) in sjjc_sb_max" :key="key" :label="key+'(最大值'+item*100+'%)'">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
                                      :is-percent="true"
@@ -1501,9 +1501,7 @@ const fz_list = [
   }
 ]
 
-const sjjc_yx_max = { "生命": 200, "攻击": 20, "智力": 20, "防御": 12, "魔防": 12,
-  // "技巧": 0
-}
+const sjjc_yx_max = { "生命": 200, "攻击": 20, "智力": 20, "防御": 12, "魔防": 12, "技巧": 0}
 const sjjc_sb_max = { "士兵生命":0.04,"士兵攻击":0.04,"士兵防御":0.04,"士兵魔防":0.04 }
 const defaultFormData = {
   // 选中的英雄
@@ -1639,7 +1637,8 @@ const reset_sjjc = () => {
 }
 watchEffect(() => {
   if (!formData.value.sjjc_input_can_edit) {
-    reset_sjjc()
+    // reset_sjjc()
+    setSJJCToZero()
   }
 })
 const setSJJCToZero = ()=>{
@@ -1868,7 +1867,7 @@ const lz = computed(() => {
     智力: round(zb_jc["智力"] + bz["智力"] * fm_bfb["智力"] + fm_gdz["智力"] + zyjt["智力"] + zw["智力"] + sq_zjc["智力"] + sjjc["智力"], 1),
     防御: round(zb_jc["防御"] + bz["防御"] * fm_bfb["防御"] + fm_gdz["防御"] + zyjt["防御"] + zw["防御"] + sq_zjc["防御"] + sjjc["防御"], 1),
     魔防: round(zb_jc["魔防"] + bz["魔防"] * fm_bfb["魔防"] + fm_gdz["魔防"] + zyjt["魔防"] + zw["魔防"] + sq_zjc["魔防"] + sjjc["魔防"], 1),
-    技巧: round(zb_jc["技巧"] + zyjt["技巧"] + zw["技巧"] + sq_zjc["技巧"], 1)
+    技巧: round(zb_jc["技巧"] + zyjt["技巧"] + zw["技巧"] + sq_zjc["技巧"] + sjjc["技巧"], 1)
   }
   return res
 })
