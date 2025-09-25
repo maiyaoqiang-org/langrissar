@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue';
 
 // 创建全局状态，用于跟踪所有显示的浮动面板
 // 使用 window 对象来存储全局状态，确保所有组件实例共享同一个状态
@@ -40,19 +40,23 @@ if (!window.floatingPanelsGlobalState) {
     panels: [],
     updateCallbacks: [], // 存储所有面板的更新回调函数
     
-    registerPanel(panelId, panelHeight) {
+    registerPanel(panelId, panelHeight, panelSort = 0) {
       // 如果面板已存在，先移除
       this.unregisterPanel(panelId);
       
-      // 添加新面板到数组末尾
+      // 添加新面板到数组
       this.panels.push({
         id: panelId,
-        height: panelHeight
+        height: panelHeight,
+        sort: panelSort
       });
       
+      // 按 sort 值降序排序，sort 值越大越靠近底部
+      this.panels.sort((a, b) => b.sort - a.sort);
+      
       // 添加调试打印信息
-      console.log(`[FloatingPanel] 注册面板: ${panelId}, 高度: ${panelHeight}`);
-      console.log(`[FloatingPanel] 当前所有面板:`, this.panels.map(p => ({ id: p.id, height: p.height })));
+      console.log(`[FloatingPanel] 注册面板: ${panelId}, 高度: ${panelHeight}, 排序: ${panelSort}`);
+      console.log(`[FloatingPanel] 当前所有面板:`, this.panels.map(p => ({ id: p.id, height: p.height, sort: p.sort })));
       
       // 通知所有面板更新位置
       this.notifyAllPanels();
@@ -61,7 +65,7 @@ if (!window.floatingPanelsGlobalState) {
     unregisterPanel(panelId) {
       console.log(`[FloatingPanel] 注销面板: ${panelId}`);
       this.panels = this.panels.filter(panel => panel.id !== panelId);
-      console.log(`[FloatingPanel] 注销后剩余面板:`, this.panels.map(p => ({ id: p.id, height: p.height })));
+      console.log(`[FloatingPanel] 注销后剩余面板:`, this.panels.map(p => ({ id: p.id, height: p.height, sort: p.sort })));
       
       // 通知所有面板更新位置
       this.notifyAllPanels();
@@ -129,11 +133,6 @@ const props = defineProps({
     type: [String, Object],
     default: 'window'
   },
-  // 偏移量，当元素距离视口底部小于此值时显示浮动面板
-  offset: {
-    type: Number,
-    default: 100
-  },
   // 浮动面板宽度
   floatingWidth: {
     type: String,
@@ -147,7 +146,7 @@ const props = defineProps({
   // 缩放比例
   scale: {
     type: Number,
-    default: 0.5
+    default: 0.4
   },
   // 防抖延迟时间（毫秒）
   debounceTime: {
@@ -158,6 +157,16 @@ const props = defineProps({
   panelSpacing: {
     type: Number,
     default: 10
+  },
+  // 监听触发器，当这个值变化时会强制重新计算浮动面板位置
+  watchTrigger: {
+    type: [String, Number, Boolean, Object, Array],
+    default: null
+  },
+  // 浮动面板排序，数值越大越靠近底部
+  floatSort: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -169,6 +178,7 @@ const debounceTimer = ref(null);
 const panelId = ref(`floating-panel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 const isPanelRegistered = ref(false); // 添加面板注册状态跟踪
 const panelUpdateTrigger = ref(0); // 添加面板更新触发器
+const externalTrigger = ref(0); // 添加外部触发器
 
 // 面板更新回调函数
 const panelUpdateCallback = () => {
@@ -176,10 +186,54 @@ const panelUpdateCallback = () => {
   panelUpdateTrigger.value++;
 };
 
+// 监听外部触发器变化
+watch(() => props.watchTrigger, () => {
+  console.log(`[FloatingPanel] 外部触发器变化，强制重新计算位置`);
+  externalTrigger.value++;
+  
+  // 使用 nextTick 确保 DOM 更新完成后再检查
+  nextTick(() => {
+    // 重新检查元素是否在视口内
+    const shouldShowFloating = isElementInViewport();
+    
+    console.log(`[FloatingPanel] 外部触发器变化后检查显示状态: ${shouldShowFloating}, 当前显示状态: ${showFloatingPanel.value}`);
+    
+    if (shouldShowFloating !== showFloatingPanel.value) {
+      // 显示状态发生变化，需要更新
+      showFloatingPanel.value = shouldShowFloating;
+      if (shouldShowFloating) {
+        const panelHeight = parseInt(props.floatingHeight) || 200;
+        window.floatingPanelsGlobalState.registerPanel(panelId.value, panelHeight, props.floatSort);
+        isPanelRegistered.value = true;
+      } else {
+        isPanelRegistered.value = false;
+        window.floatingPanelsGlobalState.unregisterPanel(panelId.value);
+      }
+    } else if (showFloatingPanel.value && isPanelRegistered.value) {
+      // 显示状态未变，但面板正在显示，需要强制重新注册以更新位置
+      console.log(`[FloatingPanel] 强制重新注册面板以更新位置`);
+      const panelHeight = parseInt(props.floatingHeight) || 200;
+      window.floatingPanelsGlobalState.registerPanel(panelId.value, panelHeight, props.floatSort);
+    }
+  });
+}, {
+  deep: true // 深度监听，确保对象和数组的变化也能被检测到
+});
+
+// 监听 floatSort 变化，如果排序值变化需要重新注册面板
+watch(() => props.floatSort, (newSort, oldSort) => {
+  if (newSort !== oldSort && showFloatingPanel.value && isPanelRegistered.value) {
+    console.log(`[FloatingPanel] 排序值从 ${oldSort} 变为 ${newSort}，重新注册面板`);
+    const panelHeight = parseInt(props.floatingHeight) || 200;
+    window.floatingPanelsGlobalState.registerPanel(panelId.value, panelHeight, newSort);
+  }
+});
+
 // 计算浮动面板样式
 const floatingPanelStyle = computed(() => {
-  // 使用面板更新触发器来强制重新计算
+  // 使用面板更新触发器和外部触发器来强制重新计算
   const triggerValue = panelUpdateTrigger.value;
+  const externalValue = externalTrigger.value;
   
   // 只有在面板显示且已注册时才计算位置
   if (!showFloatingPanel.value || !isPanelRegistered.value) {
@@ -188,8 +242,8 @@ const floatingPanelStyle = computed(() => {
       width: props.floatingWidth,
       height: props.floatingHeight,
       position: 'fixed',
-      right: '20px',
-      bottom: '-1000px', // 将面板移出视口
+      right: `calc(-1 * ${props.floatingWidth} - 20px)`, // 使用floatingWidth计算向右移动的距离
+      bottom: '20px', // 保持底部位置，让面板向右消失
       zIndex: 1000,
       cursor: 'pointer',
       overflow: 'hidden',
@@ -259,21 +313,33 @@ const initScrollElement = () => {
   }
 };
 
-// 检查元素是否在视口内
+// 检查元素是否在视口内（修改为更准确的判断）
 const isElementInViewport = () => {
-  if (!contentRef.value) return true;
+  if (!contentRef.value) return false;
   
   const rect = contentRef.value.getBoundingClientRect();
   const windowHeight = window.innerHeight || document.documentElement.clientHeight;
   const windowWidth = window.innerWidth || document.documentElement.clientWidth;
   
-  // 检查元素是否在视口内或距离视口底部小于偏移量
-  return (
-    rect.top <= windowHeight - props.offset &&
-    rect.bottom >= 0 &&
-    rect.left <= windowWidth &&
-    rect.right >= 0
+  // 检查元素是否完全在视口内
+  const isFullyVisible = (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= windowHeight &&
+    rect.right <= windowWidth
   );
+  
+  // 检查元素是否部分在视口内（与视口有交集）
+  const isPartiallyVisible = (
+    rect.top < windowHeight &&
+    rect.bottom > 0 &&
+    rect.left < windowWidth &&
+    rect.right > 0
+  );
+  
+  // 如果元素完全可见或部分可见，则不显示浮动面板
+  // 只有当元素完全不在视口内时才显示浮动面板
+  return !(isFullyVisible || isPartiallyVisible);
 };
 
 // 处理滚动事件（添加防抖）
@@ -301,9 +367,7 @@ const handleScroll = () => {
     const contentBottom = contentTop + contentHeight;
     
     // 判断是否应该显示浮动面板：
-    // 1. 元素顶部在视口下方（还未滚动到元素）
-    // 2. 元素底部在视口上方（已经滚动超过元素）
-    const shouldShowFloating = rect.top > windowHeight || rect.bottom < 0;
+     const shouldShowFloating = rect.bottom > windowHeight;
     
     console.log(`[FloatingPanel] 面板 ${panelId.value} 滚动处理 - 显示状态: ${showFloatingPanel.value}, 是否应该显示: ${shouldShowFloating}, 滚动位置: ${scrollTop}, 内容底部: ${contentBottom}`);
     
@@ -319,7 +383,7 @@ const handleScroll = () => {
       showFloatingPanel.value = shouldShowFloating;
       if (shouldShowFloating) {
         const panelHeight = parseInt(props.floatingHeight) || 200;
-        window.floatingPanelsGlobalState.registerPanel(panelId.value, panelHeight);
+        window.floatingPanelsGlobalState.registerPanel(panelId.value, panelHeight, props.floatSort);
         isPanelRegistered.value = true; // 更新注册状态
         // 不再需要手动触发更新，因为registerPanel会通知所有面板
       } else {
@@ -340,7 +404,7 @@ const scrollToContent = () => {
     ? window.pageYOffset || document.documentElement.scrollTop
     : scrollElement.value.scrollTop;
   
-  const targetScrollTop = scrollTop + rect.top - 20; // 20px 的额外偏移
+  const targetScrollTop = scrollTop + rect.top - 60; // 20px 的额外偏移
   
   if (scrollElement.value === window) {
     window.scrollTo({
@@ -433,7 +497,7 @@ onUnmounted(() => {
   // 其他样式通过 computed 属性动态设置
 }
 
-// 从右往左进入的动画
+// 从右往左进入，往右消失的动画
 .slide-in-right-enter-active {
   transition: all 0.3s ease-out;
 }
@@ -448,7 +512,7 @@ onUnmounted(() => {
 }
 
 .slide-in-right-leave-to {
-  transform: translateX(100%);
+  transform: translateX(120%) translateY(0); // 明确往右消失，不往下
   opacity: 0;
 }
 </style>

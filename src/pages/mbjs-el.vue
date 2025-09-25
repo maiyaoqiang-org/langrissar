@@ -347,13 +347,18 @@
           </el-tab-pane>
           <el-tab-pane label="圣镜" name="圣镜">
             <div flex="cross:top">
-              <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
-                <el-radio-group v-model="formData.sjjc_input_can_edit">
-                  <el-radio :value="false" label="默认满" />
-                  <br>
-                  <el-radio :value="true" label="自定义" />
-                </el-radio-group>
-              </el-form-item>
+              <div>
+                <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
+                  <el-radio-group v-model="formData.sjjc_input_can_edit">
+                    <el-radio :value="false" label="默认满" />
+                    <br>
+                    <el-radio :value="true" label="自定义" />
+                  </el-radio-group>
+                </el-form-item>
+                <el-button style="display: block;" v-if="formData.sjjc_input_can_edit" type="primary" @click="setSJJCToZero">
+                  设置成0
+                </el-button>
+              </div>
               <div>
                 <div v-if="configData.showHero">
                   <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
@@ -487,27 +492,41 @@
             </template>
           </el-table-column>
         </el-table>
-        <div flex>
-          <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
-            :src="currentSelectedJob?.['英雄头像']" alt="">
-          <div class="green-list" style="max-width:400px;">
-            <div class="item" style="width:300px;" v-for="key in mianbanList" :key="key">
-              <div class="label" style="width:100px;">
-                {{ key }}
-              </div>
-              <div class="value" flex style="gap:8px;">
-                <div style="color:#333;">
-                  {{ formData.bz[key] }}
-                </div>
-                <div>+</div>
-                <div>
-                  {{ lz[key] }}
-                </div>
+        <FloatingPanel
+          :floatSort="1"
+          :watchTrigger="[configData.showHero,configData.showSoldier]"
+          floating-width="400px"
+          floating-height="100px"
+          scrollContainer="#page-container">
+          <div flex>
+            <img v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
+              :src="currentSelectedJob?.['英雄头像']" alt="">
+            <div style="margin-left:32px;">
+              <div v-for="key in mianbanList" :key="key" style="font-weight: bold;font-size: 24px;">
+                {{ key }}：
+                {{ formData.bz[key] }}
+                <span class="green" style="font-size: 24px;"> + {{ lz[key] }}</span>
               </div>
             </div>
+            <!-- <div class="green-list" style="max-width:400px;">
+              <div class="item" style="width:300px;margin-bottom: 0;font-weight: bold;" v-for="key in mianbanList" :key="key">
+                <div class="label" style="width:100px;">
+                  {{ key }}
+                </div>
+                <div class="value" flex style="gap:8px;">
+                  <div style="color:#333;">
+                    {{ formData.bz[key] }}
+                  </div>
+                  <div>+</div>
+                  <div>
+                    {{ lz[key] }}
+                  </div>
+                </div>
+              </div>
+            </div> -->
           </div>
-
-        </div>
+        </FloatingPanel>
+        
       </el-card>
 
       <el-card v-show="configData.showHero" class="mb_16">
@@ -920,28 +939,36 @@
         <template #header>
           士兵白字区
         </template>
-        <div style="width:1000px;display: flex;">
-          <div style="width:90px;">
-            <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
-            <div style="color:#999;text-align: center;">
-              {{ currentSelectedJob?.['英雄名'] }}
+        <FloatingPanel
+          :floatSort="2"
+          :watchTrigger="[configData.showHero,configData.showSoldier]"
+          floating-width="400px"
+          floating-height="90px"
+          scrollContainer="#page-container">
+          <div style="width:1000px;display: flex;">
+            <div style="width:90px;">
+              <img style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="">
+              <div style="color:#999;text-align: center;">
+                {{ currentSelectedJob?.['英雄名'] }}
+              </div>
+            </div>
+            <div style="width:130px;">
+              <img style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="">
+              <div style="color:#999;text-align: center;">
+                {{ sb_selected_row?.['士兵名'] }}
+              </div>
+            </div>
+            <div style="margin-left: 60px;">
+              <div v-for="(item, key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;">
+                {{ key }}：
+                {{ round(item, 2) }}
+                <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
+                }}（{{ round(formData.yx_bx_jc?.["兵修" + key] * 100) }}%）</span>
+              </div>
             </div>
           </div>
-          <div style="width:130px;">
-            <img style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="">
-            <div style="color:#999;text-align: center;">
-              {{ sb_selected_row?.['士兵名'] }}
-            </div>
-          </div>
-          <div style="margin-left: 60px;">
-            <div v-for="(item, key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;">
-              {{ key }}：
-              {{ round(item, 2) }}
-              <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
-              }}（{{ round(formData.yx_bx_jc?.["兵修" + key] * 100) }}%）</span>
-            </div>
-          </div>
-        </div>
+        </FloatingPanel>
+        
       </el-card>
 
       <el-card v-show="configData.showSoldier" class="mb_16">
@@ -1175,7 +1202,7 @@ import zdyLogo from '@/static/image/自定义英雄头像.png'
 import zdyZY from '@/static/image/自定义职业图标.png'
 // import sbFileData from '../static/data/梦战士兵数据.csv?raw'
 // import sbKjFileData from '../static/data/梦战士兵科技数据.csv?raw'
-
+import FloatingPanel from '../components/FloatingPanel.vue';
 
 const prefix = "langrissar-calculator-mbjs-el-"
 const heroList = useRefCache(`${prefix}heroList`, [])
@@ -1625,6 +1652,15 @@ watchEffect(() => {
     reset_sjjc()
   }
 })
+const setSJJCToZero = ()=>{
+  formData.value.sjjc = {
+    ...sjjc_yx_max,
+    ...sjjc_sb_max,
+  }
+  Object.keys(formData.value.sjjc).forEach(key => {
+    formData.value.sjjc[key] = 0
+  })
+}
 
 const reset_zw = () => {
   const fieldsToConvert = mianbanList;
