@@ -350,7 +350,7 @@
               <div>
                 <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
                   <el-radio-group v-model="formData.sjjc_input_can_edit">
-                    <el-radio :value="false" label="默认0" />
+                    <el-radio :value="false" label="默认满" />
                     <br>
                     <el-radio :value="true" label="自定义" />
                   </el-radio-group>
@@ -524,7 +524,7 @@
             </div>
           </div> -->
         </div>
-        
+
       </el-card>
 
       <el-card v-show="configData.showHero" class="mb_16">
@@ -959,7 +959,7 @@
             </div>
           </div>
         </div>
-        
+
       </el-card>
 
       <el-card v-show="configData.showSoldier" class="mb_16">
@@ -1646,8 +1646,8 @@ const setSJJCToZero = ()=>{
 }
 watchEffect(() => {
   if (!formData.value.sjjc_input_can_edit) {
-    // reset_sjjc()
-    setSJJCToZero()
+    reset_sjjc()
+    // setSJJCToZero()
   }
 })
 
