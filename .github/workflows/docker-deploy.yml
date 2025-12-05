@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - main
+      - test
 
 jobs:
-  build-and-deploy:
+  # 生产环境部署
+  build-and-deploy-production:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    name: Production Deploy
 
     steps:
       - name: Checkout code
@@ -58,6 +62,72 @@ jobs:
             MESSAGE="✅ 部署成功: langrissar-jsq 已成功部署到生产环境"
           else
             MESSAGE="❌ 部署失败: langrissar-jsq 部署过程中出现错误"
+          fi
+          curl -X POST \
+          https://open.feishu.cn/open-apis/bot/v2/hook/71e11faf-9eb4-40e3-9469-6456237497cd \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "msg_type": "text",
+            "content": {
+              "text": "'"$MESSAGE"'"
+            }
+          }'
+
+  # 测试环境部署
+  build-and-deploy-test:
+    if: github.ref == 'refs/heads/test'
+    runs-on: ubuntu-latest
+    name: Test Deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Aliyun ACR
+        env:
+          ACR_USER: ${{ secrets.ACR_USERNAME }}
+          ACR_PASS: ${{ secrets.ACR_PASSWORD }}
+        run: |
+          echo "$ACR_PASS" | docker login crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com -u "$ACR_USER" --password-stdin
+          echo "ACR login successful"
+
+      - name: Build and Push
+        env:
+          VITE_APP_AV_APP_ID: ${{ secrets.VITE_APP_AV_APP_ID }}
+          VITE_APP_AV_APP_KEY: ${{ secrets.VITE_APP_AV_APP_KEY }}
+          VITE_APP_AV_SERVER_URL: ${{ secrets.VITE_APP_AV_SERVER_URL }}
+        run: |
+          cp .env.test .env.production.bak
+          echo "VITE_APP_AV_APP_ID=$VITE_APP_AV_APP_ID" > .env.production
+          echo "VITE_APP_AV_APP_KEY=$VITE_APP_AV_APP_KEY" >> .env.production
+          echo "VITE_APP_AV_SERVER_URL=$VITE_APP_AV_SERVER_URL" >> .env.production
+          cat .env.production.bak >> .env.production
+          docker buildx build --push --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:test .
+
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            docker pull crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:test
+            docker stop langrissar-jsq-test || true
+            docker rm langrissar-jsq-test || true
+            docker run -d --restart unless-stopped -p 3101:80 --name langrissar-jsq-test \
+              -e VITE_APP_API_URL=${VITE_APP_API_URL:-/api} \
+              crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:test
+
+      - name: Send Feishu Notification
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            MESSAGE="✅ 部署成功: langrissar-jsq-test 已成功部署到测试环境"
+          else
+            MESSAGE="❌ 部署失败: langrissar-jsq-test 部署过程中出现错误"
           fi
           curl -X POST \
           https://open.feishu.cn/open-apis/bot/v2/hook/71e11faf-9eb4-40e3-9469-6456237497cd \
