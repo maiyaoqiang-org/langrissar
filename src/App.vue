@@ -33,7 +33,7 @@
       </el-header>
       <el-main id="page-container">
         <router-view></router-view>
-        <HideContentButton />
+        <!-- <HideContentButton /> -->
       </el-main>
       <el-footer height="40px">
         <div class="footer-content">
