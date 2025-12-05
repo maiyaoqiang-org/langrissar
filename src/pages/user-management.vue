@@ -59,7 +59,7 @@
                 <el-form-item label="用户名">
                     <el-input v-model="addForm.username" />
                 </el-form-item>
-                <el-form-item label="手机号">
+                <el-form-item label="手机号" prop="phone">
                     <el-input v-model="addForm.phone" />
                 </el-form-item>
                 <el-form-item label="角色">
@@ -83,11 +83,11 @@
 
         <!-- 编辑用户对话框 -->
         <el-dialog v-model="showEditDialog" title="编辑用户" width="30%">
-            <el-form :model="editForm" label-width="80px">
+            <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="80px">
                 <el-form-item label="用户名">
                     <el-input v-model="editForm.username" />
                 </el-form-item>
-                <el-form-item label="手机号">
+                <el-form-item label="手机号" prop="phone">
                     <el-input v-model="editForm.phone" />
                 </el-form-item>
                 <el-form-item label="角色">
@@ -163,6 +163,10 @@ const addFormRules = {
             },
             trigger: 'blur'
         }
+    ],
+    phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
     ]
 }
 
@@ -172,6 +176,17 @@ const editForm = ref({
     phone: '',
     role: ''
 })
+
+// 编辑表单验证规则
+const editFormRules = {
+    phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
+    ]
+}
+
+// 编辑表单引用
+const editFormRef = ref(null)
 
 const showPasswordDialog = ref(false)
 const passwordFormRef = ref(null)
@@ -255,8 +270,11 @@ const handleEdit = (user) => {
 
 // 更新用户
 const handleUpdateUser = async () => {
+    if (!editFormRef.value) return
+    await editFormRef.value.validate()
     await updateUser(editForm.value)
     showEditDialog.value = false
+    ElMessage.success('用户信息更新成功')
     fetchUsers()
     
 }
