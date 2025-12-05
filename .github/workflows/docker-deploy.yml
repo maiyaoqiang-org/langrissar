@@ -60,7 +60,7 @@ jobs:
             MESSAGE="❌ 部署失败: langrissar-jsq 部署过程中出现错误"
           fi
           curl -X POST \
-          https://open.feishu.cn/open-apis/bot/v2/hook/77f093f4-a3a6-41cc-8f38-167cdcb49b8c \
+          https://open.feishu.cn/open-apis/bot/v2/hook/71e11faf-9eb4-40e3-9469-6456237497cd \
           -H 'Content-Type: application/json' \
           -d '{
             "msg_type": "text",
