@@ -327,7 +327,7 @@ const handleToggleStatus = async (user) => {
     } catch (error) {
         // 用户点击取消或关闭弹窗时，不做任何操作
         if (error !== 'cancel') {
-            ElMessage.error('操作失败')
+            // ElMessage.error('操作失败')
         }
     }
 }
