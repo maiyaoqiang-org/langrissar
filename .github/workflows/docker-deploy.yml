@@ -64,7 +64,7 @@ jobs:
             MESSAGE="❌ 部署失败: langrissar-jsq 部署过程中出现错误"
           fi
           curl -X POST \
-          https://open.feishu.cn/open-apis/bot/v2/hook/71e11faf-9eb4-40e3-9469-6456237497cd \
+          https://open.feishu.cn/open-apis/bot/v2/hook/ee497ee5-5649-4408-8aa3-e8a21d502c5b \
           -H 'Content-Type: application/json' \
           -d '{
             "msg_type": "text",
@@ -130,7 +130,7 @@ jobs:
             MESSAGE="❌ 部署失败: langrissar-jsq-test 部署过程中出现错误"
           fi
           curl -X POST \
-          https://open.feishu.cn/open-apis/bot/v2/hook/71e11faf-9eb4-40e3-9469-6456237497cd \
+          https://open.feishu.cn/open-apis/bot/v2/hook/ee497ee5-5649-4408-8aa3-e8a21d502c5b \
           -H 'Content-Type: application/json' \
           -d '{
             "msg_type": "text",
