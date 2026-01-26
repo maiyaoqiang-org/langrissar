@@ -480,7 +480,7 @@
             <el-form-item
                 label-width="200px"
                 label="英雄打英雄的动画丢失段数">
-              <el-input-number v-model="formData.yxdb_dhds" :min="0"/>
+              <el-input-number v-model="formData.yxdyx_dhds" :min="0"/>
             </el-form-item>
           </div>
         </div>
