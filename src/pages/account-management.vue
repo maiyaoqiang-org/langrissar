@@ -9,6 +9,7 @@
       <el-button type="primary" @click="handleAutoVIPWeeklyReward">自动领取VIP每周奖励</el-button>
       <el-button type="primary" @click="handleAutoVIPMonthlyReward">自动领取VIP每月奖励</el-button>
       <el-button type="primary" @click="handleAutoVIPSignReward">自动领取VIP签到奖励</el-button>
+      <el-button type="primary" @click="handleRunCurlTemplate">临时活动(cURL)一键领取</el-button>
       <el-button type="danger" @click="handleClearCdkeyCache">清除所有CDKey缓存</el-button>
     </div>
 
@@ -84,6 +85,13 @@
     </el-card>
 
     <el-dialog v-model="rewardDialogVisible" :title="rewardDialogTitle" width="900px">
+      <div v-if="rewardAction === 'curlTemplate'" style="margin-bottom:12px;">
+        <el-alert type="info" :closable="false" show-icon style="margin-bottom:8px;">
+          <div>支持占位符：${role_id} ${server_id} ${user_id} ${account_id} ${username} ${app_key}</div>
+          <div>把 cURL 里对应参数改成占位符即可对所有选中账号批量执行</div>
+        </el-alert>
+        <el-input v-model="curlTemplateText" type="textarea" :rows="7" placeholder="粘贴 cURL 命令，例如：curl 'https://activity.zlongame.com/...' -H 'User-Agent: ...' --data-raw 'roleid=${role_id}&ext1=${server_id}'" />
+      </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>已选 {{ rewardSelectedRows.length }} 个账号</div>
         <div>
@@ -120,6 +128,75 @@
         <el-button @click="rewardDialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="rewardSubmitting" @click="handleRewardConfirm">确定</el-button>
       </template>
+    </el-dialog>
+
+    <el-dialog v-model="curlResultDialogVisible" title="cURL执行结果" width="1100px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          总计 {{ curlResultSummary.total }} 个账号，成功 {{ curlResultSummary.success }}，失败 {{ curlResultSummary.fail }}
+        </div>
+        <el-button @click="curlResultDialogVisible = false">关闭</el-button>
+      </div>
+      <el-table :data="curlResultRows" border height="620">
+        <el-table-column type="expand" width="55">
+          <template #default="props">
+            <div style="padding: 8px 12px;">
+              <div style="margin-bottom:8px;">
+                <div>URL：{{ props.row.request?.url || '-' }}</div>
+                <div>Method：{{ props.row.request?.method || '-' }}</div>
+                <div>Status：{{ props.row.request?.status ?? '-' }}</div>
+                <div v-if="props.row.error" style="color:#c45656;">Error：{{ props.row.error }}</div>
+              </div>
+              <div v-if="props.row.request?.curl?.powershell" style="margin-bottom:8px;">
+                <div style="margin-bottom:6px;">实际执行的 cURL（PowerShell）：</div>
+                <el-input
+                  type="textarea"
+                  :rows="4"
+                  :model-value="props.row.request.curl.powershell"
+                  readonly
+                />
+              </div>
+              <el-input
+                type="textarea"
+                :rows="14"
+                :model-value="formatJson(props.row.response)"
+                readonly
+              />
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="username" label="用户名" width="200" />
+        <el-table-column label="结果" width="110">
+          <template #default="scope">
+            <el-tag :type="scope.row.success ? 'success' : 'danger'">
+              {{ scope.row.success ? '成功' : '失败' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="HTTP" width="90">
+          <template #default="scope">
+            {{ scope.row.request?.status ?? '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="URL">
+          <template #default="scope">
+            <el-tooltip :content="scope.row.request?.url || '-'" placement="top" :disabled="!(scope.row.request?.url)">
+              <div style="max-width: 620px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ scope.row.request?.url || '-' }}
+              </div>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="error" label="错误" width="220">
+          <template #default="scope">
+            <el-tooltip :content="scope.row.error || ''" placement="top" :disabled="!scope.row.error">
+              <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ scope.row.error || '-' }}
+              </div>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-dialog>
 
     <!-- 合并后的账号对话框 -->
@@ -180,7 +257,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import PrefixInput from '@/components/PrefixInput.vue'
 import { useUserStore } from '@/stores/user'
 import { getHomeGameList } from '@/api/server'
@@ -203,10 +280,10 @@ import {
   getVipHomeGameList,
   queryRoleList,
   setAccountStatus,
-  getCdkeyRewardForAccount
+  getCdkeyRewardForAccount,
+  runCurlTemplate
 } from "../api/server";
 import { getServerData } from "@/api/mz";
-import JsonInput from '@/components/JsonInput.vue'
 
 onMounted(() => {
   getServerData().then((res) => {
@@ -326,6 +403,10 @@ const handleAutoVIPMonthlyReward = async () => {
 
 const handleAutoVIPSignReward = async () => {
   await openRewardDialog('vipSign');
+};
+
+const handleRunCurlTemplate = async () => {
+  await openRewardDialog('curlTemplate');
 };
 
 const handleClearCdkeyCache = async () => {
@@ -510,6 +591,23 @@ const rewardAccounts = ref([])
 const rewardSelectedRows = ref([])
 const rewardSubmitting = ref(false)
 const rewardTableRef = ref(null)
+const curlTemplateText = ref('')
+const curlResultDialogVisible = ref(false)
+const curlResultRows = ref([])
+const curlResultSummary = computed(() => {
+  const total = curlResultRows.value.length
+  const success = curlResultRows.value.filter(r => r.success).length
+  return { total, success, fail: total - success }
+})
+const formatJson = (value) => {
+  if (value === undefined) return ''
+  if (typeof value === 'string') return value
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch (e) {
+    return String(value)
+  }
+}
 
 const getRewardActionMeta = (action) => {
   switch (action) {
@@ -529,6 +627,8 @@ const getRewardActionMeta = (action) => {
       return { title: '自动领取VIP每月奖励 - 选择账号', filter: (a) => a.status === 1 && a.zlVip?.id && a.appKey }
     case 'vipSign':
       return { title: '自动领取VIP签到奖励 - 选择账号', filter: (a) => a.status === 1 && a.zlVip?.id }
+    case 'curlTemplate':
+      return { title: '临时活动(cURL模板) - 选择账号', filter: (a) => a.status === 1 }
     default:
       return { title: '选择账号', filter: (a) => a.status === 1 }
   }
@@ -539,6 +639,9 @@ const openRewardDialog = async (action) => {
   rewardDialogTitle.value = meta.title
   rewardAction.value = action
   rewardSelectedRows.value = []
+  if (action === 'curlTemplate') {
+    curlTemplateText.value = ''
+  }
   rewardDialogVisible.value = true
 
   const res = await getAccounts({
@@ -620,6 +723,15 @@ const handleRewardConfirm = async () => {
         type: 'success',
         dangerouslyUseHTMLString: true
       })
+    } else if (rewardAction.value === 'curlTemplate') {
+      const curl = (curlTemplateText.value || '').trim()
+      if (!curl) {
+        ElMessage.warning('请先粘贴 cURL')
+        return
+      }
+      const results = await runCurlTemplate(curl, accountIds)
+      curlResultRows.value = results || []
+      curlResultDialogVisible.value = true
     } else {
       ElMessage.error('未知领奖类型')
       return

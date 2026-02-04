@@ -184,6 +184,10 @@ export const autoVIPSignReward = async (accountIds) => {
   return await api.post('/account/auto-vip-sign-reward', { accountIds });
 };
 
+export const runCurlTemplate = async (curl, accountIds) => {
+  return await api.post('/account/run-curl-template', { curl, accountIds });
+};
+
 // 清除CDKey缓存
 export const clearCdkeyCache = async () => {
   return await api.get('/account/clear-cdkey-cache');
