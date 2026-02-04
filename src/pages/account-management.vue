@@ -95,11 +95,15 @@
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>已选 {{ rewardSelectedRows.length }} 个账号</div>
         <div>
+          <el-select v-model="rewardGameFilter" style="width:260px;margin-right:8px;" placeholder="按游戏筛选" clearable>
+            <el-option label="未设置" value="__NULL__" />
+            <el-option v-for="item in homeGameList" :key="item.appKey" :label="item.name" :value="item.appKey" />
+          </el-select>
           <el-button @click="handleRewardSelectAll">全选</el-button>
           <el-button @click="handleRewardClearSelection">清空</el-button>
         </div>
       </div>
-      <el-table ref="rewardTableRef" :data="rewardAccounts" row-key="id" border height="520"
+      <el-table ref="rewardTableRef" :data="rewardAccountsView" row-key="id" border height="520"
         @selection-change="handleRewardSelectionChange">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="username" label="用户名" width="180" />
@@ -591,6 +595,14 @@ const rewardAccounts = ref([])
 const rewardSelectedRows = ref([])
 const rewardSubmitting = ref(false)
 const rewardTableRef = ref(null)
+const rewardGameFilter = ref('')
+const rewardAccountsView = computed(() => {
+  const list = rewardAccounts.value || []
+  const f = rewardGameFilter.value
+  if (!f) return list
+  if (f === '__NULL__') return list.filter((a) => !a.appKey)
+  return list.filter((a) => String(a.appKey) === String(f))
+})
 const curlTemplateText = ref('')
 const curlResultDialogVisible = ref(false)
 const curlResultRows = ref([])
@@ -639,6 +651,7 @@ const openRewardDialog = async (action) => {
   rewardDialogTitle.value = meta.title
   rewardAction.value = action
   rewardSelectedRows.value = []
+  rewardGameFilter.value = ''
   if (action === 'curlTemplate') {
     curlTemplateText.value = ''
   }
@@ -661,14 +674,22 @@ const handleRewardSelectionChange = (rows) => {
 const handleRewardSelectAll = () => {
   if (!rewardTableRef.value) return
   rewardTableRef.value.clearSelection()
-  rewardAccounts.value.forEach((row) => {
+  rewardAccountsView.value.forEach((row) => {
     rewardTableRef.value.toggleRowSelection(row, true)
   })
 }
 
 const handleRewardClearSelection = () => {
   rewardTableRef.value?.clearSelection?.()
+  rewardSelectedRows.value = []
 }
+
+watch(rewardGameFilter, async () => {
+  if (!rewardDialogVisible.value) return
+  rewardSelectedRows.value = []
+  await nextTick()
+  rewardTableRef.value?.clearSelection?.()
+})
 
 const handleRewardConfirm = async () => {
   const accountIds = rewardSelectedRows.value.map((r) => r.id)
