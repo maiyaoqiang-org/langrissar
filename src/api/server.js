@@ -137,29 +137,23 @@ export const deleteAccount = async (id) => {
 };
 
 // 获取每日福利
-export const getPredayReward = async () => {
-  return await api.get('/account/get-preday-reward');
+export const getPredayReward = async (accountIds) => {
+  return await api.post('/account/get-preday-reward', { accountIds });
 };
 
 // 获取每周福利
-export const getWeeklyReward = async () => {
-  return await api.get('/account/get-weekly-reward');
+export const getWeeklyReward = async (accountIds) => {
+  return await api.post('/account/get-weekly-reward', { accountIds });
 };
 
 // 获取每月福利
-export const getMonthlyReward = async () => {
-  return await api.get('/account/get-monthly-reward');
+export const getMonthlyReward = async (accountIds) => {
+  return await api.post('/account/get-monthly-reward', { accountIds });
 };
 
 // 获取CDKey奖励
-export const getCdkeyReward = async (cdkey) => {
-  return await api({
-    url: `/account/get-cdkey-reward`,
-    method: 'get',
-    params: {
-      cdkey
-    },
-  });
+export const getCdkeyReward = async (cdkey, accountIds) => {
+  return await api.post('/account/get-cdkey-reward', { cdkey, accountIds });
 };
 
 export const getCdkeyRewardForAccount = async (cdkey, accountId) => {
@@ -174,20 +168,20 @@ export const getCdkeyRewardForAccount = async (cdkey, accountId) => {
 };
 
 // 自动获取CDKey奖励
-export const autoCdkeyReward = async () => {
-  return await api.get('/account/auto-cdkey-reward');
+export const autoCdkeyReward = async (accountIds) => {
+  return await api.post('/account/auto-cdkey-reward', { accountIds });
 };
 
-export const autoVIPWeeklyReward = async () => {
-  return await api.get('/account/auto-vip-weekly-reward');
+export const autoVIPWeeklyReward = async (accountIds) => {
+  return await api.post('/account/auto-vip-weekly-reward', { accountIds });
 };
 
-export const autoVIPMonthlyReward = async () => {
-  return await api.get('/account/auto-vip-monthly-reward');
+export const autoVIPMonthlyReward = async (accountIds) => {
+  return await api.post('/account/auto-vip-monthly-reward', { accountIds });
 };
 
-export const autoVIPSignReward = async () => {
-  return await api.get('/account/auto-vip-sign-reward');
+export const autoVIPSignReward = async (accountIds) => {
+  return await api.post('/account/auto-vip-sign-reward', { accountIds });
 };
 
 // 清除CDKey缓存

@@ -83,6 +83,45 @@
 
     </el-card>
 
+    <el-dialog v-model="rewardDialogVisible" :title="rewardDialogTitle" width="900px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>已选 {{ rewardSelectedRows.length }} 个账号</div>
+        <div>
+          <el-button @click="handleRewardSelectAll">全选</el-button>
+          <el-button @click="handleRewardClearSelection">清空</el-button>
+        </div>
+      </div>
+      <el-table ref="rewardTableRef" :data="rewardAccounts" row-key="id" border height="520"
+        @selection-change="handleRewardSelectionChange">
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="username" label="用户名" width="180" />
+        <el-table-column prop="appKey" label="游戏" width="200">
+          <template #default="scope">
+            {{ scope.row.appKey ? homeGameList.find(item => item.appKey === scope.row.appKey)?.name : '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="userid" label="用户ID" width="160" />
+        <el-table-column prop="roleid" label="角色ID" />
+        <el-table-column prop="serverid" label="服务器ID" width="140" />
+        <el-table-column prop="zlVipId" label="紫龙会员" width="160">
+          <template #default="scope">
+            {{ scope.row.zlVip?.name || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="80">
+          <template #default="scope">
+            <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
+              {{ scope.row.status === 1 ? '启用' : '禁用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <el-button @click="rewardDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="rewardSubmitting" @click="handleRewardConfirm">确定</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 合并后的账号对话框 -->
     <el-dialog v-model="showAccountDialog" width="800px">
       <template #header>
@@ -258,67 +297,35 @@ const handleDelete = async (account) => {
   }
 };
 const handleGetPredayReward = async () => {
-  await getPredayReward();
-  ElMessage.success('每日福利领取成功');
+  await openRewardDialog('preday');
 };
 
 const handleGetWeeklyReward = async () => {
-  await getWeeklyReward();
-  ElMessage.success('每周二雪莉福利领取成功');
+  await openRewardDialog('weekly');
 };
 
 const handleGetMonthlyReward = async () => {
-  await getMonthlyReward();
-  ElMessage.success('每月8号福利领取成功');
+  await openRewardDialog('monthly');
 };
 
 const handleGetCdkeyReward = async () => {
-  const { value: cdkey } = await ElMessageBox.prompt('请输入CDKey', 'CDKey奖励', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-  });
-  if (cdkey) {
-    await getCdkeyReward(cdkey);
-    ElMessage.success('CDKey奖励领取成功');
-  }
+  await openRewardDialog('cdkey');
 };
 
 const handleAutoCdkeyReward = async () => {
-  await autoCdkeyReward();
-  ElMessage.success('自动CDKey奖励领取成功');
+  await openRewardDialog('autoCdkey');
 };
 
 const handleAutoVIPWeeklyReward = async () => {
-  const res = await autoVIPWeeklyReward();
-  // 将 \n 替换为 <br> 标签
-  const formattedRes = res.replace(/\n/g, '<br>');
-  ElNotification({
-    message: formattedRes,
-    type: 'success',
-    dangerouslyUseHTMLString: true // 允许使用 HTML 内容
-  });
+  await openRewardDialog('vipWeekly');
 };
 
 const handleAutoVIPMonthlyReward = async () => {
-  const res = await autoVIPMonthlyReward();
-  // 将 \n 替换为 <br> 标签
-  const formattedRes = res.replace(/\n/g, '<br>');
-  ElNotification({
-    message: formattedRes,
-    type: 'success',
-    dangerouslyUseHTMLString: true // 允许使用 HTML 内容
-  });
+  await openRewardDialog('vipMonthly');
 };
 
 const handleAutoVIPSignReward = async () => {
-  const res = await autoVIPSignReward();
-  // 将 \n 替换为 <br> 标签
-  const formattedRes = res.replace(/\n/g, '<br>');
-  ElNotification({
-    message: formattedRes,
-    type: 'success',
-    dangerouslyUseHTMLString: true // 允许使用 HTML 内容
-  });
+  await openRewardDialog('vipSign');
 };
 
 const handleClearCdkeyCache = async () => {
@@ -494,6 +501,135 @@ const handleGetCdkeyRewardForAccount = async (account) => {
     }
   }
 };
+
+const MZ_APPKEY = 1486458782785
+const rewardDialogVisible = ref(false)
+const rewardDialogTitle = ref('')
+const rewardAction = ref('')
+const rewardAccounts = ref([])
+const rewardSelectedRows = ref([])
+const rewardSubmitting = ref(false)
+const rewardTableRef = ref(null)
+
+const getRewardActionMeta = (action) => {
+  switch (action) {
+    case 'preday':
+      return { title: '领取每日福利 - 选择账号', filter: (a) => a.status === 1 && (a.appKey === null || a.appKey === MZ_APPKEY) }
+    case 'weekly':
+      return { title: '领取每周二雪莉福利 - 选择账号', filter: (a) => a.status === 1 && (a.appKey === null || a.appKey === MZ_APPKEY) }
+    case 'monthly':
+      return { title: '领取每月8号福利 - 选择账号', filter: (a) => a.status === 1 && (a.appKey === null || a.appKey === MZ_APPKEY) }
+    case 'cdkey':
+      return { title: '领取CDKey奖励 - 选择账号', filter: (a) => a.status === 1 && (a.appKey === null || a.appKey === MZ_APPKEY) }
+    case 'autoCdkey':
+      return { title: '自动领取CDKey奖励 - 选择账号', filter: (a) => a.status === 1 && (a.appKey === null || a.appKey === MZ_APPKEY) }
+    case 'vipWeekly':
+      return { title: '自动领取VIP每周奖励 - 选择账号', filter: (a) => a.status === 1 && a.zlVip?.id && a.appKey }
+    case 'vipMonthly':
+      return { title: '自动领取VIP每月奖励 - 选择账号', filter: (a) => a.status === 1 && a.zlVip?.id && a.appKey }
+    case 'vipSign':
+      return { title: '自动领取VIP签到奖励 - 选择账号', filter: (a) => a.status === 1 && a.zlVip?.id }
+    default:
+      return { title: '选择账号', filter: (a) => a.status === 1 }
+  }
+}
+
+const openRewardDialog = async (action) => {
+  const meta = getRewardActionMeta(action)
+  rewardDialogTitle.value = meta.title
+  rewardAction.value = action
+  rewardSelectedRows.value = []
+  rewardDialogVisible.value = true
+
+  const res = await getAccounts({
+    ...filterForm.value,
+    page: 1,
+    pageSize: 1000
+  })
+  rewardAccounts.value = (res.items || []).filter(meta.filter)
+  await nextTick()
+  rewardTableRef.value?.clearSelection?.()
+}
+
+const handleRewardSelectionChange = (rows) => {
+  rewardSelectedRows.value = rows || []
+}
+
+const handleRewardSelectAll = () => {
+  if (!rewardTableRef.value) return
+  rewardTableRef.value.clearSelection()
+  rewardAccounts.value.forEach((row) => {
+    rewardTableRef.value.toggleRowSelection(row, true)
+  })
+}
+
+const handleRewardClearSelection = () => {
+  rewardTableRef.value?.clearSelection?.()
+}
+
+const handleRewardConfirm = async () => {
+  const accountIds = rewardSelectedRows.value.map((r) => r.id)
+  if (!accountIds.length) {
+    ElMessage.warning('请先选择账号')
+    return
+  }
+
+  rewardSubmitting.value = true
+  try {
+    if (rewardAction.value === 'preday') {
+      await getPredayReward(accountIds)
+      ElMessage.success(`每日福利领取已发起（${accountIds.length}个账号）`)
+    } else if (rewardAction.value === 'weekly') {
+      await getWeeklyReward(accountIds)
+      ElMessage.success(`每周二雪莉福利领取已发起（${accountIds.length}个账号）`)
+    } else if (rewardAction.value === 'monthly') {
+      await getMonthlyReward(accountIds)
+      ElMessage.success(`每月8号福利领取已发起（${accountIds.length}个账号）`)
+    } else if (rewardAction.value === 'cdkey') {
+      const { value: cdkey } = await ElMessageBox.prompt('请输入CDKey', 'CDKey奖励', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      });
+      if (!cdkey) return
+      await getCdkeyReward(cdkey, accountIds)
+      ElMessage.success(`CDKey奖励领取已发起（${accountIds.length}个账号）`)
+    } else if (rewardAction.value === 'autoCdkey') {
+      await autoCdkeyReward(accountIds)
+      ElMessage.success(`自动CDKey奖励领取已发起（${accountIds.length}个账号）`)
+    } else if (rewardAction.value === 'vipWeekly') {
+      const res = await autoVIPWeeklyReward(accountIds)
+      const formattedRes = res.replace(/\n/g, '<br>')
+      ElNotification({
+        message: formattedRes,
+        type: 'success',
+        dangerouslyUseHTMLString: true
+      })
+    } else if (rewardAction.value === 'vipMonthly') {
+      const res = await autoVIPMonthlyReward(accountIds)
+      const formattedRes = res.replace(/\n/g, '<br>')
+      ElNotification({
+        message: formattedRes,
+        type: 'success',
+        dangerouslyUseHTMLString: true
+      })
+    } else if (rewardAction.value === 'vipSign') {
+      const res = await autoVIPSignReward(accountIds)
+      const formattedRes = res.replace(/\n/g, '<br>')
+      ElNotification({
+        message: formattedRes,
+        type: 'success',
+        dangerouslyUseHTMLString: true
+      })
+    } else {
+      ElMessage.error('未知领奖类型')
+      return
+    }
+
+    rewardDialogVisible.value = false
+  } finally {
+    rewardSubmitting.value = false
+  }
+}
 
 </script>
 
