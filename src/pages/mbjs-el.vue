@@ -1700,13 +1700,15 @@ const reset_sq_cxzz = () => {
 const set_sq_cxzz_max = () => {
   const maxMap = sq_slsb_table_columns.reduce((acc, col) => {
     if (col?.prop && col.prop !== "名称" && col.max !== undefined) {
-      acc[col.prop] = col.max
+      const raw = Number(col.max)
+      const v = col.isPercent ? raw / 100 : raw
+      acc[col.prop] = Number.isFinite(v) ? v : 0
     }
     return acc
   }, {})
 
   sq_cxzz.value = sqKeyList.reduce((acc, key) => {
-    acc[key] = maxMap[key] ?? 0
+    acc[key] = Number(maxMap[key] ?? 0)
     return acc
   }, {})
 }
@@ -1843,7 +1845,9 @@ const set_fm_column_max = (column) => {
   formData.value.fm_input?.forEach((row) => {
     const max = column?.maxList?.[row?.部位] ?? column?.max
     if (max === undefined || max === Infinity) return
-    row[column.prop] = max
+    const raw = Number(max)
+    const v = column.isPercent ? raw / 100 : raw
+    row[column.prop] = Number.isFinite(v) ? v : 0
   })
 }
 const reset_fm_column = (column) => {
