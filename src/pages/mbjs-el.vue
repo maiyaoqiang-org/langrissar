@@ -95,6 +95,8 @@
               神契设置区
             </div>
             <div style="margin-left: auto;">
+              <el-button type="success" @click="set_sq_cxzz_max">一键点满</el-button>
+              <el-button type="warning" @click="reset_sq_cxzz">重置数据</el-button>
               <el-button @click="export_sq_cxzz">导出神契设置</el-button>
               <el-button type="primary" @click="import_sq_cxzz">导入神契设置</el-button>
             </div>
@@ -245,6 +247,15 @@
             <el-table :data="fmShowData">
               <el-table-column v-for="(item, index) in fmInputTableColumns" :key="index" :width="item.width"
                 :fixed="item.fixed" :label="item.label" :prop="item.prop">
+                <template #header>
+                  <div style="text-align: center;">
+                    <div>{{ item.label }}</div>
+                    <div v-if="item.label !== '部位'" style="margin-top: 4px;">
+                      <el-button size="small" type="success" @click.stop="set_fm_column_max(item)">点满</el-button>
+                      <el-button size="small" type="warning" @click.stop="reset_fm_column(item)">重置</el-button>
+                    </div>
+                  </div>
+                </template>
                 <template #default="scope">
                   <template v-if="item.label === '部位'">
                     {{ scope.row.部位 }}
@@ -1523,7 +1534,7 @@ const defaultFormData = {
   zyjt: _.cloneDeep(mianbanDefault),
   zw_input_can_edit: false,
   zw: _.cloneDeep(mianbanDefault),
-  selected_sq: "",
+  selected_sq: "索尔",
   sdsr_pd: true,
   bjl: _.cloneDeep(mianbanDefault),
   jjjt_sfm: true,
@@ -1683,6 +1694,22 @@ const sqExcelOption = sqKeyList.map((item) => {
     key: item,
   }
 })
+const reset_sq_cxzz = () => {
+  sq_cxzz.value = getDefaultSqValue()
+}
+const set_sq_cxzz_max = () => {
+  const maxMap = sq_slsb_table_columns.reduce((acc, col) => {
+    if (col?.prop && col.prop !== "名称" && col.max !== undefined) {
+      acc[col.prop] = col.max
+    }
+    return acc
+  }, {})
+
+  sq_cxzz.value = sqKeyList.reduce((acc, key) => {
+    acc[key] = maxMap[key] ?? 0
+    return acc
+  }, {})
+}
 const export_sq_cxzz = () => {
   exportExcelFun({
     data: [sq_cxzz.value],
@@ -1810,6 +1837,22 @@ const fmShowData = computed(() => {
     total
   ]
 })
+const set_fm_column_max = (column) => {
+  if (!column?.prop || column.label === "部位") return
+
+  formData.value.fm_input?.forEach((row) => {
+    const max = column?.maxList?.[row?.部位] ?? column?.max
+    if (max === undefined || max === Infinity) return
+    row[column.prop] = max
+  })
+}
+const reset_fm_column = (column) => {
+  if (!column?.prop || column.label === "部位") return
+
+  formData.value.fm_input?.forEach((row) => {
+    row[column.prop] = 0
+  })
+}
 
 const sq_zjc = computed(() => {
   if (!formData.value.selected_sq || formData.value.selected_sq === '未携带') {
