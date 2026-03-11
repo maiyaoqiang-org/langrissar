@@ -156,6 +156,10 @@
 
         <el-tabs model-value="装备" style="min-height: 300px;">
           <el-tab-pane class="item-w-340" label="装备" name="装备">
+            <div style="margin-bottom:16px;">
+              <el-button type="success" @click="set_attack_equip_set">一键设置攻击套装</el-button>
+              <el-button type="primary" @click="set_int_equip_set">一键设置智力套装</el-button>
+            </div>
             <div flex>
               <div>
                 <template v-for="(formKey, key) in wqFormKey" :key="key">
@@ -1785,6 +1789,18 @@ const wqFormKey = {
   衣服: "yx_yf",
   头饰: "yx_ts",
   饰品: "yx_sp",
+}
+const set_attack_equip_set = () => {
+  formData.value.yx_sp = "审判魔符"
+  formData.value.yx_ts = "提尔之怒"
+  formData.value.yx_wq = "熔鳞之怒"
+  formData.value.yx_yf = "浩劫角铠"
+}
+const set_int_equip_set = () => {
+  formData.value.yx_sp = "星之耳坠"
+  formData.value.yx_ts = "天女头饰"
+  formData.value.yx_wq = "红色之月"
+  formData.value.yx_yf = "天女羽衣"
 }
 
 const wqSelectedObj = computed(() => {
