@@ -1547,7 +1547,7 @@ const defaultFormData = {
   bdxl_pd: "满血",
   zb_tx: _.cloneDeep(mianbanDefault),
   zc_qt_jc: _.cloneDeep(mianbanDefault),
-  cj_pd: false,
+  cj_pd: true,
   zh_pd_fj: false,
   zh_pd_dt: false,
   ...fz_list.reduce((acc, item) => {
