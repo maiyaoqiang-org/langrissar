@@ -134,7 +134,7 @@ const changePasswordDialogRef = ref(null)
 const handleCommand = (command) => {
   if (command === 'logout') {
     userStore.logout()
-    pageAgentManagerRef.value?.stop()
+    pageAgentManagerRef.value?.dispose()
     router.push('/pages/login')
   } else if (command === 'changePassword') {
     changePasswordDialogRef.value?.show()

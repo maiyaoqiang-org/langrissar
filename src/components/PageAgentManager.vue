@@ -38,9 +38,9 @@ const toggle = () => {
   }
 }
 
-const stop = () => {
+const dispose = () => {
   if (agent.value) {
-    agent.value.stop() // 这会触发 onDispose
+    agent.value.dispose() // This will trigger onDispose
   }
 }
 
@@ -52,7 +52,6 @@ const confirmModelAndStartAgent = () => {
   agent.value = new PageAgent({
     model: selectedModel.value,
     baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    // 请将 YOUR_API_KEY 替换为您的有效 API Key
     apiKey: 'sk-3f662761e4344d88818b75d845a9a923',
     language: 'zh-CN',
     onDispose: () => {
@@ -67,7 +66,7 @@ const confirmModelAndStartAgent = () => {
 
 defineExpose({
   toggle,
-  stop,
+  dispose,
   isPanelVisible: readonly(isPanelVisible),
   agent: readonly(agent)
 })
