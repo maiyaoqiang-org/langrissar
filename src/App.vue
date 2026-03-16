@@ -12,6 +12,9 @@
       <el-header>
         <div class="header-content">
           <div style="flex-grow: 1"></div>
+          <el-button v-if="userStore.isAuthenticated" type="primary" @click="toggleAgent" style="margin-right: 12px;">
+            {{ pageAgentManagerRef?.isPanelVisible ? '关闭' : '开启' }} Agent
+          </el-button>
           <el-button v-if="!userStore.user" type="primary" @click="router.push('/pages/login')">登录</el-button>
           <div class="user-info" v-if="userStore.user">
             <el-dropdown @command="handleCommand">
@@ -43,6 +46,7 @@
     </el-container>
   </el-container>
   <ChangePasswordDialog ref="changePasswordDialogRef" />
+  <PageAgentManager ref="pageAgentManagerRef" />
 </template>
 
 <script setup>
@@ -51,9 +55,16 @@ import { useRouter } from 'vue-router'
 import { menuRoutes } from '@/router'
 import { computed, ref } from 'vue'
 import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue'
-import HideContentButton from './components/HideContentButton.vue';
+import HideContentButton from './components/HideContentButton.vue'
+import PageAgentManager from '@/components/PageAgentManager.vue'
 
 import RecursiveMenu from '@/components/RecursiveMenu.vue'
+
+const pageAgentManagerRef = ref(null)
+
+const toggleAgent = () => {
+  pageAgentManagerRef.value?.toggle()
+}
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -123,6 +134,7 @@ const changePasswordDialogRef = ref(null)
 const handleCommand = (command) => {
   if (command === 'logout') {
     userStore.logout()
+    pageAgentManagerRef.value?.stop()
     router.push('/pages/login')
   } else if (command === 'changePassword') {
     changePasswordDialogRef.value?.show()
