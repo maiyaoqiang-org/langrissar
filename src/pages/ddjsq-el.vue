@@ -687,7 +687,7 @@ const yxdb_ddbj_sh = computed(() => {
 });
 const yxdyx_dd_sh = computed(() => {
   let formula
-  switch (formData.value.sbsh_lx) {
+  switch (formData.value.yxsh_lx) {
     case AttackType.magic.value:
       formula = "(gf_yxzl*(1+gf_yxdyx_gzkzxs) - sf_yxmf*(1+sf_yxdyx_sfkzxs+sf_dxxz)*(1-gf_yx_wsfy)) * gf_yxjnbl * (1+gf_yx_tyzs- sf_yx_mf_tyjs) * (1+gf_yx_jnzs-sf_yx_jnjs) * (1+gf_yx_yczs-sf_yx_ycjs) * (1+gf_yx_qtzs-sf_yx_qtjs) * 0.5"
       break;
