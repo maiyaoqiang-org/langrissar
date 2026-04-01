@@ -353,3 +353,49 @@ export const deleteUsedCdkey = async (id) => {
 export const checkCdkeyUsed = async (cdkey) => {
   return await api.get(`/used-cdkeys/check/${cdkey}`);
 };
+
+// 定时任务相关接口
+// 分页查询定时任务
+export const queryCronJobs = async (data) => {
+  return await api.get('/cron-job', { params: data });
+};
+
+// 创建定时任务
+export const createCronJob = async (data) => {
+  return await api.post('/cron-job', data);
+};
+
+// 更新定时任务
+export const updateCronJob = async (id, data) => {
+  return await api.put(`/cron-job/${id}`, data);
+};
+
+// 删除定时任务
+export const deleteCronJob = async (id) => {
+  return await api.delete(`/cron-job/${id}`);
+};
+
+// 切换任务状态
+export const toggleCronJobStatus = async (id) => {
+  return await api.put(`/cron-job/${id}/toggle`);
+};
+
+// 手动执行任务
+export const executeCronJob = async (id) => {
+  return await api.post(`/cron-job/${id}/execute`);
+};
+
+// 获取任务统计信息
+export const getCronJobStats = async (id) => {
+  return await api.get(`/cron-job/${id}/stats`);
+};
+
+// 查询执行日志
+export const queryCronJobLogs = async (data) => {
+  return await api.get('/cron-job/logs/list', { params: data });
+};
+
+// 验证cron表达式
+export const validateCronExpression = async (expression) => {
+  return await api.post('/cron-job/validate-cron', { expression });
+};

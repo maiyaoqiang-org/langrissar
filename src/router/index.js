@@ -107,7 +107,12 @@ export const menuRoutes = [
             path: '/pages/leancloud-hero-add',
             component: () => import('@/pages/leancloud-hero-add.vue'),
             meta: { title: 'BP英雄管理工具', requiresAuth: true, requiresAdmin: false }
-          }
+          },
+          {
+            path: '/pages/cron-job',
+            component: () => import('@/pages/cron-job.vue'),
+            meta: { title: '定时任务管理', requiresAuth: true, requiresAdmin: true }
+          },
         ]
       },
 ]
