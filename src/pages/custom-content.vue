@@ -18,7 +18,11 @@
 
     <!-- 数据表格 -->
     <el-table :data="tableData" border style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="id" label="ID" width="160">
+        <template #default="{ row }">
+          <CopyText :text="row.id" />
+        </template>
+      </el-table-column>
       <el-table-column prop="key" label="标识键" width="180">
         <template #default="{ row }">
           <span>{{ row.key || '-' }}</span>
@@ -33,7 +37,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="isActive" label="状态" width="100">
+      <el-table-column prop="isActive" label="状态" width="160">
         <template #default="{ row }">
           <el-switch
             v-has-role="'admin'"
@@ -47,6 +51,17 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="isPublic" label="外部访问" width="160">
+        <template #default="{ row }">
+          <el-switch
+            v-has-role="'admin'"
+            :model-value="row.isPublic"
+            @change="handleTogglePublic(row)"
+            active-text="允许"
+            inactive-text="禁止"
+          />
+        </template>
+      </el-table-column>
       <el-table-column prop="description" label="描述" width="160" show-overflow-tooltip>
         <template #default="{ row }">
           <span>{{ row.description || '-' }}</span>
@@ -54,11 +69,12 @@
       </el-table-column>
       <el-table-column prop="createdAt" label="创建时间" width="160" />
       <el-table-column prop="updatedAt" label="更新时间" width="160" />
-      <el-table-column label="操作" width="220" fixed="right">
+      <el-table-column label="操作" width="280" fixed="right">
         <template #default="{ row }">
           <el-button size="small" @click="handleView(row)">查看</el-button>
           <el-button v-has-role="'admin'" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button v-has-role="'admin'" size="small" type="danger" @click="handleDelete(row)">删除</el-button>
+          <el-button v-if="row.isActive && row.isPublic" size="small" type="success" @click="handleCopyPublicUrl(row)">复制地址</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -114,6 +130,10 @@
         <el-form-item label="描述说明" prop="description">
           <el-input v-model="formData.description" type="textarea" :rows="2" placeholder="描述说明（可选）" />
         </el-form-item>
+        <el-form-item label="外部访问">
+          <el-switch v-model="formData.isPublic" active-text="允许" inactive-text="禁止" />
+          <span class="ml_8 text-muted">允许后可通过公开接口访问此内容</span>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -136,6 +156,11 @@
         <el-descriptions-item label="状态">
           <el-tag :type="viewData.isActive ? 'success' : 'info'" size="small">
             {{ viewData.isActive ? '启用' : '停用' }}
+          </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="外部访问">
+          <el-tag :type="viewData.isPublic ? 'success' : 'info'" size="small">
+            {{ viewData.isPublic ? '允许' : '禁止' }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="描述" :span="2">{{ viewData.description || '-' }}</el-descriptions-item>
@@ -283,7 +308,7 @@ const data = await res.json();</pre>
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { queryCustomContent, createCustomContent, updateCustomContent, deleteCustomContent, toggleCustomContent } from '@/api/server'
+import { queryCustomContent, createCustomContent, updateCustomContent, deleteCustomContent, toggleCustomContent, toggleCustomContentPublic } from '@/api/server'
 
 const activeTab = ref('management')
 
@@ -313,7 +338,8 @@ const formData = reactive({
   title: '',
   content: '',
   contentType: 'text',
-  description: ''
+  description: '',
+  isPublic: false
 })
 
 const rules = {
@@ -364,7 +390,8 @@ const handleAdd = () => {
     title: '',
     content: '',
     contentType: 'text',
-    description: ''
+    description: '',
+    isPublic: false
   })
   dialogVisible.value = true
 }
@@ -378,7 +405,8 @@ const handleEdit = (row) => {
     title: row.title,
     content: row.content,
     contentType: row.contentType,
-    description: row.description
+    description: row.description,
+    isPublic: row.isPublic
   })
   dialogVisible.value = true
 }
@@ -397,6 +425,37 @@ const handleToggle = async (row) => {
     loadData()
   } catch (error) {
     ElMessage.error('操作失败')
+  }
+}
+
+/** 切换外部访问状态 */
+const handleTogglePublic = async (row) => {
+  try {
+    await toggleCustomContentPublic(row.id)
+    ElMessage.success(row.isPublic ? '已禁止外部访问' : '已允许外部访问')
+    loadData()
+  } catch (error) {
+    ElMessage.error('操作失败')
+  }
+}
+
+/** 复制公开请求地址 */
+const handleCopyPublicUrl = async (row) => {
+  const baseUrl = 'https://maiyaoqiang.fun/api/custom-content/public'
+  const url = row.key ? `${baseUrl}/key/${row.key}` : `${baseUrl}/id/${row.id}`
+  try {
+    await navigator.clipboard.writeText(url)
+    ElMessage.success('已复制请求地址')
+  } catch (e) {
+    const textarea = document.createElement('textarea')
+    textarea.value = url
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    ElMessage.success('已复制请求地址')
   }
 }
 

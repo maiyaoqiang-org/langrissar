@@ -8,6 +8,7 @@ import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import router from './router'
 import { hasRole } from './directives/hasRole'
+import CopyText from './components/CopyText.vue'
 
 AV.init({
 	appId: import.meta.env.VITE_APP_AV_APP_ID,
@@ -32,6 +33,7 @@ const piniaPersistedState = createPersistedState({
 pinia.use(piniaPersistedState)
 app.use(pinia)
 app.use(router)
+app.component('CopyText', CopyText)
 app.mount('#app')
 app.directive('has-role', hasRole)
 
