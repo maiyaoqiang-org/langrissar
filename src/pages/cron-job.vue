@@ -280,6 +280,43 @@
           <el-input-number v-model="formData.retryCount" :min="0" :max="10" />
           <span class="ml_8 text-muted">次</span>
         </el-form-item>
+
+        <el-form-item label="自定义变量">
+          <div class="variable-config">
+            <el-alert type="info" :closable="false" class="mb_8" v-if="variableList.length > 0">
+              在目标URL、请求头、请求体或CURL命令中使用 <code>{{ '\{\{变量名\}\}' }}</code> 引用变量值
+            </el-alert>
+            <div v-for="(v, index) in variableList" :key="index" class="variable-row mb_8">
+              <el-input
+                v-model="v.name"
+                placeholder="变量名（如 appid）"
+                style="width: 180px"
+                class="mr_8"
+              />
+              <el-select
+                v-model="v.customContentId"
+                filterable
+                remote
+                reserve-keyword
+                placeholder="搜索选择自定义内容"
+                :remote-method="handleContentSearch"
+                :loading="false"
+                style="width: 320px"
+                class="mr_8"
+                value-key="id"
+              >
+                <el-option
+                  v-for="item in customContentOptions"
+                  :key="item.id"
+                  :label="getContentLabel(item)"
+                  :value="item.id"
+                />
+              </el-select>
+              <el-button type="danger" size="small" @click="removeVariable(index)">删除</el-button>
+            </div>
+            <el-button type="primary" link @click="addVariable">+ 添加变量</el-button>
+          </div>
+        </el-form-item>
       </el-form>
 
       <template #footer>
@@ -423,6 +460,7 @@ import {
   executeCronJob,
   queryCronJobLogs,
   validateCronExpression,
+  searchCustomContent,
 } from '@/api/server'
 
 const activeTab = ref('management')
@@ -455,6 +493,7 @@ const formData = reactive({
   curlCommand: '',
   timeout: 30000,
   retryCount: 0,
+  variables: '[]',
 })
 
 const rules = {
@@ -501,6 +540,59 @@ const allJobs = ref([])
 
 const logDetailVisible = ref(false)
 const currentLog = ref(null)
+
+const variableList = ref([])
+const customContentOptions = ref([])
+let searchTimer = null
+
+/** 添加一个变量 */
+const addVariable = () => {
+  variableList.value.push({ name: '', customContentId: '' })
+}
+
+/** 删除指定变量 */
+const removeVariable = (index) => {
+  variableList.value.splice(index, 1)
+}
+
+/** 远程搜索自定义内容 */
+const remoteSearchContent = async (keyword) => {
+  try {
+    const res = await searchCustomContent(keyword)
+    customContentOptions.value = res
+  } catch (error) {
+    customContentOptions.value = []
+  }
+}
+
+/** 防抖搜索自定义内容 */
+const handleContentSearch = (keyword) => {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    remoteSearchContent(keyword)
+  }, 300)
+}
+
+/** 获取自定义内容的显示标签 */
+const getContentLabel = (item) => {
+  return item.key ? `${item.title} (${item.key})` : item.title
+}
+
+/** 将变量列表序列化为 JSON 字符串 */
+const serializeVariables = () => {
+  const validVars = variableList.value.filter(v => v.name && v.customContentId)
+  return JSON.stringify(validVars)
+}
+
+/** 从 JSON 字符串解析变量列表 */
+const parseVariables = (jsonStr) => {
+  try {
+    const parsed = JSON.parse(jsonStr || '[]')
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
 
 const cronExamples = [
   { expression: '0 * * * * *', description: '每分钟执行' },
@@ -579,7 +671,10 @@ const handleAdd = () => {
     curlCommand: '',
     timeout: 30000,
     retryCount: 0,
+    variables: '[]',
   })
+  variableList.value = []
+  customContentOptions.value = []
   cronValidation.value = null
   dialogVisible.value = true
 }
@@ -600,7 +695,22 @@ const handleEdit = async (row) => {
     curlCommand: row.curlCommand,
     timeout: row.timeout || 30000,
     retryCount: row.retryCount || 0,
+    variables: row.variables || '[]',
   })
+  variableList.value = parseVariables(row.variables)
+  if (variableList.value.length > 0) {
+    const ids = variableList.value.map(v => v.customContentId).filter(Boolean)
+    if (ids.length > 0) {
+      try {
+        const res = await searchCustomContent('')
+        customContentOptions.value = res
+      } catch (e) {
+        customContentOptions.value = []
+      }
+    }
+  } else {
+    customContentOptions.value = []
+  }
   validateCron()
   dialogVisible.value = true
 }
@@ -694,6 +804,7 @@ const handleSubmit = async () => {
       submitLoading.value = true
       try {
         const data = { ...formData }
+        data.variables = serializeVariables()
         if (data.taskType === 'url') {
           data.curlCommand = undefined
         } else {
@@ -842,6 +953,15 @@ onMounted(() => {
   .cron-helper {
     .el-form-item {
       margin-bottom: 16px;
+    }
+  }
+
+  .variable-config {
+    width: 100%;
+
+    .variable-row {
+      display: flex;
+      align-items: center;
     }
   }
 

@@ -430,3 +430,8 @@ export const deleteCustomContent = async (id) => {
 export const toggleCustomContent = async (id) => {
   return await api.put(`/custom-content/${id}/toggle`);
 };
+
+// 搜索自定义内容（精简列表，用于变量选择）
+export const searchCustomContent = async (keyword) => {
+  return await api.get('/custom-content/search', { params: { keyword } });
+};
