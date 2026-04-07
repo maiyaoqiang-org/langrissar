@@ -399,3 +399,34 @@ export const queryCronJobLogs = async (data) => {
 export const validateCronExpression = async (expression) => {
   return await api.post('/cron-job/validate-cron', { expression });
 };
+
+// 自定义内容相关接口
+// 分页查询自定义内容
+export const queryCustomContent = async (data) => {
+  return await api.get('/custom-content', { params: data });
+};
+
+// 创建自定义内容
+export const createCustomContent = async (data) => {
+  return await api.post('/custom-content', data);
+};
+
+// 根据ID获取自定义内容
+export const getCustomContent = async (id) => {
+  return await api.get(`/custom-content/detail/${id}`);
+};
+
+// 更新自定义内容
+export const updateCustomContent = async (id, data) => {
+  return await api.put(`/custom-content/${id}`, data);
+};
+
+// 删除自定义内容
+export const deleteCustomContent = async (id) => {
+  return await api.delete(`/custom-content/${id}`);
+};
+
+// 切换启用/停用状态
+export const toggleCustomContent = async (id) => {
+  return await api.put(`/custom-content/${id}/toggle`);
+};

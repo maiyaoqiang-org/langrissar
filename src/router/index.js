@@ -113,6 +113,11 @@ export const menuRoutes = [
             component: () => import('@/pages/cron-job.vue'),
             meta: { title: '定时任务管理', requiresAuth: true, requiresAdmin: true }
           },
+          {
+            path: '/pages/custom-content',
+            component: () => import('@/pages/custom-content.vue'),
+            meta: { title: '自定义内容管理', requiresAuth: true, requiresAdmin: true }
+          },
         ]
       },
 ]
