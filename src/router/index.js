@@ -133,6 +133,11 @@ const routes = [
     meta: { title: '测试' }
   },
   {
+    path: '/single/issues',
+    component: () => import('@/single/issues.vue'),
+    meta: { title: '问题反馈', requiresAuth: false, layout: 'blank' }
+  },
+  {
     path: '/pages/login',
     component: () => import('@/pages/login.vue'),
     meta: { title: '登录' }
