@@ -118,6 +118,11 @@ export const menuRoutes = [
             component: () => import('@/pages/custom-content.vue'),
             meta: { title: '自定义内容管理', requiresAuth: true, requiresAdmin: true }
           },
+          {
+            path: '/pages/issue-feedback-management',
+            component: () => import('@/pages/issue-feedback-management.vue'),
+            meta: { title: '问题反馈管理', requiresAuth: true, requiresAdmin: true }
+          },
         ]
       },
 ]

@@ -440,3 +440,20 @@ export const toggleCustomContentPublic = async (id) => {
 export const searchCustomContent = async (keyword) => {
   return await api.get('/custom-content/search', { params: { keyword } });
 };
+
+// 问题反馈相关接口
+export const queryIssueFeedback = async (data) => {
+  return await api.post('/issue/admin/query', data);
+};
+
+export const getIssueFeedbackDetail = async (id) => {
+  return await api.get(`/issue/admin/${id}`);
+};
+
+export const updateIssueFeedback = async (id, data) => {
+  return await api.put(`/issue/admin/${id}`, data);
+};
+
+export const deleteIssueFeedback = async (id) => {
+  return await api.delete(`/issue/admin/${id}`);
+};
