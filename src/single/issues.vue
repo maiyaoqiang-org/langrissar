@@ -17,6 +17,9 @@ const captchaInput = ref('')
 
 const imageFiles = ref([])
 const videoFiles = ref([])
+const imageInputRef = ref(null)
+const videoInputRef = ref(null)
+const previewUrlMap = new Map()
 
 /** 获取验证码 */
 const refreshCaptcha = async () => {
@@ -25,31 +28,117 @@ const refreshCaptcha = async () => {
   captchaInput.value = ''
 }
 
+/** 生成文件唯一key（用于去重/删除） */
+const getFileKey = (file) => {
+  return `${file.name}__${file.size}__${file.lastModified}`
+}
+
+/** 获取预览URL（会缓存，避免重复创建ObjectURL） */
+const getPreviewUrl = (file) => {
+  const key = getFileKey(file)
+  const existed = previewUrlMap.get(key)
+  if (existed) return existed
+  const url = URL.createObjectURL(file)
+  previewUrlMap.set(key, url)
+  return url
+}
+
+/** 释放预览URL（删除文件/重置时调用，避免内存泄漏） */
+const revokePreviewUrl = (file) => {
+  const key = getFileKey(file)
+  const url = previewUrlMap.get(key)
+  if (!url) return
+  URL.revokeObjectURL(url)
+  previewUrlMap.delete(key)
+}
+
+/** 清理所有预览URL */
+const clearAllPreviewUrls = () => {
+  for (const url of previewUrlMap.values()) {
+    URL.revokeObjectURL(url)
+  }
+  previewUrlMap.clear()
+}
+
+/** 格式化文件大小 */
+const formatSize = (bytes) => {
+  if (!Number.isFinite(bytes)) return ''
+  if (bytes < 1024) return `${bytes}B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)}GB`
+}
+
 /** 选择图片 */
 const onSelectImages = (e) => {
   const files = Array.from(e?.target?.files || [])
-  imageFiles.value = files
+  if (!files.length) return
+
+  const existed = new Set(imageFiles.value.map((f) => getFileKey(f)))
+  const merged = [...imageFiles.value]
+  for (const f of files) {
+    const key = getFileKey(f)
+    if (!existed.has(key)) {
+      merged.push(f)
+      existed.add(key)
+    }
+  }
+  imageFiles.value = merged
+
+  if (imageInputRef.value) {
+    imageInputRef.value.value = ''
+  }
 }
 
 /** 选择视频（最多5个） */
 const onSelectVideos = (e) => {
   const files = Array.from(e?.target?.files || [])
-  videoFiles.value = files.slice(0, 5)
-  if (files.length > 5) {
+  if (!files.length) return
+
+  const existed = new Set(videoFiles.value.map((f) => getFileKey(f)))
+  const merged = [...videoFiles.value]
+  for (const f of files) {
+    const key = getFileKey(f)
+    if (!existed.has(key)) {
+      merged.push(f)
+      existed.add(key)
+    }
+  }
+
+  if (merged.length > 5) {
     alert('最多上传5个视频')
   }
+  videoFiles.value = merged.slice(0, 5)
+
+  if (videoInputRef.value) {
+    videoInputRef.value.value = ''
+  }
+}
+
+/** 删除已选图片 */
+const removeImage = (file) => {
+  revokePreviewUrl(file)
+  const key = getFileKey(file)
+  imageFiles.value = imageFiles.value.filter((f) => getFileKey(f) !== key)
+}
+
+/** 删除已选视频 */
+const removeVideo = (file) => {
+  revokePreviewUrl(file)
+  const key = getFileKey(file)
+  videoFiles.value = videoFiles.value.filter((f) => getFileKey(f) !== key)
 }
 
 /** 上传图片（多文件） */
 const uploadImages = async () => {
-  if (!imageFiles.value.length) return []
+  if (!imageFiles.value.length) return { batchId: '', urls: [] }
   const fd = new FormData()
   imageFiles.value.forEach((f) => fd.append('images', f))
   const res = await api.post('/issue/upload/images', fd, {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 0
   })
-  return res?.urls || []
+  return { batchId: res?.batchId || '', urls: res?.urls || [] }
 }
 
 /** 上传单个视频到临时缓存 */
@@ -61,6 +150,28 @@ const uploadTempVideo = async (file) => {
     timeout: 0
   })
   return res?.tempId
+}
+
+/** 清理临时视频（用于提交失败回收） */
+const cleanupTempVideos = async (tempIds) => {
+  const ids = Array.isArray(tempIds) ? tempIds.filter(Boolean) : []
+  if (!ids.length) return
+  await api.post('/issue/upload/video-temp/cleanup', { tempIds: ids })
+}
+
+/** 清理图片批次（用于提交失败回收） */
+const cleanupImageBatch = async (batchId) => {
+  if (!batchId) return
+  await api.delete(`/issue/upload/images/batch/${batchId}`)
+}
+
+/** 提取接口错误信息 */
+const getErrorMessage = (err) => {
+  const msg = err?.response?.data?.message
+  if (Array.isArray(msg)) return msg.join('\n')
+  if (typeof msg === 'string' && msg.trim()) return msg
+  if (typeof err?.message === 'string' && err.message.trim()) return err.message
+  return '提交失败'
 }
 
 /** 提交表单：视频先传完再一次性提交 */
@@ -84,13 +195,17 @@ const submitForm = async () => {
   }
 
   isSubmitting.value = true
+  let imageBatchId = ''
+  let uploadedImageUrls = []
+  const uploadedVideoTempIds = []
   try {
-    const imageUrls = await uploadImages()
+    const imageUpload = await uploadImages()
+    imageBatchId = imageUpload?.batchId || ''
+    uploadedImageUrls = imageUpload?.urls || []
 
-    const videoTempIds = []
     for (const file of videoFiles.value) {
       const tempId = await uploadTempVideo(file)
-      if (tempId) videoTempIds.push(tempId)
+      if (tempId) uploadedVideoTempIds.push(tempId)
     }
 
     await api.post('/issue/submit', {
@@ -98,14 +213,27 @@ const submitForm = async () => {
       question: formData.value.question,
       captchaId: captcha.value.captchaId,
       captcha: captchaInput.value,
-      imageUrls,
-      videoTempIds
+      imageUrls: uploadedImageUrls,
+      imageBatchId,
+      videoTempIds: uploadedVideoTempIds
     })
 
     alert('提交成功')
     formData.value = { nickname: '', question: '' }
+    clearAllPreviewUrls()
     imageFiles.value = []
     videoFiles.value = []
+    if (imageInputRef.value) imageInputRef.value.value = ''
+    if (videoInputRef.value) videoInputRef.value.value = ''
+    await refreshCaptcha()
+  } catch (err) {
+    try {
+      await cleanupTempVideos(uploadedVideoTempIds)
+    } catch {}
+    try {
+      await cleanupImageBatch(imageBatchId)
+    } catch {}
+    alert(getErrorMessage(err))
     await refreshCaptcha()
   } finally {
     isSubmitting.value = false
@@ -152,17 +280,33 @@ onMounted(() => {
 
       <div class="form-item">
         <label class="form-label">上传图片（单张不超过10MB）</label>
-        <input class="form-file" type="file" accept="image/*" multiple @change="onSelectImages" />
+        <input ref="imageInputRef" class="form-file" type="file" accept="image/*" multiple @change="onSelectImages" />
         <div v-if="imageFiles.length" class="file-list">
-          已选择 {{ imageFiles.length }} 张
+          <div class="file-summary">已选择 {{ imageFiles.length }} 张</div>
+          <div class="file-items">
+            <div v-for="file in imageFiles" :key="getFileKey(file)" class="file-item">
+              <img class="file-preview-image" :src="getPreviewUrl(file)" alt="preview" />
+              <div class="file-name">{{ file.name }}</div>
+              <div class="file-meta">{{ formatSize(file.size) }}</div>
+              <button class="file-remove" type="button" @click="removeImage(file)">删除</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="form-item">
         <label class="form-label">上传视频（最多5个，单个不超过200MB）</label>
-        <input class="form-file" type="file" accept="video/*" multiple @change="onSelectVideos" />
+        <input ref="videoInputRef" class="form-file" type="file" accept="video/*" multiple @change="onSelectVideos" />
         <div v-if="videoFiles.length" class="file-list">
-          已选择 {{ videoFiles.length }} 个
+          <div class="file-summary">已选择 {{ videoFiles.length }} 个</div>
+          <div class="file-items">
+            <div v-for="file in videoFiles" :key="getFileKey(file)" class="file-item">
+              <video class="file-preview-video" :src="getPreviewUrl(file)" controls preload="metadata" />
+              <div class="file-name">{{ file.name }}</div>
+              <div class="file-meta">{{ formatSize(file.size) }}</div>
+              <button class="file-remove" type="button" @click="removeVideo(file)">删除</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -313,6 +457,70 @@ div{
   margin-top: 8px;
 }
 
+.file-summary {
+  margin-bottom: 10px;
+}
+
+.file-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.file-preview-image {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  flex: 0 0 auto;
+}
+
+.file-preview-video {
+  width: 96px;
+  height: 54px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+  background: #000;
+  flex: 0 0 auto;
+}
+
+.file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+}
+
+.file-meta {
+  color: #999;
+  white-space: nowrap;
+}
+
+.file-remove {
+  border: none;
+  background: #ff4d4f;
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .captcha-row {
   display: flex;
   align-items: center;
@@ -323,7 +531,6 @@ div{
 
 .captcha-svg {
   flex: 1;
-  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;

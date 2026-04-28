@@ -34,6 +34,9 @@ pinia.use(piniaPersistedState)
 app.use(pinia)
 app.use(router)
 app.component('CopyText', CopyText)
-app.mount('#app')
+/** 等路由就绪后再挂载，避免首次进入特定路由时闪烁到默认页 */
+router.isReady().then(() => {
+	app.mount('#app')
+})
 app.directive('has-role', hasRole)
 
