@@ -89,26 +89,31 @@
           </el-descriptions-item>
           <el-descriptions-item label="图片">
             <div v-if="current.imageUrls?.length" style="display:flex; gap: 10px; flex-wrap: wrap;">
-              <el-image
+              <el-link
                 v-for="(url, idx) in current.imageUrls"
                 :key="idx"
-                :src="url"
-                style="width: 120px; height: 120px;"
-                fit="cover"
-                :preview-src-list="current.imageUrls"
-              />
+                :href="url"
+                target="_blank"
+                rel="noopener noreferrer"
+                type="primary"
+              >
+                图片{{ idx + 1 }}
+              </el-link>
             </div>
             <div v-else>-</div>
           </el-descriptions-item>
           <el-descriptions-item label="视频">
-            <div v-if="current.videoUrls?.length" style="display:flex; gap: 16px; flex-direction: column;">
-              <video
+            <div v-if="current.videoUrls?.length" style="display:flex; gap: 16px;  flex-wrap: wrap;">
+              <el-link
                 v-for="(url, idx) in current.videoUrls"
                 :key="idx"
-                :src="url"
-                controls
-                style="max-width: 100%;"
-              ></video>
+                :href="url"
+                target="_blank"
+                rel="noopener noreferrer"
+                type="primary"
+              >
+                视频{{ idx + 1 }}
+              </el-link>
             </div>
             <div v-else>-</div>
           </el-descriptions-item>
@@ -201,7 +206,7 @@ const handleSave = async () => {
 
 /** 删除记录 */
 const handleDelete = async (id) => {
-  await ElMessageBox.confirm('确认删除该记录并清理资源吗？', '提示', { type: 'warning' })
+  await ElMessageBox.confirm('确认删除该记录吗？', '提示', { type: 'warning' })
   await api.delete(`/issue/admin/${id}`)
   ElMessage.success('删除成功')
   fetchList()
