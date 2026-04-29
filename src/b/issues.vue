@@ -21,6 +21,16 @@ const imageInputRef = ref(null)
 const videoInputRef = ref(null)
 const previewUrlMap = new Map()
 
+/** 打开图片选择框 */
+const openImagePicker = () => {
+  if (imageInputRef.value) imageInputRef.value.click()
+}
+
+/** 打开视频选择框 */
+const openVideoPicker = () => {
+  if (videoInputRef.value) videoInputRef.value.click()
+}
+
 /** 获取验证码 */
 const refreshCaptcha = async () => {
   const res = await getCaptcha()
@@ -281,6 +291,7 @@ onMounted(() => {
 
       <div class="form-item">
         <label class="form-label">上传图片（单张不超过10MB）</label>
+        <button class="pick-btn" type="button" :disabled="isSubmitting" @click="openImagePicker">选择图片</button>
         <input ref="imageInputRef" class="form-file" type="file" accept="image/*" multiple @change="onSelectImages" />
         <div v-if="imageFiles.length" class="file-list">
           <div class="file-summary">已选择 {{ imageFiles.length }} 张</div>
@@ -297,6 +308,7 @@ onMounted(() => {
 
       <div class="form-item">
         <label class="form-label">上传视频（最多5个，单个不超过200MB）</label>
+        <button class="pick-btn" type="button" :disabled="isSubmitting" @click="openVideoPicker">选择视频</button>
         <input ref="videoInputRef" class="form-file" type="file" accept="video/*" multiple @change="onSelectVideos" />
         <div v-if="videoFiles.length" class="file-list">
           <div class="file-summary">已选择 {{ videoFiles.length }} 个</div>
@@ -329,7 +341,63 @@ onMounted(() => {
       <button class="submit-btn" @click="submitForm">
         {{ isSubmitting ? '提交中...' : '提交' }}
       </button>
+
+      
     </div>
+    <div class="tips-box">
+        <div class="tips-text">
+          <div class="tips-paragraph">
+            由于每个梦战版本都会出现很多小小细节的问题与经验结论，微信公众号后台又没法及时收到消息，所以本人墨源开放了一个提交窗口，经验证后会公开给全服玩家查看。
+          </div>
+
+          <div class="tips-paragraph">如果你原意的话，你可以提交：</div>
+          <div class="tips-paragraph">
+            1.近期实战发现的非常有意义的现象（如大表哥开3C再动不能锁住天赋剑域；大表哥射程buff被驱散后，四格打不出手；）
+          </div>
+          <div class="tips-paragraph">
+            2.疑是BUG的问题，描述清楚你发现了什么，是体验服还是正式服（此类一定要带上图或视频，或者把战报挂到名片上留言哪个服务器ID多少，最好带上联系方式并直接加VX：moyuan0719直接沟通，否则光文字说明无法进行验证）
+          </div>
+          <div class="tips-paragraph">
+            3.计算上的验证问题（此类一定要带上图或视频，或者把战报挂到名片上留言哪个服务器ID多少，最好带上联系方式并直接加VX：moyuan0719直接沟通，否则光文字说明无法进行验证）
+          </div>
+          <div class="tips-paragraph">
+            3.其他一些机制上的疑问，或每次大版本更新需要提醒体验服测试的问题
+          </div>
+
+          <div class="tips-paragraph">不接收处理非定性问题：</div>
+          <div class="tips-paragraph">1.抽卡养成问题不处理（雅希抽不抽？大表哥要不要SP？）</div>
+          <div class="tips-paragraph">2.配装和附魔问题不处理（老泰附魔什么？大表哥穿什么装备？穆宁转什么职业？）</div>
+          <div class="tips-paragraph">3.帮计算的问题不处理（索尼娅能杀老泰吗？）</div>
+          <div class="tips-paragraph">4.PVE类问题不处理（不玩PVE，你只能反馈给百科）</div>
+          <div class="tips-paragraph">
+            5.骚扰类问题不处理（别尝试了，我的AI会直接洗掉这类问题，根本收不到，你也浪费不了我的token）
+          </div>
+
+          <div class="tips-paragraph">问题处理结果查看：</div>
+          <div class="tips-paragraph">
+            <a
+              class="tips-link"
+              href="https://my.feishu.cn/wiki/CncJwLteQi7gGikyNsLc8jzOnmM?from=from_copylink"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://my.feishu.cn/wiki/CncJwLteQi7gGikyNsLc8jzOnmM?from=from_copylink
+            </a>
+          </div>
+
+          <div class="tips-paragraph">梦战近期热点结论：</div>
+          <div class="tips-paragraph">
+            <a
+              class="tips-link"
+              href="https://my.feishu.cn/wiki/Du82wwfKpi5RjYkXnqVcQ2q8nJc"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://my.feishu.cn/wiki/Du82wwfKpi5RjYkXnqVcQ2q8nJc
+            </a>
+          </div>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -349,13 +417,12 @@ div{
 .form-header {
   text-align: center;
   color: white;
-  margin-top: 12px;
-  margin-bottom: 24px;
 
   h2 {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    margin-top: 0;
   }
 
   p {
@@ -450,6 +517,24 @@ div{
 
 .form-file {
   width: 100%;
+  display: none;
+}
+
+.pick-btn {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pick-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .file-list {
@@ -552,5 +637,34 @@ div{
   background: #667eea;
   color: #fff;
   cursor: pointer;
+}
+
+.tips-box {
+  margin-top: 18px;
+  padding: 16px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  background: #fafafa;
+}
+
+.tips-text {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.7;
+}
+
+.tips-paragraph {
+  white-space: pre-wrap;
+  margin-bottom: 10px;
+}
+
+.tips-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.tips-link {
+  color: #667eea;
+  text-decoration: underline;
+  word-break: break-all;
 }
 </style>

@@ -138,8 +138,8 @@ const routes = [
     meta: { title: '测试' }
   },
   {
-    path: '/single/issues',
-    component: () => import('@/single/issues.vue'),
+    path: '/b/issues',
+    component: () => import('@/b/issues.vue'),
     meta: { title: '问题反馈', requiresAuth: false, layout: 'blank' }
   },
   {
