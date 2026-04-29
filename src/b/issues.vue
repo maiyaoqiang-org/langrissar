@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { api, getCaptcha } from '@/api/server'
+import { marked } from 'marked'
 
 const formData = ref({
   nickname: '',
@@ -353,6 +354,52 @@ const submitForm = async () => {
   }
 }
 
+marked.setOptions({ gfm: true, breaks: true })
+
+const tipsText = ref(`
+ 由于每个梦战版本都会出现很多小小细节的问题与经验结论，微信公众号后台又没法及时收到消息，所以本人墨源开放了一个提交窗口，经验证后会公开给全服玩家查看。 
+
+如果你原意的话，你可以提交：
+ 1.近期实战发现的非常有意义的现象（如大表哥开3C再动不能锁住天赋剑域；大表哥射程buff被驱散后，四格打不出手；） 
+ 2.疑是BUG的问题，描述清楚你发现了什么，是体验服还是正式服（此类一定要带上图或视频，或者把战报挂到名片上留言哪个服务器ID多少，最好带上联系方式或直接加VX：moyuan0719直接沟通，否则光文字说明无法进行验证） 
+ 3.计算上的验证问题（此类一定要带上图或视频，或者把战报挂到名片上留言哪个服务器ID多少，最好带上联系方式或直接加VX：moyuan0719直接沟通，否则光文字说明无法进行验证） 
+ 4.其他一些机制上的疑问，或每次大版本更新需要提醒体验服测试的问题 
+
+不接收处理非定性问题：
+1.抽卡养成问题不处理（雅希抽不抽？大表哥要不要SP？）
+2.配装和附魔问题不处理（老泰附魔什么？大表哥穿什么装备？穆宁转什么职业？）
+3.帮计算的问题不处理（索尼娅能杀老泰吗？）
+4.PVE类问题不处理（不玩PVE，你只能反馈给百科）
+ 5.骚扰类问题不处理（别尝试了，我的AI会直接洗掉这类问题，根本收不到，你也浪费不了我的token） 
+
+问题处理结果查看
+ https://my.feishu.cn/wiki/CncJwLteQi7gGikyNsLc8jzOnmM?from=from_copylink 
+梦战近期热点结论（看一看，巅峰失误少一半）
+ https://my.feishu.cn/wiki/Du82wwfKpi5RjYkXnqVcQ2q8nJc
+梦战每日日报合集
+https://my.feishu.cn/wiki/SW9cwedagi4ZPxks1Zncq000nGh
+梦战攻略飞书首页
+https://my.feishu.cn/wiki/X7uawMSS8iJenIkRxyMc8VGbnjf
+梦战计算器（网页版）
+https://maiyaoqiang.fun（小程序版本可在VX小程序搜“梦战伤害计算器”）
+
+QQ交流群：825591295
+VX交流群：加moyuan0719备注拉梦战群
+微信公众号：墨源的梦战科普（moyuanmz）
+B站：墨_源
+
+AI解答梦战问题
+https://yuanbao.tencent.com/chat/u4aJAFfJ0stG?spaceId=spOhvkEelOPF
+
+感谢您的支持！
+
+
+`)
+
+/**
+/** 提示文案Markdown渲染结果 */
+const tipsHtml = computed(() => marked.parse(tipsText.value || ''))
+
 onMounted(() => {
   refreshCaptcha()
 })
@@ -451,59 +498,8 @@ onMounted(() => {
       
     </div>
     <div class="tips-box">
-        <div class="tips-text">
-          <div class="tips-paragraph">
-            由于每个梦战版本都会出现很多小小细节的问题与经验结论，微信公众号后台又没法及时收到消息，所以本人墨源开放了一个提交窗口，经验证后会公开给全服玩家查看。
-          </div>
-
-          <div class="tips-paragraph">如果你原意的话，你可以提交：</div>
-          <div class="tips-paragraph">
-            1.近期实战发现的非常有意义的现象（如大表哥开3C再动不能锁住天赋剑域；大表哥射程buff被驱散后，四格打不出手；）
-          </div>
-          <div class="tips-paragraph">
-            2.疑是BUG的问题，描述清楚你发现了什么，是体验服还是正式服（此类一定要带上图或视频，或者把战报挂到名片上留言哪个服务器ID多少，最好带上联系方式并直接加VX：moyuan0719直接沟通，否则光文字说明无法进行验证）
-          </div>
-          <div class="tips-paragraph">
-            3.计算上的验证问题（此类一定要带上图或视频，或者把战报挂到名片上留言哪个服务器ID多少，最好带上联系方式并直接加VX：moyuan0719直接沟通，否则光文字说明无法进行验证）
-          </div>
-          <div class="tips-paragraph">
-            3.其他一些机制上的疑问，或每次大版本更新需要提醒体验服测试的问题
-          </div>
-
-          <div class="tips-paragraph">不接收处理非定性问题：</div>
-          <div class="tips-paragraph">1.抽卡养成问题不处理（雅希抽不抽？大表哥要不要SP？）</div>
-          <div class="tips-paragraph">2.配装和附魔问题不处理（老泰附魔什么？大表哥穿什么装备？穆宁转什么职业？）</div>
-          <div class="tips-paragraph">3.帮计算的问题不处理（索尼娅能杀老泰吗？）</div>
-          <div class="tips-paragraph">4.PVE类问题不处理（不玩PVE，你只能反馈给百科）</div>
-          <div class="tips-paragraph">
-            5.骚扰类问题不处理（别尝试了，我的AI会直接洗掉这类问题，根本收不到，你也浪费不了我的token）
-          </div>
-
-          <div class="tips-paragraph">问题处理结果查看：</div>
-          <div class="tips-paragraph">
-            <a
-              class="tips-link"
-              href="https://my.feishu.cn/wiki/CncJwLteQi7gGikyNsLc8jzOnmM?from=from_copylink"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              https://my.feishu.cn/wiki/CncJwLteQi7gGikyNsLc8jzOnmM?from=from_copylink
-            </a>
-          </div>
-
-          <div class="tips-paragraph">梦战近期热点结论：</div>
-          <div class="tips-paragraph">
-            <a
-              class="tips-link"
-              href="https://my.feishu.cn/wiki/Du82wwfKpi5RjYkXnqVcQ2q8nJc"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              https://my.feishu.cn/wiki/Du82wwfKpi5RjYkXnqVcQ2q8nJc
-            </a>
-          </div>
-        </div>
-      </div>
+      <div class="tips-markdown" v-html="tipsHtml"></div>
+    </div>
   </div>
 </template>
 
@@ -746,6 +742,8 @@ div{
 }
 
 .tips-box {
+  width: 100%;
+  max-width: 400px;
   margin-top: 18px;
   padding: 16px 16px;
   border: 2px solid #e0e0e0;
@@ -753,22 +751,31 @@ div{
   background: #fafafa;
 }
 
-.tips-text {
+.tips-markdown {
   font-size: 13px;
   color: #444;
   line-height: 1.7;
 }
 
-.tips-paragraph {
-  white-space: pre-wrap;
-  margin-bottom: 10px;
+:deep(.tips-markdown p) {
+  margin: 0 0 10px 0;
 }
 
-.tips-paragraph:last-child {
+:deep(.tips-markdown p:last-child) {
   margin-bottom: 0;
 }
 
-.tips-link {
+:deep(.tips-markdown ol),
+:deep(.tips-markdown ul) {
+  margin: 0 0 10px 0;
+  padding-left: 18px;
+}
+
+:deep(.tips-markdown li) {
+  margin: 4px 0;
+}
+
+:deep(.tips-markdown a) {
   color: #667eea;
   text-decoration: underline;
   word-break: break-all;

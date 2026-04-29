@@ -24,6 +24,7 @@
     "leancloud-storage": "^4.15.2",
     "lodash": "^4.17.21",
     "mathjs": "^14.0.1",
+    "marked": "^15.0.12",
     "page-agent": "^1.5.7",
     "pinia": "^3.0.2",
     "pinia-plugin-persistedstate": "^4.2.0",
