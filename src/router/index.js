@@ -121,7 +121,7 @@ export const menuRoutes = [
           {
             path: '/pages/issue-feedback-management',
             component: () => import('@/pages/issue-feedback-management.vue'),
-            meta: { title: '问题反馈管理', requiresAuth: true, requiresAdmin: true }
+            meta: { title: '问题反馈管理', requiresAuth: true, requiresAdmin: false }
           },
         ]
       },

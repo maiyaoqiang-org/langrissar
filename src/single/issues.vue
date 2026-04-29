@@ -208,7 +208,7 @@ const submitForm = async () => {
       if (tempId) uploadedVideoTempIds.push(tempId)
     }
 
-    await api.post('/issue/submit', {
+    const submitRes = await api.post('/issue/submit', {
       nickname: formData.value.nickname,
       question: formData.value.question,
       captchaId: captcha.value.captchaId,
@@ -218,6 +218,7 @@ const submitForm = async () => {
       videoTempIds: uploadedVideoTempIds
     })
 
+    void submitRes
     alert('提交成功')
     formData.value = { nickname: '', question: '' }
     clearAllPreviewUrls()
@@ -538,6 +539,10 @@ div{
   border-radius: 12px;
   overflow: hidden;
   background: #fafafa;
+  :deep(svg){
+    width: 100px;
+    height:40px;
+  }
 }
 
 .captcha-refresh {
