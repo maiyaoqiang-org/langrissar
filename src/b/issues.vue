@@ -256,6 +256,11 @@ onMounted(() => {
 
 <template>
   <div class="mobile-form-container">
+    <div v-if="isSubmitting" class="submit-mask">
+      <div class="submit-mask-content">
+        正在提交中，请耐心等待<span class="submit-dots">...</span>
+      </div>
+    </div>
     <div class="form-header">
       <h2>问题反馈</h2>
       <p>请填写您的信息，我们会尽快处理</p>
@@ -355,6 +360,44 @@ onMounted(() => {
 <style scoped lang="scss">
 div{
     box-sizing: border-box;
+}
+.submit-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+
+.submit-mask-content {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 18px;
+  border-radius: 12px;
+  max-width: 320px;
+  text-align: center;
+}
+
+.submit-dots {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: submitDots 1.2s steps(4, end) infinite;
+}
+
+@keyframes submitDots {
+  to {
+    width: 1.3em;
+  }
 }
 .mobile-form-container {
   min-height: 100vh;
