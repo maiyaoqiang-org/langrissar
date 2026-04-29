@@ -20,6 +20,11 @@ const videoFiles = ref([])
 const imageInputRef = ref(null)
 const videoInputRef = ref(null)
 const previewUrlMap = new Map()
+const imageBatchId = ref('')
+const imageUrlByKey = new Map()
+const videoTempIdByKey = new Map()
+const isUploadingImages = ref(false)
+const isUploadingVideos = ref(false)
 
 /** 打开图片选择框 */
 const openImagePicker = () => {
@@ -80,16 +85,18 @@ const formatSize = (bytes) => {
 }
 
 /** 选择图片 */
-const onSelectImages = (e) => {
+const onSelectImages = async (e) => {
   const files = Array.from(e?.target?.files || [])
   if (!files.length) return
 
   const existed = new Set(imageFiles.value.map((f) => getFileKey(f)))
   const merged = [...imageFiles.value]
+  const added = []
   for (const f of files) {
     const key = getFileKey(f)
     if (!existed.has(key)) {
       merged.push(f)
+      added.push(f)
       existed.add(key)
     }
   }
@@ -98,10 +105,13 @@ const onSelectImages = (e) => {
   if (imageInputRef.value) {
     imageInputRef.value.value = ''
   }
+
+  if (!added.length) return
+  await uploadSelectedImages(added)
 }
 
 /** 选择视频（最多5个） */
-const onSelectVideos = (e) => {
+const onSelectVideos = async (e) => {
   const files = Array.from(e?.target?.files || [])
   if (!files.length) return
 
@@ -123,32 +133,69 @@ const onSelectVideos = (e) => {
   if (videoInputRef.value) {
     videoInputRef.value.value = ''
   }
+
+  await uploadSelectedVideos()
 }
 
 /** 删除已选图片 */
-const removeImage = (file) => {
+const removeImage = async (file) => {
   revokePreviewUrl(file)
   const key = getFileKey(file)
   imageFiles.value = imageFiles.value.filter((f) => getFileKey(f) !== key)
+
+  const url = imageUrlByKey.get(key)
+  if (url && imageBatchId.value) {
+    try {
+      await api.post(`/issue/upload/images/batch/${imageBatchId.value}/remove`, { urls: [url] })
+    } catch {}
+  }
+  imageUrlByKey.delete(key)
+
+  if (!imageFiles.value.length && imageBatchId.value) {
+    try {
+      await api.delete(`/issue/upload/images/batch/${imageBatchId.value}`)
+    } catch {}
+    imageBatchId.value = ''
+  }
 }
 
 /** 删除已选视频 */
-const removeVideo = (file) => {
+const removeVideo = async (file) => {
   revokePreviewUrl(file)
   const key = getFileKey(file)
   videoFiles.value = videoFiles.value.filter((f) => getFileKey(f) !== key)
+
+  const tempId = videoTempIdByKey.get(key)
+  if (tempId) {
+    try {
+      await cleanupTempVideos([tempId])
+    } catch {}
+    videoTempIdByKey.delete(key)
+  }
 }
 
 /** 上传图片（多文件） */
-const uploadImages = async () => {
-  if (!imageFiles.value.length) return { batchId: '', urls: [] }
+const uploadImages = async (files) => {
+  if (!files?.length) return { batchId: '', urls: [] }
   const fd = new FormData()
-  imageFiles.value.forEach((f) => fd.append('images', f))
+  files.forEach((f) => fd.append('images', f))
   const res = await api.post('/issue/upload/images', fd, {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 0
   })
   return { batchId: res?.batchId || '', urls: res?.urls || [] }
+}
+
+/** 追加上传图片到批次（多文件） */
+const addImagesToBatch = async (batchId, files) => {
+  if (!batchId || !files?.length) return { batchId, urls: [], addedUrls: [] }
+  const fd = new FormData()
+  files.forEach((f) => fd.append('images', f))
+  const res = await api.post(`/issue/upload/images/batch/${batchId}/add`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 0
+  })
+  return { batchId: res?.batchId || batchId, urls: res?.urls || [], addedUrls: res?.addedUrls || [] }
 }
 
 /** 上传单个视频到临时缓存 */
@@ -175,6 +222,69 @@ const cleanupImageBatch = async (batchId) => {
   await api.delete(`/issue/upload/images/batch/${batchId}`)
 }
 
+/** 选择图片后立即上传（避免提交时长时间卡住） */
+const uploadSelectedImages = async (files) => {
+  if (isUploadingImages.value) return
+  isUploadingImages.value = true
+  try {
+    if (!imageBatchId.value) {
+      const res = await uploadImages(files)
+      imageBatchId.value = res?.batchId || ''
+      const urls = res?.urls || []
+      for (let i = 0; i < files.length; i += 1) {
+        const url = urls[i]
+        if (!url) continue
+        imageUrlByKey.set(getFileKey(files[i]), url)
+      }
+      return
+    }
+
+    const res = await addImagesToBatch(imageBatchId.value, files)
+    const addedUrls = res?.addedUrls || []
+    for (let i = 0; i < files.length; i += 1) {
+      const url = addedUrls[i]
+      if (!url) continue
+      imageUrlByKey.set(getFileKey(files[i]), url)
+    }
+  } catch (err) {
+    for (const f of files) {
+      revokePreviewUrl(f)
+      const key = getFileKey(f)
+      imageUrlByKey.delete(key)
+      imageFiles.value = imageFiles.value.filter((x) => getFileKey(x) !== key)
+    }
+    alert(getErrorMessage(err))
+  } finally {
+    isUploadingImages.value = false
+  }
+}
+
+/** 选择视频后立即上传（避免提交时长时间卡住） */
+const uploadSelectedVideos = async () => {
+  if (isUploadingVideos.value) return
+  isUploadingVideos.value = true
+  try {
+    const toUpload = videoFiles.value.filter((f) => !videoTempIdByKey.get(getFileKey(f)))
+    for (const file of toUpload) {
+      try {
+        const tempId = await uploadTempVideo(file)
+        if (!tempId) {
+          throw new Error('视频上传失败')
+        }
+        videoTempIdByKey.set(getFileKey(file), tempId)
+      } catch (err) {
+        revokePreviewUrl(file)
+        const key = getFileKey(file)
+        videoFiles.value = videoFiles.value.filter((x) => getFileKey(x) !== key)
+        videoTempIdByKey.delete(key)
+        alert(getErrorMessage(err))
+      }
+    }
+  } finally {
+    isUploadingVideos.value = false
+  }
+}
+
 /** 提取接口错误信息 */
 const getErrorMessage = (err) => {
   const msg = err?.response?.data?.message
@@ -187,6 +297,10 @@ const getErrorMessage = (err) => {
 /** 提交表单：视频先传完再一次性提交 */
 const submitForm = async () => {
   if (isSubmitting.value) return
+  if (isUploadingImages.value || isUploadingVideos.value) {
+    alert('资源上传中，请稍后再提交')
+    return
+  }
   if (!formData.value.nickname?.trim()) {
     alert('请填写昵称')
     return
@@ -205,26 +319,17 @@ const submitForm = async () => {
   }
 
   isSubmitting.value = true
-  let imageBatchId = ''
-  let uploadedImageUrls = []
-  const uploadedVideoTempIds = []
   try {
-    const imageUpload = await uploadImages()
-    imageBatchId = imageUpload?.batchId || ''
-    uploadedImageUrls = imageUpload?.urls || []
-
-    for (const file of videoFiles.value) {
-      const tempId = await uploadTempVideo(file)
-      if (tempId) uploadedVideoTempIds.push(tempId)
-    }
+    const uploadedVideoTempIds = videoFiles.value
+      .map((f) => videoTempIdByKey.get(getFileKey(f)))
+      .filter(Boolean)
 
     const submitRes = await api.post('/issue/submit', {
       nickname: formData.value.nickname,
       question: formData.value.question,
       captchaId: captcha.value.captchaId,
       captcha: captchaInput.value,
-      imageUrls: uploadedImageUrls,
-      imageBatchId,
+      imageBatchId: imageBatchId.value,
       videoTempIds: uploadedVideoTempIds
     })
 
@@ -234,16 +339,13 @@ const submitForm = async () => {
     clearAllPreviewUrls()
     imageFiles.value = []
     videoFiles.value = []
+    imageBatchId.value = ''
+    imageUrlByKey.clear()
+    videoTempIdByKey.clear()
     if (imageInputRef.value) imageInputRef.value.value = ''
     if (videoInputRef.value) videoInputRef.value.value = ''
     await refreshCaptcha()
   } catch (err) {
-    try {
-      await cleanupTempVideos(uploadedVideoTempIds)
-    } catch {}
-    try {
-      await cleanupImageBatch(imageBatchId)
-    } catch {}
     alert(getErrorMessage(err))
     await refreshCaptcha()
   } finally {
@@ -291,7 +393,9 @@ onMounted(() => {
 
       <div class="form-item">
         <label class="form-label">上传图片（单张不超过10MB）</label>
-        <button class="pick-btn" type="button" :disabled="isSubmitting" @click="openImagePicker">选择图片</button>
+        <button class="pick-btn" type="button" :disabled="isSubmitting || isUploadingImages" @click="openImagePicker">
+          {{ isUploadingImages ? '图片上传中...' : '选择图片' }}
+        </button>
         <input ref="imageInputRef" class="form-file" type="file" accept="image/*" multiple @change="onSelectImages" />
         <div v-if="imageFiles.length" class="file-list">
           <div class="file-summary">已选择 {{ imageFiles.length }} 张</div>
@@ -308,7 +412,9 @@ onMounted(() => {
 
       <div class="form-item">
         <label class="form-label">上传视频（最多5个，单个不超过200MB）</label>
-        <button class="pick-btn" type="button" :disabled="isSubmitting" @click="openVideoPicker">选择视频</button>
+        <button class="pick-btn" type="button" :disabled="isSubmitting || isUploadingVideos" @click="openVideoPicker">
+          {{ isUploadingVideos ? '视频上传中...' : '选择视频' }}
+        </button>
         <input ref="videoInputRef" class="form-file" type="file" accept="video/*" multiple @change="onSelectVideos" />
         <div v-if="videoFiles.length" class="file-list">
           <div class="file-summary">已选择 {{ videoFiles.length }} 个</div>
