@@ -2,16 +2,27 @@ import axios from 'axios';
 
 const DEFAULT_NOCODB_BASE_URL = 'https://nocodb.maiyaoqiang.fun/api/v2';
 const DEFAULT_LIST_LIMIT = 1000;
-const DEFAULT_SORT = 'createdAt,Id';
+const DEFAULT_SORT = 'Id';
+const NOCODB_TOKEN = import.meta.env.VITE_NOCODB_XC_TOKEN
 
 export const NOCODB_TABLES = Object.freeze({
   equipdetail: {
     tableId: 'mxmu6y8ooz33xob',
     viewId: 'vwwdt88v6mh9klm8',
+    defaultSort: '-Id',
+    pinFirst: {
+      field: 'equipName',
+      values: ['武器无', '衣服无', '头饰无', '饰品无'],
+    },
   },
   HeroBasicAttr: {
     tableId: 'm2o1bwbt918ev4l',
     viewId: 'vwni7lg7nsc8vnix',
+    defaultSort: 'Id',
+    pinFirst: {
+      field: 'heroName',
+      values: ['自定义英雄'],
+    },
   },
   Soldier: {
     tableId: 'mn0uvhec4jhzkt4',
@@ -23,10 +34,6 @@ export const NOCODB_TABLES = Object.freeze({
   },
 });
 
-/** 获取 NocoDB 的 xc-token（优先 localStorage，其次 env） */
-function getNocoDbToken() {
-  return import.meta.env.VITE_NOCODB_XC_TOKEN || ''
-}
 
 /** 解析不同返回结构中的 records list */
 function extractRecordsList(payload) {
@@ -69,17 +76,48 @@ function resolveDefaultSort(tableKey, tableConfigs, fallbackSort) {
   return cfg?.defaultSort || fallbackSort;
 }
 
+/** 根据配置把某条（或多条）记录置顶，并保持其它记录原有顺序 */
+function applyPinFirst(list, pinFirst) {
+  if (!pinFirst?.field) return list;
+  const { field, values } = pinFirst;
+  const valueOrder = new Map((Array.isArray(values) ? values : []).map((v, idx) => [v, idx]));
+
+  const pinnedBuckets = new Map();
+  const rest = [];
+
+  for (const item of Array.isArray(list) ? list : []) {
+    const v = item?.[field];
+    if (valueOrder.has(v)) {
+      const bucket = pinnedBuckets.get(v) || [];
+      bucket.push(item);
+      pinnedBuckets.set(v, bucket);
+      continue;
+    }
+    rest.push(item);
+  }
+
+  if (!pinnedBuckets.size) return list;
+
+  const pinned = [];
+  for (const v of valueOrder.keys()) {
+    const bucket = pinnedBuckets.get(v);
+    if (bucket?.length) pinned.push(...bucket);
+  }
+
+  return [...pinned, ...rest];
+}
+
 export class NocoDbClient {
   /** 创建 NocoDB 客户端（封装 tableId/viewId 与分页拉全量数据） */
   constructor({
     baseURL = DEFAULT_NOCODB_BASE_URL,
-    tokenProvider = getNocoDbToken,
+    token = NOCODB_TOKEN,
     tableConfigs = NOCODB_TABLES,
     defaultSort = DEFAULT_SORT,
     defaultLimit = DEFAULT_LIST_LIMIT,
   } = {}) {
     this.baseURL = baseURL;
-    this.tokenProvider = tokenProvider;
+    this.token = token;
     this.tableConfigs = tableConfigs;
     this.defaultSort = defaultSort;
     this.defaultLimit = defaultLimit;
@@ -92,7 +130,7 @@ export class NocoDbClient {
   /** 拉取单页 records（通常不直接使用，给 get/all 使用） */
   async getPage(tableKey, { offset = 0, limit = this.defaultLimit, where = '', viewId, sort } = {}) {
     const { tableId, viewId: defaultViewId } = resolveTableConfig(tableKey, this.tableConfigs);
-    const token = this.tokenProvider?.() || '';
+    const token = this.token || '';
     if (!token) {
       throw new Error('未配置 NocoDB xc-token（localStorage.nocodb_xc_token 或 VITE_NOCODB_XC_TOKEN）');
     }
@@ -140,7 +178,9 @@ export class NocoDbClient {
       offset += limit;
     }
 
-    return all.slice(0, maxRecords);
+    const sliced = all.slice(0, maxRecords);
+    const cfg = resolveTableConfig(tableKey, this.tableConfigs);
+    return applyPinFirst(sliced, cfg?.pinFirst);
   }
 }
 
