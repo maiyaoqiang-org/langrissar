@@ -1203,7 +1203,7 @@ import _ from 'lodash'
 import BaseDivider from "@/components/base-divider.vue";
 // import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
-import AV from 'leancloud-storage'
+import { nocodb } from '@/api/nocodb'
 import zdyLogo from '@/static/image/自定义英雄头像.png'
 import zdyZY from '@/static/image/自定义职业图标.png'
 // import sbFileData from '../static/data/梦战士兵数据.csv?raw'
@@ -1219,7 +1219,8 @@ const configData = useRefCache(`${prefix}configData`, {
   showSoldier: true,
 })
 
-const getHeroData = () => {
+// 获取英雄基础属性数据（NocoDB）
+const getHeroData = async () => {
   // 为了处理合并跟墨佬的命名一致
   // 英雄名,职业名,生命,攻击,智力,防御,魔防,技巧,铸纹生命,铸纹攻击,铸纹智力,铸纹防御,铸纹魔防,铸纹技巧,英雄头像
   // heroName	occupation	life	attack	intelligence	defense	magicDefense	skill	zwLife	zwAttack	zwIntelligence	zwDefense	zwMagicDefense	zwSkill	logo
@@ -1254,43 +1255,38 @@ const getHeroData = () => {
     "fettersLv7": "心之羁绊7",
     "occupationType": "职业",
   }
-  const query = new AV.Query("HeroBasicAttr");
-  query
-    .limit(1000)
-    .find()
-    .then((res) => {
-      const heroes = res.map((item) => {
-        // 判断英雄名是否叫【自定义英雄】
-        if (item.attributes.heroName === '自定义英雄') {
-          item.attributes.logo = zdyLogo
-          item.attributes.occupationPic = zdyZY
-        }
+  try {
+    const res = await nocodb.get('HeroBasicAttr')
+    const heroes = res.map((item) => {
+      // 判断英雄名是否叫【自定义英雄】
+      if (item.heroName === '自定义英雄') {
+        item.logo = zdyLogo
+        item.occupationPic = zdyZY
+      }
 
-        const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-          if (heroKeyMap[key]) {
-            acc[heroKeyMap[key]] = value
-          }
-          return acc
-        }, {})
-        return {
-          ...mapAttributes,
-          ...item.attributes,
+      const mapAttributes = Object.entries(item).reduce((acc, [key, value]) => {
+        if (heroKeyMap[key]) {
+          acc[heroKeyMap[key]] = value
         }
-      })
-
-      heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
-        return {
-          "英雄名": key,
-          "英雄头像": list[0]?.英雄头像,
-          list: list,
-        }
-      })
-      console.log(heroList.value)
-
+        return acc
+      }, {})
+      return {
+        ...mapAttributes,
+        ...item,
+      }
     })
-    .catch((err) => {
-      console.log('查询失败', err)
+
+    heroList.value = Object.entries(_.groupBy(heroes, '英雄名')).map(([key, list]) => {
+      return {
+        "英雄名": key,
+        "英雄头像": list[0]?.英雄头像,
+        list: list,
+      }
     })
+    console.log(heroList.value)
+  } catch (err) {
+    console.log('查询失败', err)
+  }
 }
 
 import wq_none from '@/static/image/武器未佩戴.png'
@@ -1299,48 +1295,45 @@ import ts_none from '@/static/image/头饰未佩戴.png'
 import sp_none from '@/static/image/饰品未佩戴.png'
 
 
-const getEquipData = () => {
+// 获取装备数据（NocoDB）
+const getEquipData = async () => {
 
   const schema = EquipDetail_schema.schema
   const EquipDetailMap = Object.keys(schema).reduce((cur, key) => {
     cur[key] = schema[key].comment
     return cur
   }, {})
-  const query = new AV.Query("EquipDetail");
-  query
-    .limit(1000)
-    .find()
-    .then((res) => {
-      const map = EquipDetailMap
-      const mapItem = {
-        "武器无": wq_none,
-        "衣服无": yf_none,
-        "头饰无": ts_none,
-        "饰品无": sp_none,
+  try {
+    const res = await nocodb.get('equipdetail')
+    const map = EquipDetailMap
+    const mapItem = {
+      "武器无": wq_none,
+      "衣服无": yf_none,
+      "头饰无": ts_none,
+      "饰品无": sp_none,
+    }
+    const list = res.map((item) => {
+      if (mapItem[item.equipName]) {
+        item.picAddr = mapItem[item.equipName]
       }
-      const list = res.map((item) => {
-        if (mapItem[item.attributes.equipName]) {
-          item.attributes.picAddr = mapItem[item.attributes.equipName]
+      const mapAttributes = Object.entries(item).reduce((acc, [key, value]) => {
+        if (map[key]) {
+          acc[map[key]] = value
         }
-        const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-          if (map[key]) {
-            acc[map[key]] = value
-          }
-          return acc
-        }, {})
+        return acc
+      }, {})
 
-        return {
-          ...mapAttributes,
-          ...item.attributes,
-        }
-      })
+      return {
+        ...mapAttributes,
+        ...item,
+      }
+    })
 
-      zbObj.value = _.groupBy(list, '类别')
-      console.log(zbObj.value)
-    })
-    .catch((err) => {
-      console.log('查询失败', err)
-    })
+    zbObj.value = _.groupBy(list, '类别')
+    console.log(zbObj.value)
+  } catch (err) {
+    console.log('查询失败', err)
+  }
 }
 
 function transformDataToCascaderFormat(data) {
@@ -1385,50 +1378,46 @@ function transformDataToCascaderFormat(data) {
   return Object.values(result);
 }
 
-const getAVDataAndMapKey = (className, schema) => {
-  return new Promise((resolve, reject) => {
-    const Map = Object.keys(schema).reduce((cur, key) => {
-      cur[key] = schema[key].comment
-      return cur
-    }, {})
-    const query = new AV.Query(className);
-    query
-      .limit(1000)
-      .find()
-      .then((res) => {
-        const list = res.map((item) => {
-          const mapAttributes = Object.entries(item.attributes).reduce((acc, [key, value]) => {
-            if (Map[key]) {
-              acc[Map[key]] = value
-            }
-            return acc
-          },{})
+// 获取表数据并按 schema 映射 key（NocoDB）
+const getNocoDbDataAndMapKey = async (tableKey, schema) => {
+  const Map = Object.keys(schema).reduce((cur, key) => {
+    cur[key] = schema[key].comment
+    return cur
+  }, {})
 
-          return {
-            ...mapAttributes,
-            ...item.attributes,
-          }
-        })
+  try {
+    const res = await nocodb.get(tableKey)
+    const list = res.map((item) => {
+      const mapAttributes = Object.entries(item).reduce((acc, [key, value]) => {
+        if (Map[key]) {
+          acc[Map[key]] = value
+        }
+        return acc
+      }, {})
 
-        resolve({
-          list,
-          Map
-        })
-      })
-      .catch((err) => {
-        console.log(`查询${className}数据失败`, err);
-        ElMessage.error(`查询${className}数据失败`)
-        resolve({
-          list: [],
-          Map: {}
-        })
-      })
-  })
+      return {
+        ...mapAttributes,
+        ...item,
+      }
+    })
+
+    return {
+      list,
+      Map
+    }
+  } catch (err) {
+    console.log(`查询${tableKey}数据失败`, err);
+    ElMessage.error(`查询${tableKey}数据失败`)
+    return {
+      list: [],
+      Map: {}
+    }
+  }
 }
 
 const getSbData = async () => {
   // df3.value = parseCSVToObjects(sbFileData)
-  const { list } = await getAVDataAndMapKey('Soldier', Soldier_schema.schema)
+  const { list } = await getNocoDbDataAndMapKey('Soldier', Soldier_schema.schema)
 
   df3.value = list
 }
@@ -1437,7 +1426,7 @@ const df3CascaderOptions = computed(() => {
 });
 const getSbKjData = async () => {
   // df4.value = parseCSVToObjects(sbKjFileData);
-  const { list } = await getAVDataAndMapKey('SoldierTechnology', SoldierTechnology_schema.schema)
+  const { list } = await getNocoDbDataAndMapKey('SoldierTechnology', SoldierTechnology_schema.schema)
   df4.value = list
 }
 
