@@ -457,6 +457,7 @@ onMounted(() => {
       </div>
 
       <div class="form-item">
+        <p class="upload-speed-tip">⚠️ 由于服务器带宽限制（3Mbps），每 10MB 附件约需等待 1 分钟（含上传至服务器及转存至云端），请耐心等待。</p>
         <label class="form-label">验证码</label>
         <div class="captcha-row">
           <div class="captcha-svg" v-html="captcha.svg"></div>
@@ -725,6 +726,13 @@ div{
   padding: 8px 10px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.upload-speed-tip {
+  font-size: 12px;
+  color: #e6a23c;
+  margin-bottom: 10px;
+  line-height: 1.5;
 }
 
 .captcha-row {
