@@ -10,6 +10,27 @@ const formData = ref({
 
 const isSubmitting = ref(false)
 
+/** V2 上传进度状态 */
+const uploadProgress = ref({
+  phase: 'idle', // 'idle' | 'verifying' | 'uploading' | 'processing' | 'submitting'
+  current: 0,
+  total: 0,
+  fileName: '',
+  percent: 0,
+})
+
+/** 遮罩提示文案 */
+const maskMessage = computed(() => {
+  const p = uploadProgress.value
+  if (p.phase === 'verifying') return '正在验证验证码...'
+  if (p.phase === 'uploading') {
+    return `正在上传第 ${p.current}/${p.total} 个文件（${p.fileName}）... ${p.percent}%`
+  }
+  if (p.phase === 'processing') return '文件处理中，请稍候...'
+  if (p.phase === 'submitting') return '正在提交...'
+  return '正在提交中，请耐心等待...'
+})
+
 const captcha = ref({
   captchaId: '',
   svg: ''
@@ -151,7 +172,112 @@ const getErrorMessage = (err) => {
   return '提交失败'
 }
 
-/** 提交表单：视频先传完再一次性提交 */
+/** 提交表单 V2：验证码 → 逐个上传文件 → 提交 */
+const submitFormV2 = async () => {
+  if (isSubmitting.value) return
+  if (!formData.value.nickname?.trim()) { alert('请填写昵称'); return }
+  if (!formData.value.question?.trim()) { alert('请填写详细问题'); return }
+  if (!captcha.value.captchaId) { alert('验证码加载失败，请刷新'); return }
+  if (!captchaInput.value?.trim()) { alert('请输入验证码'); return }
+
+  isSubmitting.value = true
+  uploadProgress.value = { phase: 'verifying', current: 0, total: 0, fileName: '', percent: 0 }
+
+  try {
+    // Step 1: 校验验证码，获取 uploadToken
+    const captchaRes = await api.post('/issue/verify-captcha', {
+      captchaId: captcha.value.captchaId,
+      captcha: captchaInput.value,
+    })
+    // 响应拦截器已解包：captchaRes 直接是后端 data 字段
+    const uploadToken = captchaRes?.uploadToken
+    if (!uploadToken) throw new Error('验证码校验失败')
+
+    // Step 2: 逐个上传文件
+    const allFiles = [...imageFiles.value, ...videoFiles.value]
+    const pendingFileIds = []
+
+    for (let i = 0; i < allFiles.length; i++) {
+      const file = allFiles[i]
+      uploadProgress.value = {
+        phase: 'uploading',
+        current: i + 1,
+        total: allFiles.length,
+        fileName: file.name,
+        percent: 0,
+      }
+
+      const fd = new FormData()
+      fd.append('file', file)
+
+      const uploadRes = await api.post('/issue/upload-file', fd, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'x-upload-token': uploadToken,
+        },
+        timeout: 0,
+        onUploadProgress: (evt) => {
+          if (evt.total) {
+            uploadProgress.value.percent = Math.round((evt.loaded / evt.total) * 100)
+          }
+        },
+      })
+      // 响应拦截器已解包：uploadRes 直接是后端 data 字段
+      pendingFileIds.push(uploadRes?.pendingFileId)
+    }
+
+    // Step 3: 提交（若 409 则轮询重试）
+    uploadProgress.value = { phase: 'submitting', current: 0, total: 0, fileName: '', percent: 0 }
+
+    const MAX_RETRY = 60
+    let retryCount = 0
+    let submitRes = null
+
+    while (retryCount <= MAX_RETRY) {
+      try {
+        submitRes = await api.post(
+          '/issue/submit-v2',
+          {
+            nickname: formData.value.nickname,
+            question: formData.value.question,
+            pendingFileIds,
+          },
+          { headers: { 'x-upload-token': uploadToken }, skipErrorCodes: [409] },
+        )
+        break
+      } catch (err) {
+        if (err?.response?.status === 409 && retryCount < MAX_RETRY) {
+          uploadProgress.value.phase = 'processing'
+          retryCount++
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+          uploadProgress.value.phase = 'submitting'
+        } else {
+          throw err
+        }
+      }
+    }
+
+    void submitRes
+    const hasFiles = allFiles.length > 0
+    alert(hasFiles ? '提交成功！图片/视频正在后台处理，稍后可在结果页查看。' : '提交成功！')
+    formData.value = { nickname: '', question: '' }
+    clearAllPreviewUrls()
+    imageFiles.value = []
+    videoFiles.value = []
+    if (imageInputRef.value) imageInputRef.value.value = ''
+    if (videoInputRef.value) videoInputRef.value.value = ''
+    await refreshCaptcha()
+  } catch (err) {
+    alert(getErrorMessage(err))
+    await refreshCaptcha()
+  } finally {
+    isSubmitting.value = false
+    uploadProgress.value = { phase: 'idle', current: 0, total: 0, fileName: '', percent: 0 }
+  }
+}
+
+/** 提交表单（旧版，保留兼容）：视频先传完再一次性提交 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const submitForm = async () => {
   if (isSubmitting.value) return
   if (!formData.value.nickname?.trim()) {
@@ -258,7 +384,7 @@ onMounted(() => {
   <div class="mobile-form-container">
     <div v-if="isSubmitting" class="submit-mask">
       <div class="submit-mask-content">
-        正在提交中，请耐心等待<span class="submit-dots">...</span>
+        {{ maskMessage }}<span class="submit-dots">...</span>
       </div>
     </div>
     <div class="form-header">
@@ -345,7 +471,7 @@ onMounted(() => {
         />
       </div>
 
-      <button class="submit-btn" @click="submitForm">
+      <button class="submit-btn" @click="submitFormV2">
         {{ isSubmitting ? '提交中...' : '提交' }}
       </button>
 

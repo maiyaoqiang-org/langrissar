@@ -50,6 +50,11 @@ api.interceptors.response.use(
         });
       }
     }
+    // 若调用方传了 skipErrorCodes，命中时静默 reject，不弹全局错误
+    const skipCodes = error.config?.skipErrorCodes
+    if (Array.isArray(skipCodes) && skipCodes.includes(error.response?.status)) {
+      return Promise.reject(error);
+    }
     const message = error.response?.data?.message || '请求失败';
     ElMessage.error(message);
     return Promise.reject(error);
