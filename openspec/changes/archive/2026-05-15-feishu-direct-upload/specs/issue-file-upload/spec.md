@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: 单文件上传接口
 系统 SHALL 提供 `POST /issue/upload-file` 接口，接收 `uploadToken`（Header `x-upload-token`）和单个文件（multipart/form-data，字段名 `file`）。验证 token 后，根据文件大小选择上传策略：
 - ≤20MB：使用 multer memoryStorage 接收为 Buffer，直接传给飞书 uploadAll
@@ -28,3 +30,9 @@
 #### Scenario: 飞书上传失败
 - **WHEN** 飞书 API 返回错误或网络超时
 - **THEN** 系统返回 HTTP 400，message 说明上传失败原因
+
+## REMOVED Requirements
+
+### Requirement: 上传状态内存管理
+**Reason**: 流式上传同步完成，不再需要异步状态管理
+**Migration**: 去掉 pendingUploads Map、30 分钟定时清理、pendingFileId 概念
