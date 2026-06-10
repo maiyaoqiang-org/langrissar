@@ -32,6 +32,10 @@ export const NOCODB_TABLES = Object.freeze({
     tableId: 'mkbra0i7og6e1oh',
     viewId: 'vw8syp9h7lz1x8e0',
   },
+  HolyMirrorDefault: {
+    tableId: 'me8u4tjx2nwwo9u',
+    viewId: 'vw49knbx8f63f52h',
+  },
 });
 
 

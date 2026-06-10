@@ -388,7 +388,7 @@
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
                                      :is-percent="true"
-                                     v-model="formData.sjjc[key]" :max="item*100 || Infinity"></mz-number-input>
+                                     v-model="formData.sjjc[key]" :max="(item||item===0)?item*100:Infinity"></mz-number-input>
                   </el-form-item>
                 </div>
               </div>
@@ -483,7 +483,7 @@
                   <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
-                                     v-model="formData.sjjc[key]" :max="item || Infinity"></mz-number-input>
+                                     v-model="formData.sjjc[key]" :max="(item||item===0)?item:Infinity"></mz-number-input>
                   </el-form-item>
                 </div>
 
@@ -492,7 +492,7 @@
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
                                      :is-percent="true"
-                                     v-model="formData.sjjc[key]" :max="item*100 || Infinity"></mz-number-input>
+                                     v-model="formData.sjjc[key]" :max="(item||item===0)?item*100:Infinity"></mz-number-input>
                   </el-form-item>
                 </div>
               </div>
@@ -1203,7 +1203,7 @@ import _ from 'lodash'
 import BaseDivider from "@/components/base-divider.vue";
 // import zbData from '../static/data/梦战装备满级基础属性分类.csv?raw'
 import MzNumberInput from "@/components/element-comp/mz-number-input.vue";
-import { nocodb } from '@/api/nocodb'
+import { nocodb, NOCODB_TABLES } from '@/api/nocodb'
 import zdyLogo from '@/static/image/自定义英雄头像.png'
 import zdyZY from '@/static/image/自定义职业图标.png'
 // import sbFileData from '../static/data/梦战士兵数据.csv?raw'
@@ -1441,6 +1441,7 @@ onMounted(() => {
   getEquipData()
   getSbData()
   getSbKjData()
+  getSjjcDefaultData()
 })
 
 onMounted(() => {
@@ -1505,8 +1506,14 @@ const fz_list = [
   }
 ]
 
-const sjjc_yx_max = { "生命": 400, "攻击": 40, "智力": 40, "防御": 24, "魔防": 24, "技巧": 0}
-const sjjc_sb_max = { "士兵生命":0.08,"士兵攻击":0.08,"士兵防御":0.08,"士兵魔防":0.08 }
+const sjjc_yx_hardcode_default = { "生命": 400, "攻击": 40, "智力": 40, "防御": 24, "魔防": 24, "技巧": 0}
+const sjjc_sb_hardcode_default = { "士兵生命":0.08,"士兵攻击":0.08,"士兵防御":0.08,"士兵魔防":0.08 }
+const getSjjcHardcodeDefault = () => {
+  return {
+    ...sjjc_yx_hardcode_default,
+    ...sjjc_sb_hardcode_default,
+  }
+}
 const defaultFormData = {
   // 选中的英雄
   selected_hero_row: "自定义英雄",
@@ -1562,12 +1569,57 @@ const defaultFormData = {
   sbcj_pd: true,
   selected_kj: {},
   sjjc_input_can_edit: false,
-  sjjc: _.cloneDeep({
-    ...sjjc_yx_max,
-    ...sjjc_sb_max,
-  })
+  sjjc: _.cloneDeep(getSjjcHardcodeDefault())
 };
 const formData = useRefCache(`${prefix}formData`, JSON.parse(JSON.stringify(defaultFormData)))
+const sjjc_default_cache = useRefCache(`${prefix}sjjc_default_cache`, _.cloneDeep(getSjjcHardcodeDefault()))
+const sjjc_nocodb_default = ref({})
+const sjjc_key_list = Object.keys(getSjjcHardcodeDefault())
+const getMergedSjjcDefault = (firstValue = {}, secondValue = {}) => {
+  const hardcodeValue = getSjjcHardcodeDefault()
+  return sjjc_key_list.reduce((acc, key) => {
+    acc[key] = firstValue?.[key] ?? secondValue?.[key] ?? hardcodeValue[key]
+    return acc
+  }, {})
+}
+const getResolvedSjjcDefault = () => {
+  return getMergedSjjcDefault(sjjc_nocodb_default.value, sjjc_default_cache.value)
+}
+const sjjc_yx_max = computed(() => {
+  return Object.keys(sjjc_yx_hardcode_default).reduce((acc, key) => {
+    acc[key] = Number(getResolvedSjjcDefault()?.[key] ?? sjjc_yx_hardcode_default[key])
+    return acc
+  }, {})
+})
+const sjjc_sb_max = computed(() => {
+  return Object.keys(sjjc_sb_hardcode_default).reduce((acc, key) => {
+    acc[key] = Number(getResolvedSjjcDefault()?.[key] ?? sjjc_sb_hardcode_default[key])
+    return acc
+  }, {})
+})
+const applyResolvedSjjcDefault = () => {
+  formData.value.sjjc = _.cloneDeep(getResolvedSjjcDefault())
+}
+const getSjjcDefaultData = async () => {
+  if (!NOCODB_TABLES.HolyMirrorDefault?.tableId || !NOCODB_TABLES.HolyMirrorDefault?.viewId) {
+    return
+  }
+
+  try {
+    const res = await nocodb.get('HolyMirrorDefault')
+    const currentData = res?.[0] || {}
+    const hasData = sjjc_key_list.some((key) => currentData?.[key] !== undefined && currentData?.[key] !== null)
+    sjjc_nocodb_default.value = hasData ? currentData : {}
+    if (hasData) {
+      sjjc_default_cache.value = getMergedSjjcDefault(currentData, sjjc_default_cache.value)
+    }
+    if (!formData.value.sjjc_input_can_edit) {
+      applyResolvedSjjcDefault()
+    }
+  } catch (err) {
+    console.log('查询HolyMirrorDefault数据失败', err)
+  }
+}
 const resetFormData = () => {
   // 二次确认
   ElMessageBox.confirm("是否确认重置",{
@@ -1577,6 +1629,9 @@ const resetFormData = () => {
   })
   .then(() => {
     formData.value = JSON.parse(JSON.stringify(defaultFormData))
+    if (!formData.value.sjjc_input_can_edit) {
+      applyResolvedSjjcDefault()
+    }
   })
 }
 
@@ -1634,19 +1689,13 @@ watchEffect(() => {
 })
 
 const reset_sjjc = () => {
-  formData.value.sjjc = {
-    ...sjjc_yx_max,
-    ...sjjc_sb_max,
-  }
+  applyResolvedSjjcDefault()
 }
 const setSJJCToZero = ()=>{
-  formData.value.sjjc = {
-    ...sjjc_yx_max,
-    ...sjjc_sb_max,
-  }
-  Object.keys(formData.value.sjjc).forEach(key => {
-    formData.value.sjjc[key] = 0
-  })
+  formData.value.sjjc = sjjc_key_list.reduce((acc, key) => {
+    acc[key] = 0
+    return acc
+  }, {})
 }
 watchEffect(() => {
   if (!formData.value.sjjc_input_can_edit) {
