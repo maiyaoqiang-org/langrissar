@@ -12,7 +12,7 @@ export const AttackType = {
     magic: {text: '魔法', value: 'magic'},
 }
 
-// （无地形0%-树林20%-城墙30%-山地10%-基岩20%-货物15%-沙丘10%-礁石5%-石柱5%）
+// （无地形0%-树林20%-城墙30%-山地10%-基岩20%-货物15%-沙丘10%-礁石5%-石柱5%-废墟20%-侧枝30%-岩坡20%）
 export const TerrainType = {
     none: {text: '无地形', value: 'none', rate: 0},
     forest: {text: '树林', value: 'forest', rate: 20},
@@ -23,6 +23,9 @@ export const TerrainType = {
     sand: {text: '沙丘', value: 'sand', rate: 10},
     reef: {text: '礁石', value: 'reef', rate: 5},
     column: {text: '石柱', value: 'column', rate: 5},
+    ruins: {text: '废墟', value: 'ruins', rate: 20},
+    sideBranch: {text: '侧枝', value: 'sideBranch', rate: 30},
+    rockSlope: {text: '岩坡', value: 'rockSlope', rate: 20},
 }
 export const TerrainTypeShowList = Object.values(TerrainType).map((i) => {
     return {

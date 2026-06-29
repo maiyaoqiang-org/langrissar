@@ -128,11 +128,13 @@
             </el-tab-pane>
           </el-tabs>
           <view>
-            <el-form-item style="width:300px;" label="守方地形">
-              <el-select v-model="formData.sf_dxxz">
+            <el-form-item style="width:404px;" label="守方地形">
+              <el-select v-model="formData.sf_dxxz" style="width: 120px;">
                 <el-option v-for="item in TerrainTypeShowList" :key="item.value" :label="item.text"
                            :value="item.value"/>
+                <el-option label="自定义" value="__custom__"/>
               </el-select>
+              <mz-percent-input v-if="formData.sf_dxxz === '__custom__'" prop="sf_dxxz_custom" :form-data="formData" style="width: 120px; margin-left: 4px;"/>
             </el-form-item>
           </view>
         </el-card>
@@ -468,7 +470,8 @@ const defaultFormData = {
   zh_gs: "0",
   yxdyx_sfbj: false,
   yxdb_sfbj: false,
-  sf_dxxz: TerrainType.none.value
+  sf_dxxz: TerrainType.none.value,
+  sf_dxxz_custom: 0,
 }
 const formData = useRefCache("langrissar-calculator-aoejsq-el-formData", JSON.parse(JSON.stringify(defaultFormData)))
 const resetFormData = () => {
@@ -482,6 +485,7 @@ const inputVariables = computed(() => {
   const notFilterList = [
     'yxsh_lx',
     'sf_dxxz',
+    'sf_dxxz_custom',
     'yxdyx_sfbj',
     'yxdb_sfbj'
   ]
@@ -493,7 +497,9 @@ const inputVariables = computed(() => {
     }
     return res
   }, {})
-  const sf_dxxz = Object.values(TerrainType).find(i => i.value === currentFormData?.sf_dxxz)?.rate / 100 || 0
+  const sf_dxxz = currentFormData?.sf_dxxz === '__custom__'
+    ? (currentFormData?.sf_dxxz_custom ?? 0)
+    : Object.values(TerrainType).find(i => i.value === currentFormData?.sf_dxxz)?.rate / 100 || 0
   const hudun_value = round(currentFormData.hudun_value || 0)
   const hudun_pd = Boolean(hudun_value > 0)
   const zhgs_pd = Boolean(currentFormData.zh_gs > 0)
