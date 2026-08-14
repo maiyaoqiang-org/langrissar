@@ -41,7 +41,7 @@ jobs:
           echo "VITE_APP_AV_SERVER_URL=$VITE_APP_AV_SERVER_URL" >> .env.production
           echo "VITE_NOCODB_XC_TOKEN=$VITE_NOCODB_XC_TOKEN" >> .env.production
           cat .env.production.bak >> .env.production
-          docker buildx build --push --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest .
+          docker buildx build --push --provenance=false --sbom=false --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:latest .
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
@@ -109,7 +109,7 @@ jobs:
           echo "VITE_APP_AV_SERVER_URL=$VITE_APP_AV_SERVER_URL" >> .env.production
           echo "VITE_NOCODB_XC_TOKEN=$VITE_NOCODB_XC_TOKEN" >> .env.production
           cat .env.production.bak >> .env.production
-          docker buildx build --push --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:test .
+          docker buildx build --push --provenance=false --sbom=false --platform linux/amd64 --tag crpi-98ymlx0yqe646pye.cn-guangzhou.personal.cr.aliyuncs.com/myq-space/langrissar-jsq:test .
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
