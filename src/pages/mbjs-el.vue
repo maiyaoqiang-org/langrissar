@@ -2429,15 +2429,15 @@ const sb_bz = computed(() => {
 const sb_cjtx = computed(() => {
   if (formData.value.sbcj_pd) {
     return {
-      攻击: 0,
-      防御: 0,
-      魔防: 0,
-    }
-  } else {
-    return {
       攻击: 0.2,
       防御: 0.2,
       魔防: 0.3,
+    }
+  } else {
+    return {
+      攻击: 0,
+      防御: 0,
+      魔防: 0,
     }
   }
 })
