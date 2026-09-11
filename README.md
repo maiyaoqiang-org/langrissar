@@ -8,7 +8,9 @@
 - [2026-09-12 三个计算器前端改版记录](docs/2026-09-12-三个计算器前端改版记录.md)：本轮相对 GitHub 原版的完整记录，含设计决定、代码位置、验证和暂缓事项。
 - [AGENTS.md](AGENTS.md)：后续 AI 或开发者接手时需要遵守的项目约定。
 
-本轮前端修改于 2026-09-12 在本地阶段收尾，随后用户明确授权提交、推送并部署；当前进入发布流程，实际结果见修改记录。对比基线为 GitHub `main` 的 `baa0b074ceac759a674c27acd56d3f020d95f5fa`。
+本轮前端已于 2026-09-12 发布，前端提交为 [`3378d81`](https://github.com/maiyaoqiang-org/langrissar/commit/3378d8114e5b36e21c0dbe36d43ee53af8535a80)，[生产部署成功](https://github.com/maiyaoqiang-org/langrissar/actions/runs/34640007830)。对比基线为 GitHub `main` 的 `baa0b074ceac759a674c27acd56d3f020d95f5fa`；发布后的文档补记不改变前端版本。
+
+线上入口：[单点计算器](https://maiyaoqiang.fun/#/pages/ddjsq-el) · [AOE 计算器](https://maiyaoqiang.fun/#/pages/aoejsq-el) · [面板模拟计算器](https://maiyaoqiang.fun/#/pages/mbjs-el)。
 
 ## 本地使用
 
