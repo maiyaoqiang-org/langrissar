@@ -10,11 +10,16 @@ import router from './router'
 import { hasRole } from './directives/hasRole'
 import CopyText from './components/CopyText.vue'
 
-AV.init({
+const leanCloudConfig = {
 	appId: import.meta.env.VITE_APP_AV_APP_ID,
 	appKey: import.meta.env.VITE_APP_AV_APP_KEY,
 	serverURL: import.meta.env.VITE_APP_AV_SERVER_URL,
-});
+};
+// Local calculator previews do not require the legacy LeanCloud service.
+// Keep production initialization strict and unchanged.
+if (!import.meta.env.DEV || (leanCloudConfig.appId && leanCloudConfig.appKey)) {
+	AV.init(leanCloudConfig);
+}
 const app = createApp(App);
 app.use(ElementPlus)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

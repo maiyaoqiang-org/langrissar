@@ -1,5 +1,5 @@
 <script setup>
-import {round} from '@/common/utils'
+import { formatCalculatorNumber, formatCalculatorPercent } from '@/common/calculator-display.mjs'
 import {computed} from 'vue'
 
 const props = defineProps({
@@ -19,7 +19,7 @@ const props = defineProps({
 })
 
 const showValue = computed(() => {
-  return props.isPercent ? round(props.value*100, 2)+"%" : props.value
+  return props.isPercent ? formatCalculatorPercent(props.value) : formatCalculatorNumber(props.value)
 })
 
 const currentShowClass = computed(() => {

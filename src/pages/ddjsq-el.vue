@@ -1,10 +1,10 @@
 <template>
-  <div class="ddjsq" style="padding:24px;">
-    <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
+  <div class="ddjsq calculator-page" style="padding:24px;">
+    <el-button class="mb_16 calculator-reset-button" :icon="RefreshLeft" @click="resetFormData">重置数据</el-button>
     <el-form label-width="160px" class="base-el-form" label-position="left" :inline="true"
              :model="formData">
       <div class="mb_16" flex="box:mean" style="flex-wrap: wrap;">
-        <el-card style="min-width: 400px;" class="mr_16 mb_16">
+        <el-card id="single-attacker" data-calculator-section="攻方设置" style="min-width: 400px;" class="mr_16 mb_16">
           <el-tabs model-value="攻方士兵">
             <el-tab-pane label="攻方士兵" name="攻方士兵">
               <div>
@@ -131,7 +131,7 @@
             </el-tab-pane>
           </el-tabs>
         </el-card>
-        <el-card style="min-width: 400px;" class="mb_16">
+        <el-card id="single-defender" data-calculator-section="守方设置" style="min-width: 400px;" class="mb_16">
           <el-tabs model-value="守方士兵">
             <el-tab-pane label="守方士兵" name="守方士兵">
               <div>
@@ -226,46 +226,24 @@
         </el-card>
       </div>
 
-      <el-dialog width="80vw" v-model="sqDialog">
-        <el-table :data="sq_table">
-          <el-table-column v-for="item in sq_table_columns"
-                           :key="item.prop"
-                           :prop="item.prop"
-                           :label="item.label"
-                           width="180"/>
-        </el-table>
-      </el-dialog>
+      <calculator-reference v-model="sqDialog" kind="covenant"/>
+      <calculator-reference v-model="sbkjDialog" kind="soldier"/>
+      <calculator-reference v-model="zykzDialog" kind="counter"/>
 
-      <el-dialog width="80vw" v-model="sbkjDialog">
-        <el-table :data="sbkj_table">
-          <el-table-column v-for="item in sbkj_table_columns" :key="item.prop" :prop="item.prop" :label="item.label"
-                           width="180"/>
-        </el-table>
-      </el-dialog>
-
-      <el-dialog width="80vw" v-model="zykzDialog">
-        <el-table :data="zykz_table">
-          <el-table-column
-              v-for="item in zykz_table_columns"
-              :fixed="item.fixed"
-              :key="item.prop" :prop="item.prop" :label="item.label"
-              :width="item.width||180"/>
-        </el-table>
-      </el-dialog>
-
-      <div class="mb_16">
+      <div class="mb_16 ddjsq-references">
         <el-button @click="sqDialog=true" type="primary">
-          （点击打开查看）神契晨曦之祝特效参考
+          神契晨曦之祝特效参考
         </el-button>
         <el-button @click="sbkjDialog=true" type="primary">
-          （点击打开查看）士兵科技参考
+          士兵科技参考
         </el-button>
         <el-button @click="zykzDialog=true" type="primary">
-          （点击打开查看）职业克制系数参考
+          职业克制系数参考
         </el-button>
       </div>
 
-      <el-card class="mb_16">
+      <el-card id="single-segment" data-calculator-section="单段伤害" class="mb_16">
+        <CalculatorInputNotice />
         <div class="average-box">
           <div>
             兵打兵单段伤害为：
@@ -324,31 +302,37 @@
           <el-checkbox v-model="formData.yxdyx_sfbj" label="英雄打英雄 是否暴击"/>
         </el-form-item>
       </el-card>
-      <el-collapse class="mb_16" model-value="1">
+      <el-collapse class="mb_16 ddjsq-battle-reference" model-value="1">
         <el-collapse-item
-            title="（点击打开查看）战斗攻防差与增减伤关系（注：已考虑克制系数、无视防御、地形修正）"
+            title="战斗攻防差与增减伤关系"
             name="1">
-          <el-table :data="chakan_gfczjs_table">
+          <p class="calculator-field-help">已考虑克制系数、无视防御和地形修正。</p>
+          <el-table :data="chakan_gfczjs_table" stripe scrollbar-always-on>
             <el-table-column
                 v-for="item in chakan_gfczjs_columns"
                 :key="item.prop"
                 :prop="item.prop"
                 :label="item.label"
-                :width="item.width"/>
+                :width="item.width"
+                :min-width="110"
+                :align="item.align"
+                :formatter="(_row, _column, value) => formatCalculatorNumber(value)"
+                :fixed="item.prop === 'attacker' ? 'left' : false"/>
           </el-table>
         </el-collapse-item>
       </el-collapse>
 
 
-      <div class="mb_16" style="font-size: 24px;color:#dd524d;">
+      <div class="mb_16 ddjsq-simulation-title" style="font-size: 24px;color:#dd524d;">
         以下即将进行段数分配战斗模拟
       </div>
 
-      <el-card class="mb_16">
+      <el-card id="single-simulation" data-calculator-section="段数与血量设置" class="mb_16">
         <el-form-item>
           <el-checkbox v-model="formData.sdsr_pd"
-                       label="关联读取以上单段伤害计算结果 (想手动输入单段伤害 就取消勾选)"/>
+                       label="关联单段伤害计算结果"/>
         </el-form-item>
+        <p class="calculator-field-help">取消勾选后，可手动输入各项单段伤害。</p>
         <div v-if="!formData.sdsr_pd">
           <el-form-item label-width="160px" label="士兵打士兵的单段伤害">
             <mz-input prop="soldier_to_soldier_damage" :form-data="formData"></mz-input>
@@ -443,7 +427,7 @@
           </el-form-item>
         </div>
         <!--        <div>
-                  士兵出手的段数最大参考值：{{ calculateVariables.attacker_soldier_max_segments }}
+                  士兵出手的段数最大参考值：{{ formatCalculatorNumber(calculateVariables.attacker_soldier_max_segments) }}
                 </div>-->
         <el-form-item label-width="500px" label="请选择士兵优先英雄出手的段数（根据英雄出手速度判断）"></el-form-item>
         <br>
@@ -460,8 +444,9 @@
           <el-form-item style="width:260px;">
             <el-checkbox
                 v-model="formData.dhds_pd"
-                label="默认无动画影响的段数丢失，如有请勾选填写动画丢失段数"/>
-          </el-form-item>
+                label="存在动画造成的段数丢失"/>
+            </el-form-item>
+            <p class="calculator-field-help">默认按无动画丢段计算；勾选后可分别填写丢失段数。</p>
           <div v-if="formData.dhds_pd">
             <el-form-item
                 label-width="200px"
@@ -489,7 +474,9 @@
       </el-card>
 
 
-      <el-card>
+      <el-card id="single-result" data-calculator-section="单点计算结果" data-calculator-result class="single-damage-results">
+        <template #header><h2>单点计算结果</h2></template>
+        <CalculatorInputNotice />
         <div
             v-for="(item,index) in Object.values(calculateResult)"
             :key="index"
@@ -497,7 +484,7 @@
           <div style="width:50%;flex:1 1 50%;" v-for="(o,v) in item" :key="v">
             <template v-if="o.label">
               {{ o.label }}:
-              <text :class="[o.valueClass,'value']">{{ o.value }}</text>
+              <text :class="[o.valueClass,'value']">{{ formatCalculatorResult(o.value) }}</text>
             </template>
           </div>
           <el-divider v-if="index!==(Object.values(calculateResult).length-1)" style="flex:unset;"></el-divider>
@@ -507,52 +494,35 @@
     </el-form>
 
 
-    <el-divider></el-divider>
-    <pre style="user-select: text;">
-      使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。手机版本可在微信小程序搜“梦战伤害计算器”。
+    <calculator-guide id="single-guide" data-calculator-section="使用说明">
+      <p class="ddjsq-guide-intro">本计算器分为单段伤害计算区和段数分配模拟区。</p>
 
-      本计算器分为单段伤害计算区和段数分配模拟区。
+      <el-collapse accordion class="ddjsq-guide-sections">
+        <el-collapse-item
+          v-for="(section, index) in shuoming.filter(item => item.title)"
+          :key="section.title"
+          :name="index"
+          :title="section.title.split('，')[0]"
+        >
+          <div class="ddjsq-guide-content">
+            <p v-if="index === 0">{{ section.title.split('，').slice(1).join('，') }}</p>
+            <ol v-if="index < 3">
+              <li v-for="paragraph in section.desc" :key="paragraph">
+                {{ paragraph.replace(/^（\d+[）)]\s*/, '') }}
+              </li>
+            </ol>
+            <template v-else>
+              <p v-for="paragraph in section.desc" :key="paragraph">{{ paragraph }}</p>
+            </template>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
 
-      一、单段伤害计算区，可以实际模拟出兵打兵、兵打人、人打兵、兵打人四个维度的单段伤害。
-
-      （1）里面每个输入框都是可以直接用英文符号直接用公式计算的，如1588/1.2*(1+0.2+0.3)*1.4非常方便数值调整。
-
-      （2）设置了物理、魔法通用增减伤害和克制的的区分，可以模拟混伤克制情况。
-
-      （3）克制修正输入的开关在攻方处，如果需要输入守方的双防克制系数加成，需要在攻方区域打开克制关系。如守方有冰女王的彻骨寒意，可在守方双防克制修正填-20
-
-      （4) 攻方暴击伤害已默认1.3，如果有额外暴伤只需要填入额外爆伤 如锋刺填10
-
-      二、段数分配模拟区
-
-      （1）默认关联上面的单点伤害计算的段数，也可以手动输入单段伤害。
-
-      （2）攻方士兵需要输入数量，默认满血是10只，也可以手动输入为12只。如果想模拟雷马，可将攻方士兵数量填0，在之前的英雄出手段数填40段。
-
-      （3）守方士兵需要输入单只兵的血量（注意是单只兵），然后输入一个士兵当前总血量，会自动计算出有多少只兵。默认满血是10只
-
-      （4）加入了护盾机制，可以填入护盾值，如果要模拟直击本体，可将守方士兵当前血量填0即没有小兵，护盾就会自动加在英雄本体上。
-
-      （5）最关键的是，需要根据出手速度来调整士兵先于英雄出手多少段，如伊莉娅姐姐用3C，可以设置为士兵先于英雄出手10段。计算器会自动根据伤害分分配段数，可以对比总伤害来调整段数分配更接近实际。
-
-      （6）如果士兵有伤害丢失，可以填入士兵丢失的段数（如战损丢失）。
-
-      （7）加入动画丢失段数的填写，在伪直击或打护盾单位（经常会有一只兵不打）时，可以利用此功能调整总伤害。
-
-      三、其他
-
-      （1）录入了神契特效、士兵科技、职业克制系数的查询，可以更加方便查询。
-
-      （2）做了一个战斗攻防差与增减伤关系的统计，已考虑了克制系数、无视防御、地形修正。以便更快捷的知道多少攻防差，多少增伤能打什么样的伤害，方便积累经验。
-
-      四、缺陷
-
-      近战肉搏类无法完美模拟，因为目前设置的是士兵出手一部分段数，英雄出手全部段数，士兵再出手剩余段数，这样分三个阶段模拟的，但实际战斗中会有战损，或撞击判定等特殊情况。 计算器用于模拟的意义更大，便于在配置上，少走更多弯路。并且也能分析一些此前模糊的机制，如虽然姐姐和大白毛都有可能暴击一段一个兵，出手速度也相同，但由于大白毛是近战，姐姐是远程，导致士兵优先英雄出手的段数分配差异非常大。
-
-      希望能对大家数据分析有一点帮助，如有疑问加梦战计算器使用交流群 928411216
-
-
-    </pre>
+      <div class="ddjsq-guide-notes">
+        <p>此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。手机版本可在微信小程序搜“梦战伤害计算器”。</p>
+        <p>{{ shuoming[shuoming.length - 1].desc[0] }}</p>
+      </div>
+    </calculator-guide>
   </div>
 </template>
 
@@ -563,9 +533,6 @@ import {
   TerrainType,
   TerrainTypeShowList,
   TrueFalseCheckBoxData,
-  sq_table, sq_table_columns,
-  sbkj_table, sbkj_table_columns,
-  zykz_table, zykz_table_columns,
   chakan_gfczjs_columns,
 } from "../common/constant";
 import PercentInput from "../components/percent-input.vue";
@@ -575,9 +542,17 @@ import BaseDivider from '../components/base-divider.vue'
 import {evaluate} from "mathjs";
 import {useRefCache} from "../common/hook";
 import {calculateFormula, round} from "../common/utils";
+import { formatCalculatorNumber, formatCalculatorResult } from '@/common/calculator-display.mjs'
 import Big from "big.js";
 import MzPercentInput from "@/components/element-comp/mz-percent-input.vue";
 import MzInput from "@/components/element-comp/mz-input.vue";
+import CalculatorReference from "@/components/calculator-reference.vue";
+import CalculatorGuide from "@/components/calculator-guide.vue";
+import CalculatorInputNotice from '@/components/calculator-input-notice.vue'
+import { useCalculatorInputState } from '@/common/calculator-input-state'
+import { ElMessageBox } from 'element-plus'
+import { RefreshLeft } from '@element-plus/icons-vue'
+useCalculatorInputState()
 
 const defaultFormData = {
   sbsh_lx: AttackType.physics.value,
@@ -607,8 +582,13 @@ const defaultFormData = {
   sf_dxxz_custom: 0,
 }
 const formData = useRefCache("langrissar-calculator-ddjsq-el-formData", JSON.parse(JSON.stringify(defaultFormData)))
-const resetFormData = () => {
-  formData.value = JSON.parse(JSON.stringify(defaultFormData))
+const resetFormData = async () => {
+  try {
+    await ElMessageBox.confirm('将重置本页攻守方参数、血量和段数设置。是否继续？', '重置单点计算器', {
+      confirmButtonText: '确认重置', cancelButtonText: '保留数据', type: 'warning',
+    })
+    formData.value = JSON.parse(JSON.stringify(defaultFormData))
+  } catch { /* Cancel keeps the current configuration. */ }
 }
 
 const inputVariables = computed(() => {
@@ -1543,7 +1523,7 @@ const shuoming = ref([
       "（1）默认关联上面的单点伤害计算的段数，也可以手动输入单段伤害。",
       "（2）攻方士兵需要输入数量，默认满血是10只，也可以手动输入为12只。如果想模拟雷马，可将攻方士兵数量填0，在之前的英雄出手段数填40段。",
       "（3）守方士兵需要输入单只兵的血量（注意是单只兵），然后输入一个士兵当前总血量，会自动计算出有多少只兵。默认满血是10只",
-      "（4）加入护盾机制，可以填入护盾值，如果要模拟直击本体，可将守方士兵当前血量填0即没有小兵，护盾就会自动加在英雄本体上。",
+      "（4）加入了护盾机制，可以填入护盾值，如果要模拟直击本体，可将守方士兵当前血量填0即没有小兵，护盾就会自动加在英雄本体上。",
       "（5）最关键的是，需要根据出手速度来调整士兵先于英雄出手多少段，如伊莉娅姐姐用3C，可以设置为士兵先于英雄出手10段。计算器会自动根据伤害分分配段数，可以对比总伤害来调整段数分配更接近实际。",
       "（6）如果士兵有伤害丢失，可以填入士兵丢失的段数（如战损丢失）。",
       "（7）加入动画丢失段数的填写，在伪直击或打护盾单位（经常会有一只兵不打）时，可以利用此功能调整总伤害。",

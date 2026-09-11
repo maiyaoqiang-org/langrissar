@@ -7,6 +7,8 @@ import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue'
 import HideContentButton from '@/components/HideContentButton.vue'
 import PageAgentManager from '@/components/PageAgentManager.vue'
 import RecursiveMenu from '@/components/RecursiveMenu.vue'
+import CalculatorQuickNav from '@/components/calculator-quick-nav.vue'
+import '../styles/calculator-experience.css'
 
 const pageAgentManagerRef = ref(null)
 
@@ -16,6 +18,9 @@ const toggleAgent = () => {
 
 const userStore = useUserStore()
 const router = useRouter()
+const isCalculator = computed(() => ['/pages/ddjsq-el', '/pages/aoejsq-el', '/pages/mbjs-el'].includes(router.currentRoute.value.path))
+const calculatorRoutes = menuRoutes.find(route => route.path === '/jsq').children
+  .filter(route => !route.meta.requiresAuth)
 
 const hasVisibleChildren = (route, user) => {
   if (!route.children || route.children.length === 0) {
@@ -80,8 +85,8 @@ const handleCommand = (command) => {
 </script>
 
 <template>
-  <el-container>
-    <el-aside width="200px">
+  <el-container :class="{ 'calculator-layout': isCalculator }">
+    <el-aside v-if="!isCalculator" width="200px">
       <div class="logo">
         <h2>梦战工具</h2>
       </div>
@@ -92,27 +97,35 @@ const handleCommand = (command) => {
     <el-container>
       <el-header>
         <div class="header-content">
-          <div style="flex-grow: 1"></div>
-          <el-button v-if="userStore.isAuthenticated" type="primary" @click="toggleAgent" style="margin-right: 12px;">
-            {{ pageAgentManagerRef?.isPanelVisible ? '关闭' : '开启' }} Agent
-          </el-button>
-          <el-button v-if="!userStore.user" type="primary" @click="router.push('/pages/login')">登录</el-button>
-          <div class="user-info" v-if="userStore.user">
-            <el-dropdown @command="handleCommand">
-              <div class="avatar-container">
-                <el-avatar :size="32">
-                  {{ userStore.user.username?.charAt(0) }}
-                </el-avatar>
-                <span class="nickname">{{ userStore.user.username }}</span>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
-                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+          <div v-if="isCalculator" class="calculator-brand">梦战工具</div>
+          <template v-else>
+            <div style="flex-grow: 1"></div>
+            <el-button v-if="userStore.isAuthenticated" type="primary" @click="toggleAgent" style="margin-right: 12px;">
+              {{ pageAgentManagerRef?.isPanelVisible ? '关闭' : '开启' }} Agent
+            </el-button>
+            <el-button v-if="!userStore.user" type="primary" @click="router.push('/pages/login')">登录</el-button>
+            <div class="user-info" v-if="userStore.user">
+              <el-dropdown @command="handleCommand">
+                <div class="avatar-container">
+                  <el-avatar :size="32">
+                    {{ userStore.user.username?.charAt(0) }}
+                  </el-avatar>
+                  <span class="nickname">{{ userStore.user.username }}</span>
+                </div>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
+                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+          </template>
+          <nav v-if="isCalculator" class="calculator-navigation" aria-label="计算器">
+            <router-link v-for="item in calculatorRoutes" :key="item.path" :to="item.path">
+              {{ item.meta.title }}
+            </router-link>
+          </nav>
         </div>
       </el-header>
       <el-main id="page-container">
@@ -126,8 +139,9 @@ const handleCommand = (command) => {
       </el-footer>
     </el-container>
   </el-container>
-  <ChangePasswordDialog ref="changePasswordDialogRef" />
-  <PageAgentManager ref="pageAgentManagerRef" />
+  <ChangePasswordDialog v-if="!isCalculator" ref="changePasswordDialogRef" />
+  <CalculatorQuickNav v-if="isCalculator" :key="$route.path" />
+  <PageAgentManager v-if="!isCalculator" ref="pageAgentManagerRef" />
 </template>
 
 <style lang="scss" scoped>
@@ -268,3 +282,6 @@ const handleCommand = (command) => {
   padding: 8px 20px;
 }
 </style>
+
+<style src="@/styles/single-point-visual.css"></style>
+<style src="@/styles/calculator-panel-visual.css"></style>

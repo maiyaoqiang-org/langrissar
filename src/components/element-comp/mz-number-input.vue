@@ -1,6 +1,7 @@
 
 <template>
-  <el-input-number v-bind="$attrs" :size="size" :model-value="showValue" :min="props.min" @change="inputHandler">
+  <el-input-number v-bind="$attrs" :size="size" :disabled="props.disabled"
+    :model-value="props.disabled ? Number(formatCalculatorNumber(showValue)) : showValue" :min="props.min" @change="inputHandler">
     <template
         v-for="[name, slotContent] in Object.entries($slots).filter(([_, slot]) => slot)"
         :key="name"
@@ -19,11 +20,13 @@
 <script setup>
 import {computed,getCurrentInstance} from 'vue'
 import Big from "big.js";
+import { formatCalculatorNumber } from '@/common/calculator-display.mjs'
 const model = defineModel({
   type: Number,
   default:0,
 })
 const props = defineProps({
+  disabled: Boolean,
   min:{
     type:Number,
     default:0

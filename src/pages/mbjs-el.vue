@@ -1,25 +1,23 @@
 <template>
-  <div class="mbjs-el" style="padding:24px;">
-    <el-button class="mb_16" type="primary" @click="resetFormData">重置数据</el-button>
+  <div class="mbjs-el calculator-page" style="padding:24px;">
+    <el-button class="mb_16 panel-button-secondary" :icon="RefreshLeft" @click="resetFormData">重置数据</el-button>
 
-    <div class="mb_16" flex="cross:center main:justify">
+    <div class="mb_16 panel-toolbar" flex="cross:center main:justify">
       <div>
         <el-checkbox v-model="configData.showHero" border  label="英雄" />
         <el-checkbox v-model="configData.showSoldier" border  label="士兵" />
       </div>
       <div>
-        <el-button @click="saveHeroCache">缓存数据</el-button>
-        <el-button type="primary" class="ml_8" @click="loadHeroCache">使用缓存</el-button>
+        <el-button :icon="Collection" @click="saveHeroCache">缓存数据</el-button>
+        <el-button type="primary" plain class="ml_8" :icon="FolderOpened" @click="loadHeroCache">使用缓存</el-button>
       </div>
     </div>
 
     <el-form style="min-width: 600px;" label-width="120px" class="base-el-form" label-position="right" :inline="true"
       :model="formData">
-      <el-card class="mb_16">
-        <template #header>
-          英雄白字区
-        </template>
-        <div flex>
+      <CalculatorSection id="panel-white" data-calculator-section="英雄白字" class="mb_16" title="英雄白字区" :icon="User"
+        :summary="[formData.selected_hero_row, formData.selected_job].filter(Boolean).join(' · ')">
+        <div flex class="panel-flow panel-hero-overview">
           <div flex class="mr_16">
             <div flex-box="0">
               <el-form-item label="选择英雄名">
@@ -48,14 +46,14 @@
               <template v-if="currentSelectedJob">
                 <div flex>
                   <div flex="dir:top cross:center">
-                    <el-image style="width:120px;height:120px;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
+                    <el-image style="width:120px;height:120px;display:block;" :src="formData.selected_hero_row === '自定义英雄' ? zdyLogo : currentSelectedJob?.['英雄头像']" alt="" />
                     <div>
                       {{ currentSelectedJob?.['英雄名'] }}
                     </div>
                   </div>
 
                   <div class="ml_16" flex="dir:top cross:center">
-                    <el-image style="width:40px;height:40px;display:block;" :src="currentSelectedJob?.['occupationPic']"
+                    <el-image style="width:40px;height:40px;display:block;" :src="formData.selected_job === '自定义' ? zdyZY : currentSelectedJob?.['occupationPic']"
                       alt="" />
                     <div>
                       {{ currentSelectedJob?.['occupation'] }}
@@ -69,7 +67,7 @@
             </div>
 
           </div>
-          <div v-show="configData.showHero">
+          <div v-show="configData.showHero" class="panel-white-values">
             <el-form-item label=" ">
               <el-checkbox v-model="formData.bz_input_can_edit" label="是否自定义白字"></el-checkbox>
             </el-form-item>
@@ -86,26 +84,21 @@
             </template>
           </div>
         </div>
-      </el-card>
+      </CalculatorSection>
 
-      <el-card class="mb_16">
-        <template #header>
-          <div flex="cross:center">
-            <div>
-              神契设置区
+      <CalculatorSection id="panel-covenant" data-calculator-section="神契设置" class="mb_16" title="神契设置区" :icon="Connection"
+        summary="已保留晨曦之祝加成与神契设置，展开可继续调整。">
+        <template #actions>
+            <div class="panel-actions" style="margin-left: auto;">
+              <el-button type="primary" :icon="MagicStick" @click="set_sq_cxzz_max">一键点满</el-button>
+              <el-button class="panel-button-secondary" :icon="RefreshLeft" @click="reset_sq_cxzz">重置数据</el-button>
+              <el-button :icon="Download" @click="export_sq_cxzz">导出神契设置</el-button>
+              <el-button :icon="Upload" @click="import_sq_cxzz">导入神契设置</el-button>
             </div>
-            <div style="margin-left: auto;">
-              <el-button type="success" @click="set_sq_cxzz_max">一键点满</el-button>
-              <el-button type="warning" @click="reset_sq_cxzz">重置数据</el-button>
-              <el-button @click="export_sq_cxzz">导出神契设置</el-button>
-              <el-button type="primary" @click="import_sq_cxzz">导入神契设置</el-button>
-            </div>
-          </div>
-
         </template>
         <div>
-          <el-form-item label="筛选神契">
-            <el-select style="min-width:300px;" v-model="sq_filter_data" filterable multiple clearable>
+          <el-form-item label="筛选神契" class="panel-covenant-filter">
+            <el-select style="min-width:300px;" v-model="sq_filter_data" placeholder="选择神契" filterable multiple clearable>
               <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index" :label="item">
                 <div flex="cross:center">
                   <el-image class="mr_16" style="width:30px;height:30px;" :src="sq_slsb_dict[item].image" />
@@ -118,13 +111,14 @@
           </el-form-item>
 
         </div>
-        <el-table border size="small" :row-class-name="tableRowClassName" :data="sq_slsb_show_table">
+        <calculator-scroll-table label="神契属性表">
+        <el-table border size="small" class="panel-edit-table" scrollbar-always-on :row-class-name="tableRowClassName" :data="sq_slsb_show_table">
           <el-table-column v-for="(item, index) in sq_slsb_table_columns" :fixed="item.fixed" :key="index"
-            :width="item.width" :label="item.label" :prop="item.prop">
+            :width="index === 0 ? 112 : Math.max(item.width, 152)" :label="item.label" :prop="item.prop">
             <template #default="scope">
               <template v-if="scope.row?.名称 === '神契晨曦之祝加成' && item.prop !== '名称'">
-                <div style="color:#999;">
-                  最大值{{ item.max }}
+                <div class="panel-input-limit">
+                  最大值{{ formatCalculatorNumber(item.max) }}
                 </div>
                 <mz-number-input style="width:120px;" :max="item.max" v-model="sq_cxzz[item.prop]"
                   :is-percent="item.isPercent" :min="0"></mz-number-input>
@@ -138,8 +132,8 @@
                   </div>
 
                 </div>
-                <span v-else-if="item.isPercent">{{ new Big(scope.row[item.prop]).times(100).toString() }}%</span>
-                <span v-else>{{ scope.row[item.prop] }}</span>
+                <span v-else-if="item.isPercent">{{ formatCalculatorPercent(scope.row[item.prop]) }}</span>
+                <span v-else>{{ formatCalculatorNumber(scope.row[item.prop]) }}</span>
               </template>
 
 
@@ -147,21 +141,20 @@
 
           </el-table-column>
         </el-table>
-      </el-card>
+        </calculator-scroll-table>
+      </CalculatorSection>
 
-      <el-card v-show="configData.showHero" class="mb_16">
-        <template #header>
-          英雄绿字区
-        </template>
+      <CalculatorSection v-show="configData.showHero" id="panel-green" data-calculator-section="装备与绿字加成" class="mb_16"
+        title="英雄绿字区" :icon="MagicStick" summary="装备、附魔、精通等设置已保留，展开可查看与修改。">
 
         <el-tabs model-value="装备" style="min-height: 300px;">
           <el-tab-pane class="item-w-340" label="装备" name="装备">
-            <div style="margin-bottom:16px;">
-              <el-button type="success" @click="set_attack_equip_set">一键设置攻击套装</el-button>
-              <el-button type="primary" @click="set_int_equip_set">一键设置智力套装</el-button>
+            <div class="panel-actions panel-preset-actions" style="margin-bottom:16px;">
+              <el-button type="primary" plain @click="set_attack_equip_set">一键设置攻击套装</el-button>
+              <el-button type="primary" plain @click="set_int_equip_set">一键设置智力套装</el-button>
             </div>
-            <div flex>
-              <div>
+            <div class="panel-equipment-layout">
+              <div class="panel-equipment-list">
                 <template v-for="(formKey, key) in wqFormKey" :key="key">
                   <el-form-item :label="'请选择' + key">
                     <el-select v-model="formData[formKey]" filterable>
@@ -175,16 +168,16 @@
                         </div>
                       </el-option>
                     </el-select>
-                    <div>
-                      <el-image style="width:100px;height:auto;" class="mt_8" :src="wqSelectedObj[key]?.picAddr" alt="" />
-                      <div style="color:#31333f99;">
+                    <div class="panel-equipment-info">
+                      <el-image class="panel-equipment-image" :src="wqSelectedObj[key]?.picAddr" alt="" />
+                      <div class="panel-equipment-name">
                         {{ wqSelectedObj[key]?.equipName }}
                       </div>
-                      <div>
-                        基础加成：<span style="color:green;">{{ wqSelectedObj[key]?.basicBonus }}</span>
+                      <div class="panel-equipment-bonus">
+                        基础加成：<span>{{ wqSelectedObj[key]?.basicBonus }}</span>
                       </div>
-                      <div>
-                        满级特效：<span class="orange">{{ wqSelectedObj[key]?.specialEffects }}</span>
+                      <div class="panel-equipment-effect">
+                        满级特效：<span>{{ wqSelectedObj[key]?.specialEffects }}</span>
                       </div>
                     </div>
                   </el-form-item>
@@ -193,13 +186,13 @@
 
               </div>
 
-              <div class="green-list" style="max-width:400px;">
+              <div class="green-list panel-equipment-summary">
                 <div class="item" v-for="key in mianbanList" :key="key">
                   <div class="label" style="width:100px;">
                     {{ key }}
                   </div>
                   <div class="value">
-                    +{{ zb_jc[key] }}
+                    +{{ formatCalculatorNumber(zb_jc[key]) }}
                   </div>
                 </div>
               </div>
@@ -208,7 +201,7 @@
 
           </el-tab-pane>
           <el-tab-pane class="item-w-200" label="附魔" name="附魔">
-            <div>
+            <div class="panel-resonance-settings">
               <el-form-item label="第一个共鸣2件套">
                 <el-select class="mb_8" v-model="formData.gm_fm_1" filterable>
                   <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
@@ -220,7 +213,7 @@
                     </div>
                   </el-option>
                 </el-select>
-                <div flex="cross:center main:center" style="width:100%;min-height:50px;">
+                <div class="panel-resonance-images" flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm1Selected?.image">
                     <el-image v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
                       :src="gmFm1Selected?.image" />
@@ -238,7 +231,7 @@
                     </div>
                   </el-option>
                 </el-select>
-                <div flex="cross:center main:center" style="width:100%;min-height:50px;">
+                <div class="panel-resonance-images" flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm2Selected?.image">
                     <el-image v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
                       :src="gmFm2Selected?.image" alt="" />
@@ -248,15 +241,16 @@
             </div>
             <base-divider></base-divider>
 
-            <el-table :data="fmShowData">
-              <el-table-column v-for="(item, index) in fmInputTableColumns" :key="index" :width="item.width"
+            <calculator-scroll-table label="附魔属性表">
+            <el-table :data="fmShowData" class="panel-edit-table" scrollbar-always-on>
+              <el-table-column v-for="(item, index) in fmInputTableColumns" :key="index" :width="index === 0 ? item.width : Math.max(item.width, 152)"
                 :fixed="item.fixed" :label="item.label" :prop="item.prop">
                 <template #header>
-                  <div style="text-align: center;">
+                  <div class="panel-column-heading">
                     <div>{{ item.label }}</div>
-                    <div v-if="item.label !== '部位'" style="margin-top: 4px;">
-                      <el-button size="small" type="success" @click.stop="set_fm_column_max(item)">点满</el-button>
-                      <el-button size="small" type="warning" @click.stop="reset_fm_column(item)">重置</el-button>
+                    <div v-if="item.label !== '部位'" class="panel-column-actions">
+                      <el-button size="small" type="primary" plain @click.stop="set_fm_column_max(item)">点满</el-button>
+                      <el-button size="small" class="panel-button-secondary" @click.stop="reset_fm_column(item)">重置</el-button>
                     </div>
                   </div>
                 </template>
@@ -275,11 +269,12 @@
                 </template>
               </el-table-column>
             </el-table>
+            </calculator-scroll-table>
 
 
           </el-tab-pane>
           <el-tab-pane label="职业精通" name="职业精通">
-            <div flex="cross:top">
+            <div flex="cross:top" class="panel-settings-split">
               <el-form-item style="display: unset;" label-position="top" label="职业精通是否满值">
                 <el-radio-group v-model="formData.zyjt_input_can_edit">
                   <el-radio :value="false" label="默认满" />
@@ -287,7 +282,7 @@
                   <el-radio :value="true" label="自定义" />
                 </el-radio-group>
               </el-form-item>
-              <div>
+              <div class="panel-field-grid">
                 <el-form-item v-for="(item, index) in mianbanList" :key="index" :label="item + '-职业精通'">
                   <mz-input :disabled="!formData.zyjt_input_can_edit" :prop="item" :formData="formData.zyjt"></mz-input>
                 </el-form-item>
@@ -296,7 +291,7 @@
 
           </el-tab-pane>
           <el-tab-pane label="铸纹" name="铸纹">
-            <div flex="cross:top">
+            <div flex="cross:top" class="panel-settings-split">
               <el-form-item class="item-w-200" style="display: unset;" :label-width="200" label-position="top"
                 label="选择铸纹类型（默认满级）">
                 <el-radio-group v-model="formData.zw_input_can_edit">
@@ -305,8 +300,8 @@
                   <el-radio :value="true" label="自定义铸纹" />
                 </el-radio-group>
               </el-form-item>
-              <div>
-                <el-form-item v-for="(item, index) in mianbanList" :key="index" :label="item + '-职业精通'">
+              <div class="panel-field-grid">
+                <el-form-item v-for="(item, index) in mianbanList" :key="index" :label="item + '-铸纹'">
                   <mz-input :disabled="!formData.zw_input_can_edit" :prop="item" :formData="formData.zw"></mz-input>
                 </el-form-item>
               </div>
@@ -314,7 +309,7 @@
           </el-tab-pane>
           <el-tab-pane label="神契" name="神契">
             <div flex>
-              <div style="width:400px;">
+              <div class="panel-width-block" style="width:400px;">
                 <div class="error mb_16" style="font-size: 20px;">
                   请提前在「神契设置区」设置好神契
                 </div>
@@ -344,7 +339,7 @@
                     {{ key }}
                   </div>
                   <div class="value">
-                    +{{ sq_zjc[key] }}
+                    +{{ formatCalculatorNumber(sq_zjc[key]) }}
                   </div>
                 </div>
                 <div class="item" v-for="key in sqPercentList" :key="key">
@@ -352,7 +347,7 @@
                     {{ key }}
                   </div>
                   <div class="value">
-                    +{{ round(sq_zjc[key] * 100, 3) }}%
+                    +{{ formatCalculatorPercent(sq_zjc[key]) }}
                   </div>
                 </div>
               </div>
@@ -361,7 +356,7 @@
 
           </el-tab-pane>
           <el-tab-pane label="圣镜" name="圣镜">
-            <div flex="cross:top">
+            <div flex="cross:top" class="panel-settings-split">
               <div>
                 <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
                   <el-radio-group v-model="formData.sjjc_input_can_edit">
@@ -375,16 +370,16 @@
                 </el-button>
               </div>
               <div>
-                <div v-if="configData.showHero">
-                  <el-form-item label-width="200px" v-for="(item, key) in sjjc_yx_max" :key="key" :label="key+'(最大值'+item+')'">
+                <div v-if="configData.showHero" class="panel-field-grid">
+                  <el-form-item label-width="200px" v-for="(item, key) in sjjc_yx_max" :key="key" :label="key+'(最大值'+formatCalculatorNumber(item)+')'">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
                                      v-model="formData.sjjc[key]" :max="(item||item===0)?item:Infinity"></mz-number-input>
                   </el-form-item>
                 </div>
 
-                <div v-if="configData.showSoldier">
-                  <el-form-item label-width="200px" v-for="(item, key) in sjjc_sb_max" :key="key" :label="key+'(最大值'+item*100+'%)'">
+                <div v-if="configData.showSoldier" class="panel-field-grid">
+                  <el-form-item label-width="200px" v-for="(item, key) in sjjc_sb_max" :key="key" :label="key+'(最大值'+formatCalculatorPercent(item)+')'">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
                                      :is-percent="true"
@@ -401,7 +396,7 @@
                   {{ key }}
                 </div>
                 <div class="value">
-                  +{{ item }}
+                  +{{ formatCalculatorNumber(item) }}
                 </div>
               </div>
             </div>
@@ -409,8 +404,8 @@
           </el-tab-pane>
         </el-tabs>
 
-      </el-card>
-      <el-card v-show="configData.showSoldier&&!configData.showHero" class="mb_16">
+      </CalculatorSection>
+      <el-card v-show="configData.showSoldier&&!configData.showHero" id="panel-soldier-boost" data-calculator-section="士兵加成设置" class="mb_16">
         <template #header>
           士兵加成设置
         </template>
@@ -418,7 +413,7 @@
         <el-tabs model-value="神契" style="min-height: 300px;">
           <el-tab-pane label="神契" name="神契">
             <div flex>
-              <div style="width:400px;">
+              <div class="panel-width-block" style="width:400px;">
                 <div class="error mb_16" style="font-size: 20px;">
                   请提前在「神契设置区」设置好神契
                 </div>
@@ -448,7 +443,7 @@
                     {{ key }}
                   </div>
                   <div class="value">
-                    +{{ sq_zjc[key] }}
+                    +{{ formatCalculatorNumber(sq_zjc[key]) }}
                   </div>
                 </div>
                 <div class="item" v-for="key in sqPercentList" :key="key">
@@ -456,7 +451,7 @@
                     {{ key }}
                   </div>
                   <div class="value">
-                    +{{ round(sq_zjc[key] * 100, 3) }}%
+                    +{{ formatCalculatorPercent(sq_zjc[key]) }}
                   </div>
                 </div>
               </div>
@@ -465,7 +460,7 @@
 
           </el-tab-pane>
           <el-tab-pane label="圣镜" name="圣镜">
-            <div flex="cross:top">
+            <div flex="cross:top" class="panel-settings-split">
               <div>
                 <el-form-item style="display: unset;" label-position="top" label="圣镜是否满值">
                   <el-radio-group v-model="formData.sjjc_input_can_edit">
@@ -479,7 +474,7 @@
                 </el-button>
               </div>
               <div>
-                <div v-if="configData.showHero">
+                <div v-if="configData.showHero" class="panel-field-grid">
                   <el-form-item v-for="(item, key) in sjjc_yx_max" :key="key" :label="key">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
@@ -487,7 +482,7 @@
                   </el-form-item>
                 </div>
 
-                <div v-if="configData.showSoldier">
+                <div v-if="configData.showSoldier" class="panel-field-grid">
                   <el-form-item v-for="(item, key) in sjjc_sb_max" :key="key" :label="key">
                     <mz-number-input style="width:100px;"
                                      :disabled="!formData.sjjc_input_can_edit"
@@ -504,22 +499,24 @@
 
       <el-card v-show="configData.showHero" class="mb_16">
         <template #header>英雄绿字加成统计表</template>
-        <el-table class="mb_16" :data="lzTotalTableData">
+        <calculator-scroll-table label="英雄绿字加成统计表" hint="左右滑动，查看其余加成">
+        <el-table class="mb_16" :data="lzTotalTableData" stripe scrollbar-always-on>
           <el-table-column v-for="(item, index) in lzTotalTableColumns" :prop="item.prop" :label="item.label"
-            :key="index">
+            :key="index" :min-width="index === 0 ? 80 : 112" :fixed="index === 0 ? 'left' : false">
             <template v-slot="scope" v-if="item.prop === 'fm_bfb*bz'">
               {{ round(Number(scope.row[item.prop]), 1) || '-' }}
             </template>
           </el-table-column>
         </el-table>
+        </calculator-scroll-table>
         <div flex>
           <el-image v-if="currentSelectedJob" style="width:120px;height:120px;margin:16px;display:block;"
-            :src="currentSelectedJob?.['英雄头像']" alt="" />
+            :src="formData.selected_hero_row === '自定义英雄' ? zdyLogo : currentSelectedJob?.['英雄头像']" alt="" />
           <div style="margin-left:32px;">
-            <div v-for="key in mianbanList" :key="key" style="font-weight: bold;font-size: 24px;">
+            <div class="panel-result-text" v-for="key in mianbanList" :key="key">
               {{ key }}：
-              {{ formData.bz[key] }}
-              <span class="green" style="font-size: 24px;"> + {{ lz[key] }}</span>
+              {{ formatCalculatorNumber(formData.bz[key]) }}
+              <span class="green panel-result-text"> + {{ formatCalculatorNumber(lz[key]) }}</span>
             </div>
           </div>
           <!-- <div class="green-list" style="max-width:400px;">
@@ -529,11 +526,11 @@
               </div>
               <div class="value" flex style="gap:8px;">
                 <div style="color:#333;">
-                  {{ formData.bz[key] }}
+                  {{ formatCalculatorNumber(formData.bz[key]) }}
                 </div>
                 <div>+</div>
                 <div>
-                  {{ lz[key] }}
+                  {{ formatCalculatorNumber(lz[key]) }}
                 </div>
               </div>
             </div>
@@ -542,19 +539,20 @@
 
       </el-card>
 
-      <el-card v-show="configData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" id="panel-battle-settings" data-calculator-section="英雄战场设置" class="mb_16">
         <template #header>
           英雄战场面板模拟
         </template>
 
-        <div flex style="gap:16px;">
+        <div flex class="panel-card-pair" style="gap:16px;">
           <el-card>
             <template #header>
               英雄的白+绿面板
             </template>
-            <div style="width: 500px;">
+            <div class="panel-width-block" style="width: 500px;">
               <el-checkbox class="mb_16" v-model="formData.sdsr_pd"
-                label="默认关联读取以上英雄模拟结果 (想手动输入 进行下面模拟 就取消勾选)"></el-checkbox>
+                label="关联以上英雄模拟结果"></el-checkbox>
+              <p class="calculator-field-help">取消勾选后，可手动输入白字与绿字合计。</p>
               <br>
               <template v-for="(item, index) in mianbanList" :key="index">
                 <el-form-item :label="item">
@@ -568,8 +566,9 @@
             <template #header>
               英雄竞技精通区
             </template>
-            <div style="width:500px;">
-              <el-checkbox class="mb_16" v-model="formData.jjjt_sfm" label="竞技精通是否满值 (想手动输入 就取消勾选)"></el-checkbox>
+            <div class="panel-width-block" style="width:500px;">
+              <el-checkbox class="mb_16" v-model="formData.jjjt_sfm" label="竞技精通满值"></el-checkbox>
+              <p class="calculator-field-help">取消勾选后，可手动输入竞技精通。</p>
               <br>
               <template v-for="(item, index) in mianbanList" :key="index">
                 <el-form-item :label="item">
@@ -583,7 +582,7 @@
 
       </el-card>
 
-      <el-card v-show="configData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" id="panel-hero-bonuses" data-calculator-section="英雄战场加成" class="mb_16">
         <el-form-item label="是否竞技场">
           <el-radio-group v-model="formData.jjc_pd">
             <el-radio :value="true">是</el-radio>
@@ -639,27 +638,27 @@
         </el-table> -->
 
         <el-tabs model-value="装备特效">
-          <el-tab-pane v-for="item in zc_jc_Tablecolumn.filter(i => i.label !== '总加成')" :key="item.label"
+          <el-tab-pane v-for="item in zc_jc_Tablecolumn.filter(i => i.label.trim() && i.label !== '总加成')" :key="item.label"
             :name="item.label" :label="item.label">
-            <div flex="main:left">
+            <div flex="main:left" class="panel-bonus-layout">
               <div style="flex: 1;">
-                <div class="mb_16" style="font-weight: bold;">{{ item.label }}</div>
+                <div class="mb_16 panel-detail-heading">{{ item.label }}</div>
 
-                <div flex>
+                <div class="panel-bonus-details">
                   <!-- 添加装备特效展示区域 -->
                   <template v-if="item.label === '装备特效'">
-                    <div style="margin-right:32px;">
+                    <div class="panel-effect-descriptions">
                       <div v-for="(wq, key) in wqSelectedObj" :key="key" class="mb_16">
                         <div flex="cross:center" class="mb_8">
                           <el-image v-if="wq?.picAddr" :src="wq.picAddr"
                             style="width: 40px;height:auto; margin-right: 8px;" />
-                          <div style="font-weight: bold;">{{ key }}：{{ wq?.装备名称 }}</div>
+                          <div class="panel-detail-heading">{{ key }}：{{ wq?.装备名称 }}</div>
                         </div>
                         <div>特效：<span class="orange">{{ wq?.specialEffects }}</span></div>
                       </div>
                     </div>
                   </template>
-                  <div>
+                  <div class="panel-bonus-values">
                     <div v-for="row in zc_jc_tableData" :key="row.prop" class="mb_16">
                       <div flex="cross:center">
                         <span style="width: 100px;">{{ row.prop }}：</span>
@@ -694,8 +693,8 @@
               </div>
 
               <!-- 总加成固定在右侧 -->
-              <div style="width: 200px; margin-left: 24px; border-left: 1px solid #eee; padding-left: 24px;">
-                <div class="mb_16" style="font-weight: bold;">总加成</div>
+              <div class="panel-bonus-total" style="width: 200px; margin-left: 24px; border-left: 1px solid #eee; padding-left: 24px;">
+                <div class="mb_16 panel-detail-heading">总加成</div>
                 <div v-for="row in zc_jc_tableData" :key="row.prop" class="mb_16">
                   <div flex="main:justify cross:center">
                     <span style="width: 100px;">{{ row.prop }}：</span>
@@ -713,7 +712,7 @@
         <el-collapse>
           <el-collapse-item title="是否存在 攻转防 防转攻" name="1">
             <div flex style="gap:8px;">
-              <div style="width:400px;">
+              <div class="panel-width-block" style="width:400px;">
                 <el-form-item>
                   <el-checkbox v-model="formData.zh_pd_fj" label="增加到某属性"></el-checkbox>
                 </el-form-item>
@@ -737,7 +736,7 @@
                 </div>
               </div>
 
-              <div style="width:400px;">
+              <div class="panel-width-block" style="width:400px;">
                 <el-form-item>
                   <el-checkbox v-model="formData.zh_pd_dt" label="代替某属性"></el-checkbox>
                 </el-form-item>
@@ -765,68 +764,32 @@
         </el-collapse>
       </el-card>
 
-      <el-card v-show="configData.showHero" class="mb_16">
+      <el-card v-show="configData.showHero" id="panel-hero-result" data-calculator-section="英雄战场结果" data-calculator-result class="mb_16 panel-final-card">
         <template #header>
-          英雄的战场面板
-        </template>
-        <div flex>
-          <div>
-
+          <div class="panel-result-heading">
+            <h2>英雄的战场面板</h2>
           </div>
-          <div class="green-list total" flex>
-            <div>
-              <div class="item" v-for="key in ['生命']" :key="key">
-                <div class="label">
-                  {{ key }}：
-                </div>
-                <div class="value" flex style="gap:8px;">
-                  <show-up :value="yx_zdmb_zz[key]"
-                    :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
-                </div>
-              </div>
-              <el-image v-if="currentSelectedJob" class="mr_16" style="width:120px;height:120px;display:block;"
-                :src="currentSelectedJob?.['英雄头像']" alt="" />
+        </template>
+        <CalculatorInputNotice />
+        <div class="panel-final-grid">
+          <div class="panel-hero-identity">
+            <div class="panel-final-metric" data-stat="生命">
+              <span class="panel-stat-label">生命：</span>
+              <show-up class="panel-stat-value" :value="yx_zdmb_zz['生命']"
+                :show-class="(zd_zjc['生命'] > 0 || yx_sx_zhl['生命'] != 0) ? 'up' : zd_zjc['生命'] < 0 ? 'down' : ''"></show-up>
             </div>
-            <div>
-              <div flex>
-                <div class="item" v-for="key in ['攻击', '智力']" :key="key">
-                  <div class="label">
-                    {{ key }}：
-                  </div>
-                  <div class="value" flex style="gap:8px;">
-                    <show-up :value="yx_zdmb_zz[key]"
-                      :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
-                  </div>
-                </div>
-              </div>
-              <div flex>
-                <div class="item" v-for="key in ['防御', '魔防']" :key="key">
-                  <div class="label">
-                    {{ key }}：
-                  </div>
-                  <div class="value" flex style="gap:8px;">
-                    <show-up :value="yx_zdmb_zz[key]"
-                      :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
-                  </div>
-                </div>
-              </div>
-              <div flex>
-                <div class="item" v-for="key in ['技巧']" :key="key">
-                  <div class="label">
-                    {{ key }}：
-                  </div>
-                  <div class="value" flex style="gap:8px;">
-                    <show-up :value="yx_zdmb_zz[key]"
-                      :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <el-image v-if="currentSelectedJob" class="panel-hero-avatar"
+              :src="formData.selected_hero_row === '自定义英雄' ? zdyLogo : currentSelectedJob?.['英雄头像']" alt="" />
+          </div>
+          <div class="panel-final-metric" v-for="key in ['攻击', '智力', '防御', '魔防', '技巧']" :key="key" :data-stat="key">
+            <span class="panel-stat-label">{{ key }}：</span>
+            <show-up class="panel-stat-value" :value="yx_zdmb_zz[key]"
+              :show-class="(zd_zjc[key] > 0 || yx_sx_zhl[key] != 0) ? 'up' : zd_zjc[key] < 0 ? 'down' : ''"></show-up>
           </div>
         </div>
 
         <el-divider />
-        <div style="margin:0 24px;">
+        <div class="panel-heart-effects">
           <h3>英雄大心效果</h3>
           <div class="mt_8">
             心之羁绊4：<span class="orange">{{ currentSelectedJob?.['心之羁绊4'] }}</span>
@@ -837,7 +800,7 @@
         </div>
       </el-card>
 
-      <el-card v-show="configData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" id="panel-soldier" data-calculator-section="士兵选择" class="mb_16">
         <template #header>
           士兵初始值区
         </template>
@@ -854,28 +817,28 @@
           <div style="display: flex;">
             <div class="mt_16" style="width:150px;display: flex;align-items: center;flex-direction: column;">
               <el-image style="width:100%;height:auto;" :src="sb_selected_row?.['图片地址']" alt="" />
-              <div style="color:#999;">
+              <div class="panel-identity-caption">
                 {{ sb_selected_row?.["士兵名"] }}
               </div>
             </div>
 
             <div class="ml_24">
               <h3>
-                生命：{{ formData?.sb_cs?.["生命"] }}
+                生命：{{ formatCalculatorNumber(formData?.sb_cs?.["生命"]) }}
               </h3>
               <h3>
-                攻击：{{ formData?.sb_cs?.["攻击"] }}
+                攻击：{{ formatCalculatorNumber(formData?.sb_cs?.["攻击"]) }}
               </h3>
               <h3>
-                防御：{{ formData?.sb_cs?.["防御"] }}
+                防御：{{ formatCalculatorNumber(formData?.sb_cs?.["防御"]) }}
               </h3>
               <h3>
-                魔防：{{ formData?.sb_cs?.["魔防"] }}
+                魔防：{{ formatCalculatorNumber(formData?.sb_cs?.["魔防"]) }}
               </h3>
             </div>
           </div>
 
-          <div class="mt_24">
+          <div class="mt_24 panel-soldier-description">
             <div>
               士兵等级：<span class="orange">{{ sb_selected_row?.["等级"] }}</span>
             </div>
@@ -896,9 +859,10 @@
             请提前在「神契设置区」设置好神契
           </div>
           <el-form-item label="">
-            <el-checkbox v-model="formData.sbsq_sdsr_pd" label="默认关联读取此前神契设置区的加成 (想手动输入神契加成 就取消勾选)"></el-checkbox>
+            <el-checkbox v-model="formData.sbsq_sdsr_pd" label="关联神契设置区加成"></el-checkbox>
           </el-form-item>
-          <div style="width:1000px;">
+          <p class="calculator-field-help">取消勾选后，可手动输入士兵神契加成。</p>
+          <div class="panel-width-block panel-field-grid" style="width:1000px;">
             <el-form-item label-width="180px" v-for="(item, index) in ['士兵生命', '士兵攻击', '士兵防御', '士兵魔防']" :key="index"
               :label="item + (!formData.sbsq_sdsr_pd ? '最大值24%' : '')">
               <mz-percent-input :disabled="formData.sbsq_sdsr_pd" :prop="item"
@@ -915,17 +879,18 @@
         </template>
         <div>
           <el-form-item label="">
-            <el-checkbox v-model="formData.yxbx_sdsr_pd" label="默认关联读取以上英雄模拟结果 (想手动输入 就取消勾选)"></el-checkbox>
+            <el-checkbox v-model="formData.yxbx_sdsr_pd" label="关联以上英雄兵修"></el-checkbox>
           </el-form-item>
+          <p class="calculator-field-help">取消勾选后，可手动输入英雄兵修。</p>
           <br>
           <el-form-item label="">
             <el-checkbox v-model="formData.yxbx_sffmxh_pd" label="「薪火」附魔"></el-checkbox>
           </el-form-item>
-          <div v-if="formData.yxbx_sdsr_pd && formData.selected_hero_row !== '自定义英雄'"
+          <div class="panel-width-block panel-wide-row" v-if="formData.yxbx_sdsr_pd && formData.selected_hero_row !== '自定义英雄'"
             style="width:1000px;display: flex;">
             <div style="width:90px;margin-top: 24px;">
-              <el-image style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
-              <div style="color:#999;text-align: center;">
+              <el-image style="width:100%;height:auto;display:block;" :src="formData.selected_hero_row === '自定义英雄' ? zdyLogo : currentSelectedJob?.['英雄头像']" alt="" />
+              <div class="panel-identity-caption" style="text-align: center;">
                 {{ currentSelectedJob?.['英雄名'] }}
               </div>
             </div>
@@ -936,7 +901,7 @@
               </h3>
             </div>
           </div>
-          <div v-else style="width:1000px;">
+          <div class="panel-width-block panel-field-grid" v-else style="width:1000px;">
             <el-form-item label-width="180px" v-for="(item, index) in ['兵修生命', '兵修攻击', '兵修防御', '兵修魔防']" :key="index"
               :label="item">
               <mz-percent-input style="width:150px;" :prop="item" :form-data="formData.yx_bx_jc_yx"></mz-percent-input>
@@ -952,24 +917,24 @@
         <template #header>
           士兵白字区
         </template>
-        <div style="width:1000px;display: flex;">
+        <div class="panel-width-block panel-wide-row" style="width:1000px;display: flex;">
           <div style="width:90px;">
-            <el-image style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
-            <div style="color:#999;text-align: center;">
+            <el-image style="width:100%;height:auto;display:block;" :src="formData.selected_hero_row === '自定义英雄' ? zdyLogo : currentSelectedJob?.['英雄头像']" alt="" />
+            <div class="panel-identity-caption" style="text-align: center;">
               {{ currentSelectedJob?.['英雄名'] }}
             </div>
           </div>
           <div style="width:130px;">
             <el-image style="width:100%;height:auto;display:block;margin-right: 16px;" :src="sb_selected_row?.['图片地址']" alt="" />
-            <div style="color:#999;text-align: center;">
+            <div class="panel-identity-caption" style="text-align: center;">
               {{ sb_selected_row?.['士兵名'] }}
             </div>
           </div>
           <div style="margin-left: 60px;">
-            <div v-for="(item, key) in sb_bz" :key="key" style="font-weight: bold;font-size: 24px;">
+            <div class="panel-result-text" v-for="(item, key) in sb_bz" :key="key">
               {{ key }}：
               {{ round(item, 2) }}
-              <span class="green" style="font-size: 24px;"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
+              <span class="green panel-result-text"> + {{ round(sb_bz[key] * formData.yx_bx_jc?.['兵修' + key], 2)
               }}（{{ round(formData.yx_bx_jc?.["兵修" + key] * 100) }}%）</span>
             </div>
           </div>
@@ -977,9 +942,9 @@
 
       </el-card>
 
-      <el-card v-show="configData.showSoldier" class="mb_16">
-        <div style="width:1000px;display: flex;">
-          <div style="width:400px;">
+      <el-card v-show="configData.showSoldier" id="panel-soldier-bonuses" data-calculator-section="士兵战场加成" class="mb_16">
+        <div class="panel-width-block panel-wide-row" style="width:1000px;display: flex;">
+          <div class="panel-width-block" style="width:400px;">
             <el-form-item label-width="140" label="是否竞技场">
               <el-radio-group v-model="formData.sbjjc_pd">
                 <el-radio :value="true">是</el-radio>
@@ -1009,7 +974,7 @@
 
           </div>
 
-          <div class="ml_24" style="width:400px;">
+          <div class="ml_24 panel-width-block" style="width:400px;">
             <h3>
               战场其他加成
             </h3>
@@ -1043,13 +1008,13 @@
         <template #header>
           士兵战场总加成
         </template>
-        <div style="width:1000px;display: flex;font-size: 25px;">
-          <div style="width:400px;">
+        <div class="panel-width-block panel-result-text panel-wide-row panel-soldier-bonuses" style="width:1000px;display: flex;font-size: 25px;">
+          <div class="panel-width-block" style="width:400px;">
             <div style="display: flex;" v-for="(item, index) in ['生命', '攻击', '防御', '魔防']" :key="index">
               {{ item }}：<ShowUp :value="sb_zd_zjc[item]" :isPercent="true"></ShowUp>
             </div>
           </div>
-          <div style="width:400px;">
+          <div class="panel-width-block" style="width:400px;">
             <div style="display: flex;" v-for="(item, index) in ['生命克制修正', '攻击克制修正', '智力克制修正', '防御克制修正', '魔防克制修正']"
               :key="index">
               {{ item }}：<ShowUp :value="sb_zd_zjc[item]" :isPercent="true"></ShowUp>
@@ -1058,59 +1023,62 @@
         </div>
       </el-card>
 
-      <el-card v-show="configData.showSoldier" class="mb_16">
+      <el-card v-show="configData.showSoldier" id="panel-soldier-result" data-calculator-section="士兵战场结果" data-calculator-result class="mb_16 panel-final-card">
         <template #header>
-          士兵战场面板
+          <div class="panel-result-heading"><h2>士兵战场面板</h2></div>
         </template>
-        <div style="width:1000px;display: flex;">
-          <div style="width:90px;">
-            <el-image style="width:100%;height:auto;display:block;" :src="currentSelectedJob?.['英雄头像']" alt="" />
-            <div style="color:#999;text-align: center;">
-              {{ currentSelectedJob?.['英雄名'] }}
+        <div class="panel-soldier-result">
+        <CalculatorInputNotice />
+        <div class="panel-result-identities">
+            <div class="panel-result-identity panel-result-identity--soldier">
+              <el-image class="panel-result-avatar" :src="sb_selected_row?.['图片地址']" alt="" />
+              <div class="panel-result-identity-copy">
+                <span class="panel-result-role">当前士兵</span>
+                <strong class="panel-result-name">{{ sb_selected_row?.['士兵名'] || '请选择士兵' }}</strong>
+              </div>
             </div>
-          </div>
-          <div class="ml_8" style="width:130px;">
-            <el-image style="width:100%;height:auto;display:block;" :src="sb_selected_row?.['图片地址']" alt="" />
-            <div style="color:#999;text-align: center;">
-              {{ sb_selected_row?.['士兵名'] }}
+            <div class="panel-result-identity panel-result-identity--hero">
+              <span class="panel-result-role">搭配英雄</span>
+              <el-image class="panel-result-avatar" :src="formData.selected_hero_row === '自定义英雄' ? zdyLogo : currentSelectedJob?.['英雄头像']" alt="" />
+              <span class="panel-result-name">{{ currentSelectedJob?.['英雄名'] || formData.selected_hero_row || '未选择英雄' }}</span>
             </div>
           </div>
 
-          <div class="ml_24" style="font-size: 25px;">
+          <div class="panel-soldier-result-content">
             <el-tabs model-value="不考虑克制" style="min-height: 300px;">
-              <el-tab-pane label="不考虑克制" name="不考虑克制">
-                <div style="display: flex;font-size: 28px;line-height: 2;font-weight: bold;"
+              <el-tab-pane class="panel-formula-list" label="不考虑克制" name="不考虑克制">
+                <div class="panel-formula-row"
                   v-for="(item, index) in ['生命', '攻击', '防御', '魔防']" :key="index">
-                  {{ item }}：
-                  <ShowUp :judgeValue="sb_zd_zjc[item]" :isPercent="false">
-                    {{ round(sb_zdmb[item], 1) }} <span style="font-size: 26px;">+ {{
+                  <span class="panel-stat-label">{{ item }}：</span>
+                  <ShowUp class="panel-formula-detail" :judgeValue="sb_zd_zjc[item]" :isPercent="false">
+                    {{ round(sb_zdmb[item], 1) }} <span>+ {{
                       round(sb_zdmb[item] * formData.yx_bx_jc["兵修" + item], 1)
                       }}（{{ round(formData.yx_bx_jc["兵修" + item] * 100) }}%）</span>
                   </ShowUp>
-                  = {{ round(sb_zdmb[item] * (1 + Number(formData.yx_bx_jc["兵修" + item])), 1) }}
+                  <strong class="panel-formula-total">= {{ round(sb_zdmb[item] * (1 + Number(formData.yx_bx_jc["兵修" + item])), 1) }}</strong>
                 </div>
               </el-tab-pane>
               <el-tab-pane label="考虑克制" name="考虑克制">
-                <div style="font-size: 28px;line-height: 2;">
-                  <div style="font-weight: bold;">
-                    生命：{{ round(sb_zdmb_klkz["生命"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
-                      round(sb_zd_zjc["生命克制修正"] * 100) }}%）</strong>
+                <div class="panel-restraint-results">
+                  <div class="panel-restraint-row">
+                    <span class="panel-stat-label">生命：</span><strong class="panel-stat-value">{{ round(sb_zdmb_klkz["生命"], 1) }}</strong> <span class="panel-restraint-detail">（克制加成{{
+                      round(sb_zd_zjc["生命克制修正"] * 100) }}%）</span>
                   </div>
-                  <div style="font-weight: bold;">
-                    物理攻击：{{ round(sb_zdmb_klkz["物理攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
-                      round(sb_zd_zjc["攻击克制修正"] * 100) }}%）</strong>
+                  <div class="panel-restraint-row">
+                    <span class="panel-stat-label">物理攻击：</span><strong class="panel-stat-value">{{ round(sb_zdmb_klkz["物理攻击"], 1) }}</strong> <span class="panel-restraint-detail">（克制加成{{
+                      round(sb_zd_zjc["攻击克制修正"] * 100) }}%）</span>
                   </div>
-                  <div style="font-weight: bold;">
-                    魔法攻击：{{ round(sb_zdmb_klkz["魔法攻击"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
-                      round(sb_zd_zjc["智力克制修正"] * 100) }}%）</strong>
+                  <div class="panel-restraint-row">
+                    <span class="panel-stat-label">魔法攻击：</span><strong class="panel-stat-value">{{ round(sb_zdmb_klkz["魔法攻击"], 1) }}</strong> <span class="panel-restraint-detail">（克制加成{{
+                      round(sb_zd_zjc["智力克制修正"] * 100) }}%）</span>
                   </div>
-                  <div style="font-weight: bold;">
-                    防御：{{ round(sb_zdmb_klkz["防御"], 1) }} <strong class="green" style="font-size: 20px;">（克制加成{{
-                      round(sb_zd_zjc["防御克制修正"] * 100) }}%）</strong>
+                  <div class="panel-restraint-row">
+                    <span class="panel-stat-label">防御：</span><strong class="panel-stat-value">{{ round(sb_zdmb_klkz["防御"], 1) }}</strong> <span class="panel-restraint-detail">（克制加成{{
+                      round(sb_zd_zjc["防御克制修正"] * 100) }}%）</span>
                   </div>
-                  <div style="font-weight: bold;">
-                    魔防：{{ round(sb_zdmb_klkz["魔防"], 1) }}<strong class="green" style="font-size: 20px;">（克制加成{{
-                      round(sb_zd_zjc["魔防克制修正"] * 100) }}%）</strong>
+                  <div class="panel-restraint-row">
+                    <span class="panel-stat-label">魔防：</span><strong class="panel-stat-value">{{ round(sb_zdmb_klkz["魔防"], 1) }}</strong><span class="panel-restraint-detail">（克制加成{{
+                      round(sb_zd_zjc["魔防克制修正"] * 100) }}%）</span>
                   </div>
                 </div>
               </el-tab-pane>
@@ -1123,15 +1091,14 @@
 
     </el-form>
 
-    <pre style="user-select: text;">
-  使用说明：此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。手机版本可在微信小程序搜“梦战伤害计算器”。
-</pre>
+    <calculator-guide id="panel-guide" data-calculator-section="使用说明">
+      <div class="ddjsq-guide-notes"><p>此计算器搬运了墨源的梦战伤害计算器，一切版权均属于墨源。手机版本可在微信小程序搜“梦战伤害计算器”。</p></div>
+    </calculator-guide>
 
     <!-- 添加回到顶部按钮 -->
-    <el-backtop style="width:32px;height:32px;" target=".el-main" :right="20" :bottom="50" />
 
     <!-- 添加缓存名称输入弹窗 -->
-    <el-dialog v-model="saveDialogVisible" title="保存英雄数据" width="30%">
+    <el-dialog v-model="saveDialogVisible" title="保存英雄数据" width="30%" class="calculator-cache-dialog">
       <el-form>
         <el-form-item label="缓存名称">
           <el-input v-model="cacheName" placeholder="请输入缓存名称"></el-input>
@@ -1146,7 +1113,7 @@
     </el-dialog>
 
     <!-- 添加选择缓存弹窗 -->
-    <el-dialog v-model="loadDialogVisible" title="选择英雄数据" width="30%">
+    <el-dialog v-model="loadDialogVisible" title="选择英雄数据" width="30%" class="calculator-cache-dialog">
       <el-table :data="cacheList" style="width: 100%">
         <el-table-column property="name" label="缓存名称">
           <template #default="scope">
@@ -1173,7 +1140,15 @@
 
 <script setup>
 import { ref, watch, onMounted, computed, watchEffect } from 'vue'
+import CalculatorGuide from '@/components/calculator-guide.vue'
+import CalculatorScrollTable from '@/components/calculator-scroll-table.vue'
+import CalculatorSection from '@/components/calculator-section.vue'
+import CalculatorInputNotice from '@/components/calculator-input-notice.vue'
+import { useCalculatorInputState } from '@/common/calculator-input-state'
+useCalculatorInputState()
+import { Collection, Connection, Download, FolderOpened, MagicStick, RefreshLeft, Upload, User } from '@element-plus/icons-vue'
 import Big from 'big.js'
+import { formatCalculatorNumber, formatCalculatorPercent } from '@/common/calculator-display.mjs'
 import { useRefCache } from "../common/hook";
 import {
   calculateFormula,
@@ -1622,9 +1597,9 @@ const getSjjcDefaultData = async () => {
 }
 const resetFormData = () => {
   // 二次确认
-  ElMessageBox.confirm("是否确认重置",{
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm('将重置英雄和士兵模拟参数。独立神契设置及已存缓存会保留。', '重置面板计算器', {
+    confirmButtonText: '确认重置',
+    cancelButtonText: '保留数据',
     type: 'warning',
   })
   .then(() => {
@@ -1632,7 +1607,7 @@ const resetFormData = () => {
     if (!formData.value.sjjc_input_can_edit) {
       applyResolvedSjjcDefault()
     }
-  })
+  }).catch(() => {})
 }
 
 // 输入框二次转换数据
@@ -1736,8 +1711,13 @@ const sqExcelOption = sqKeyList.map((item) => {
     key: item,
   }
 })
-const reset_sq_cxzz = () => {
-  sq_cxzz.value = getDefaultSqValue()
+const reset_sq_cxzz = async () => {
+  try {
+    await ElMessageBox.confirm('将清空晨曦之祝各项加成。是否继续？', '重置神契加成', {
+      confirmButtonText: '确认重置', cancelButtonText: '保留数据', type: 'warning',
+    })
+    sq_cxzz.value = getDefaultSqValue()
+  } catch { /* Keep the existing values when cancelled. */ }
 }
 const set_sq_cxzz_max = () => {
   const maxMap = sq_slsb_table_columns.reduce((acc, col) => {
@@ -1904,9 +1884,13 @@ const set_fm_column_max = (column) => {
     row[column.prop] = Number.isFinite(v) ? v : 0
   })
 }
-const reset_fm_column = (column) => {
+const reset_fm_column = async (column) => {
   if (!column?.prop || column.label === "部位") return
-
+  try {
+    await ElMessageBox.confirm(`将清空各件装备的「${column.label}」附魔数值。`, '重置此列附魔', {
+      confirmButtonText: '确认重置', cancelButtonText: '保留数据', type: 'warning',
+    })
+  } catch { return }
   formData.value.fm_input?.forEach((row) => {
     row[column.prop] = 0
   })

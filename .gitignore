@@ -12,6 +12,9 @@ node_modules
 dist
 *.local
 
+# Local-only credential supplied for frontend data preview
+/令牌临时密钥调试查看用.txt
+
 # Editor directories and files
 .idea
 *.suo
