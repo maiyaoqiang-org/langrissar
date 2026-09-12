@@ -12,6 +12,8 @@
 
 线上入口：[单点计算器](https://maiyaoqiang.fun/#/pages/ddjsq-el) · [AOE 计算器](https://maiyaoqiang.fun/#/pages/aoejsq-el) · [面板模拟计算器](https://maiyaoqiang.fun/#/pages/mbjs-el)。
 
+手机选择器优化已于同日上线，前端提交 `86f38d4`；[部署记录](https://github.com/maiyaoqiang-org/langrissar/actions/runs/34664954100)、[本次修改记录](docs/2026-09-12-手机选择器优化记录.md)。
+
 ## 本地使用
 
 已安装依赖且已有预览服务时，直接访问以下地址即可。新环境安装依赖后可运行：
