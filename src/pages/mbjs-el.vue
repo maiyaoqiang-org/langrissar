@@ -21,26 +21,11 @@
           <div flex class="mr_16">
             <div flex-box="0">
               <el-form-item label="选择英雄名">
-                <el-select v-model="formData.selected_hero_row" filterable>
-                  <el-option v-for="(item, index) in heroList" :value="item.英雄名" :key="index">
-                      <div style="display: flex;align-items: center;">
-                        <span>{{ item?.英雄名 }}</span>
-                        <el-image style="width: auto; height: 30px;margin-left: auto;" :src="item?.英雄头像" />
-                      </div>
-                  </el-option>
-                </el-select>
+                <CalculatorPicker v-model="formData.selected_hero_row" :options="heroPickerOptions" title="选择英雄" />
               </el-form-item>
               <br>
               <el-form-item label="选择职业">
-                <el-select v-model="formData.selected_job" filterable>
-                  <el-option v-for="(item, index) in currentSelectedHero?.list" :value="item.职业名" :key="index"
-                    :label="item.职业名">
-                    <div style="display: flex;align-items: center;">
-                      <span>{{ item?.职业名 }}</span>
-                      <el-image style="width:auto;height:30px;margin-left: auto;" :src="item?.occupationPic" alt="" />
-                    </div>
-                  </el-option>
-                </el-select>
+                <CalculatorPicker v-model="formData.selected_job" :options="jobPickerOptions" title="选择职业" />
               </el-form-item>
 
               <template v-if="currentSelectedJob">
@@ -98,16 +83,8 @@
         </template>
         <div>
           <el-form-item label="筛选神契" class="panel-covenant-filter">
-            <el-select style="min-width:300px;" v-model="sq_filter_data" placeholder="选择神契" filterable multiple clearable>
-              <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index" :label="item">
-                <div flex="cross:center">
-                  <el-image class="mr_16" style="width:30px;height:30px;" :src="sq_slsb_dict[item].image" />
-                  <div>
-                    {{ item }}
-                  </div>
-                </div>
-              </el-option>
-            </el-select>
+            <CalculatorPicker v-model="sq_filter_data" :options="covenantPickerOptions" title="筛选神契"
+              placeholder="选择神契" multiple clearable />
           </el-form-item>
 
         </div>
@@ -157,17 +134,8 @@
               <div class="panel-equipment-list">
                 <template v-for="(formKey, key) in wqFormKey" :key="key">
                   <el-form-item :label="'请选择' + key">
-                    <el-select v-model="formData[formKey]" filterable>
-                      <el-option v-for="(zbItem, zbIndex) in zbObj[key]" :key="zbIndex" :label="zbItem.装备名称"
-                        :value="zbItem.装备名称">
-                        <div flex="cross:center">
-                          <div>
-                            {{ zbItem.装备名称 }}
-                          </div>
-                          <el-image style="width:auto;height:30px;margin-left: auto;" :src="zbItem.picAddr" alt="" />
-                        </div>
-                      </el-option>
-                    </el-select>
+                    <CalculatorPicker v-model="formData[formKey]" :options="equipmentPickerOptions[key]"
+                      :title="'选择' + key" />
                     <div class="panel-equipment-info">
                       <el-image class="panel-equipment-image" :src="wqSelectedObj[key]?.picAddr" alt="" />
                       <div class="panel-equipment-name">
@@ -203,16 +171,7 @@
           <el-tab-pane class="item-w-200" label="附魔" name="附魔">
             <div class="panel-resonance-settings">
               <el-form-item label="第一个共鸣2件套">
-                <el-select class="mb_8" v-model="formData.gm_fm_1" filterable>
-                  <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
-                    <div flex="cross:center">
-                      <el-image v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="" />
-                      <div>
-                        {{ item.label }}
-                      </div>
-                    </div>
-                  </el-option>
-                </el-select>
+                <CalculatorPicker class="mb_8" v-model="formData.gm_fm_1" :options="fmOptions" title="选择第一个共鸣2件套" />
                 <div class="panel-resonance-images" flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm1Selected?.image">
                     <el-image v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
@@ -221,16 +180,7 @@
                 </div>
               </el-form-item>
               <el-form-item label="第二个共鸣2件套">
-                <el-select class="mb_8" v-model="formData.gm_fm_2" filterable>
-                  <el-option v-for="(item, index) in fmOptions" :key="index" :label="item.label" :value="item.value">
-                    <div flex="cross:center">
-                      <el-image v-if="item.image" class="mr_16" style="width:30px;height:30px;" :src="item.image" alt="" />
-                      <div>
-                        {{ item.label }}
-                      </div>
-                    </div>
-                  </el-option>
-                </el-select>
+                <CalculatorPicker class="mb_8" v-model="formData.gm_fm_2" :options="fmOptions" title="选择第二个共鸣2件套" />
                 <div class="panel-resonance-images" flex="cross:center main:center" style="width:100%;min-height:50px;">
                   <template v-if="gmFm2Selected?.image">
                     <el-image v-for="i in 2" :key="i" style="width:50px;height:50px;margin:0 auto;"
@@ -314,19 +264,7 @@
                   请提前在「神契设置区」设置好神契
                 </div>
                 <el-form-item style="width:100%;" label="请选择神契">
-                  <el-select v-model="formData.selected_sq" filterable clearable>
-                    <el-option value="未携带" label="未携带"></el-option>
-                    <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
-                      :label="item">
-                      <div flex="cross:center">
-                        <el-image v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
-                          :src="sq_slsb_dict[item].image" alt="" />
-                        <div>
-                          {{ item }}
-                        </div>
-                      </div>
-                    </el-option>
-                  </el-select>
+                  <CalculatorPicker v-model="formData.selected_sq" :options="carriedCovenantPickerOptions" title="选择神契" clearable />
                 </el-form-item>
                 <el-form-item label=" ">
                   <el-image v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
@@ -418,19 +356,7 @@
                   请提前在「神契设置区」设置好神契
                 </div>
                 <el-form-item style="width:100%;" label="请选择神契">
-                  <el-select v-model="formData.selected_sq" filterable clearable>
-                    <el-option value="未携带" label="未携带"></el-option>
-                    <el-option v-for="(item, index) in Object.keys(sq_slsb_dict)" :value="item" :key="index"
-                               :label="item">
-                      <div flex="cross:center">
-                        <el-image v-if="sq_slsb_dict[item].image" class="mr_16" style="width:30px;height:30px;"
-                             :src="sq_slsb_dict[item].image" alt="" />
-                        <div>
-                          {{ item }}
-                        </div>
-                      </div>
-                    </el-option>
-                  </el-select>
+                  <CalculatorPicker v-model="formData.selected_sq" :options="carriedCovenantPickerOptions" title="选择神契" clearable />
                 </el-form-item>
                 <el-form-item label=" ">
                   <el-image v-if="sq_slsb_dict[formData.selected_sq]?.image" style="display: block;width:100px;height:100px;"
@@ -805,15 +731,8 @@
           士兵初始值区
         </template>
         <div>
-          <el-cascader filterable v-model="formData.selected_sb_names" :options="df3CascaderOptions"
-            placeholder="请选择士兵">
-            <template #default="{ node, data }">
-              <div style="display: flex;align-items: center;">
-                <span>{{ data.label }}</span>
-                <el-image v-if="node.isLeaf" style="width:auto;height:30px;margin-left: auto;" :src="data?.图片地址" alt="" />
-              </div>
-            </template>
-          </el-cascader>
+          <CalculatorPicker v-model="formData.selected_sb_names" :options="soldierPickerOptions" title="选择士兵"
+            placeholder="请选择士兵" cascader />
           <div style="display: flex;">
             <div class="mt_16" style="width:150px;display: flex;align-items: center;flex-direction: column;">
               <el-image style="width:100%;height:auto;" :src="sb_selected_row?.['图片地址']" alt="" />
@@ -1143,6 +1062,7 @@ import { ref, watch, onMounted, computed, watchEffect } from 'vue'
 import CalculatorGuide from '@/components/calculator-guide.vue'
 import CalculatorScrollTable from '@/components/calculator-scroll-table.vue'
 import CalculatorSection from '@/components/calculator-section.vue'
+import CalculatorPicker from '@/components/calculator-picker.vue'
 import CalculatorInputNotice from '@/components/calculator-input-notice.vue'
 import { useCalculatorInputState } from '@/common/calculator-input-state'
 useCalculatorInputState()
@@ -1399,6 +1319,22 @@ const getSbData = async () => {
 const df3CascaderOptions = computed(() => {
   return transformDataToCascaderFormat(df3.value);
 });
+
+// Picker presentation only. Keep API data, model values and game ordering intact.
+const heroPickerOptions = computed(() => heroList.value.map(item => ({
+  value: item.英雄名, label: item.英雄名, image: item.英雄头像,
+})))
+const jobPickerOptions = computed(() => (currentSelectedHero.value?.list || []).map(item => ({
+  value: item.职业名, label: item.职业名, image: item.occupationPic,
+})))
+const equipmentPickerOptions = computed(() => Object.fromEntries(Object.entries(zbObj.value).map(([key, items]) => [
+  key, items.map(item => ({ value: item.装备名称, label: item.装备名称, image: item.picAddr })),
+])))
+const covenantPickerOptions = Object.keys(sq_slsb_dict).map(value => ({ value, label: value, image: sq_slsb_dict[value].image }))
+const carriedCovenantPickerOptions = [{ value: '未携带', label: '未携带' }, ...covenantPickerOptions]
+const soldierPickerOptions = computed(() => df3CascaderOptions.value.map(group => ({
+  ...group, children: group.children.map(item => ({ ...item, image: item.图片地址 })),
+})))
 const getSbKjData = async () => {
   // df4.value = parseCSVToObjects(sbKjFileData);
   const { list } = await getNocoDbDataAndMapKey('SoldierTechnology', SoldierTechnology_schema.schema)
