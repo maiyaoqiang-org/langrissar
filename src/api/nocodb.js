@@ -2,14 +2,14 @@ import axios from 'axios';
 
 const DEFAULT_NOCODB_BASE_URL = 'https://nocodb.maiyaoqiang.fun/api/v2';
 const DEFAULT_LIST_LIMIT = 1000;
-const DEFAULT_SORT = 'Id';
+const DEFAULT_SORT = '';
 const NOCODB_TOKEN = import.meta.env.VITE_NOCODB_XC_TOKEN
 
 export const NOCODB_TABLES = Object.freeze({
   equipdetail: {
     tableId: 'mxmu6y8ooz33xob',
     viewId: 'vwwdt88v6mh9klm8',
-    defaultSort: '-Id',
+    // defaultSort: '-Id',
     pinFirst: {
       field: 'equipName',
       values: ['武器无', '衣服无', '头饰无', '饰品无'],
@@ -18,7 +18,7 @@ export const NOCODB_TABLES = Object.freeze({
   HeroBasicAttr: {
     tableId: 'm2o1bwbt918ev4l',
     viewId: 'vwni7lg7nsc8vnix',
-    defaultSort: 'Id',
+    // defaultSort: 'Id',
     pinFirst: {
       field: 'heroName',
       values: ['自定义英雄'],
